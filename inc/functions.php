@@ -29,7 +29,7 @@ $pages = [
 	new Beatmaps(),
 ];
 // Set timezone to UTC
-date_default_timezone_set('Europe/Rome');
+date_default_timezone_set('Asia/Makassar');
 // Connect to MySQL Database
 $GLOBALS['db'] = new DBPDO();
 // Birthday

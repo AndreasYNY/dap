@@ -1024,9 +1024,9 @@ class D {
 				$to = "#announce";
 				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
 				$resp = getJsonCurl($requesturl);
-
+	
 				if ($resp["message"] != "ok") {
-					rapLog("failed to send FokaBot message :( err: " . print_r($resp["message"], true));
+				rapLog("failed to send FokaBot message :( err: " . print_r($resp["message"], true));
 				}
 			}
 
@@ -1383,24 +1383,44 @@ class D {
 			// Send a message to #announce
 			if ($status == "rank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
-				$to = "#announce";
-				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
-				$resp = getJsonCurl($requesturl);
+				$msg = "https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . " is now ranked!";
+				
 			} else if ($status == "love") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now loved!";
-				$to = "#announce";
-				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
-				$resp = getJsonCurl($requesturl);
+				$msg = "https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . " is now loved!";
+
 			} else if ($status == "unrank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] just got unranked!";
-				$to = "#announce";
-				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
-				$resp = getJsonCurl($requesturl);
-			}
+				$msg = "https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . " just got unranked!";
 
+			}
+			
+			$discordMessage = array(
+				'content' => $msg,
+				'username' => "Ranked Bot",
+				'avatar_url' => ''
+			);
+			
+			$data_string = json_encode($discordMessage);
+		
+			$curl = curl_init();
+
+			curl_setopt($curl, CURLOPT_URL, 'https://discordapp.com/api/webhooks/700394523812954395/ttwhkESK5wdDW5YnFmF5zZAAX19AdqRwIExY2mOdGplGyTWwYeA20ZnxzW2V2ohSmikq');
+			curl_setopt($curl, CURLOPT_POST, 1);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+
+			$output = curl_exec($curl);
+
+			if (curl_getinfo($curl, CURLINFO_HTTP_CODE) != 204) {
+					die('Caught exception: ' . $output);
+					//or some logging function
+			}
+			curl_close($curl);
+			
 			// Done
 			redirect("index.php?p=117&s=".$result);
 		} catch (Exception $e) {
