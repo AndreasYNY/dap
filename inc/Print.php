@@ -383,13 +383,13 @@ class P {
 				throw new Exception("That user doesn't exist");
 			}
 			// Hax check
-			if ($userData["aqn"] == 1) {
+			/*if ($userData["aqn"] == 1) {
 				$haxText = "Yes";
 				$haxCol = "danger";
 			} else {
 				$haxText = "No";
 				$haxCol = "success";
-			}
+			}*/
 			// Cb check
 			if ($userStatsData["can_custom_badge"] == 1) {
 				$cbText = "Yes";
@@ -606,12 +606,12 @@ class P {
 			<td>Can edit custom badge</td>
 			<td><span class="label label-'.$cbCol.'">'.$cbText.'</span></td>
 			</tr>';
-			echo '<tr class="single-row">
+			/*echo '<tr class="single-row">
 			<td>Detected AQN folder
 				<i class="no-mobile">(If \'yes\', AQN (hax) folder has been detected on this user, so he is probably cheating).</i>
 			</td>
 			<td><span class="label label-'.$haxCol.'">'.$haxText.'</span></td>
-			</tr>';
+			</tr>';*/
 			echo '<tr>
 			<td>Notes for CMs
 			<br>
@@ -2737,7 +2737,16 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			</select>
 			</td>
 			</tr>';
-
+			echo '<tr>
+			<td>PPMODE</td>
+			<td>
+			<select name="ppmode" class="selectpicker" data-width="100%">
+				<option value="1">Vanilla</option>
+				<option value="2">Relax</option>
+			</select>
+			</td>
+			</tr>';
+			
 			echo '</tbody></form>';
 			echo '</table>';
 			echo '<div class="text-center"><button type="submit" form="user-wipe" class="btn btn-primary">Wipe account</button></div>';

@@ -928,18 +928,34 @@ class D {
 					$modes = ['mania'];
 				}
 			}
-
+			
 			// Delete scores
 			if ($_POST["gm"] == -1) {
+				if ($_POST["ppmode"] == 1) {
 				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ?', [$_POST['id']]);
 				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_POST['id']]);
+				} else if ($_POST["ppmode"] == 2) {
+				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_relax WHERE userid = ?', [$_POST['id']]);
+				$GLOBALS['db']->execute('DELETE FROM scores_relax WHERE userid = ?', [$_POST['id']]);
+				}
 			} else {
+				if ($_POST["ppmode"] == 1) {
 				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
 				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
+				} else if ($_POST["ppmode"] == 2) {
+				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_relax WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
+				$GLOBALS['db']->execute('DELETE FROM scores_relax WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
+				}
 			}
 			// Reset mode stats
-			foreach ($modes as $k) {
-				$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+			if ($_POST["ppmode"] == 1) {
+				foreach ($modes as $k) {
+					$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+				}
+			} else if ($_POST["ppmode"] == 2) {
+				foreach ($modes as $k) {
+					$GLOBALS['db']->execute('UPDATE rx_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+				}
 			}
 
 			// RAP log
@@ -1383,44 +1399,61 @@ class D {
 			// Send a message to #announce
 			if ($status == "rank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . " is now ranked!";
+				$msg = "" . $bm["song_name"] . " is now ranked!";
 				
 			} else if ($status == "love") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . " is now loved!";
+				$msg = "" . $bm["song_name"] . " is now loved!";
 
 			} else if ($status == "unrank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . " just got unranked!";
+				$msg = "" . $bm["song_name"] . " just got unranked!";
 
 			}
 			
-			$discordMessage = array(
-				'content' => $msg,
-				'username' => "Ranked Bot",
-				'avatar_url' => ''
-			);
-			
-			$data_string = json_encode($discordMessage);
-		
-			$curl = curl_init();
+			$webhookurl = "https://discordapp.com/api/webhooks/700394523812954395/ttwhkESK5wdDW5YnFmF5zZAAX19AdqRwIExY2mOdGplGyTWwYeA20ZnxzW2V2ohSmikq";
 
-			curl_setopt($curl, CURLOPT_URL, 'https://discordapp.com/api/webhooks/700394523812954395/ttwhkESK5wdDW5YnFmF5zZAAX19AdqRwIExY2mOdGplGyTWwYeA20ZnxzW2V2ohSmikq');
-			curl_setopt($curl, CURLOPT_POST, 1);
-			curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+			$json_data = json_encode(
+			[
+				"username" => "Ranked Bot",
+				"embeds" => 
+				[
+					[
+						"title" => "$msg",
 
-			$output = curl_exec($curl);
+						"description" => "https://osu.ppy.sh/s/$bsid",
+						
+						"color" => hexdec( "3366ff" ),
 
-			if (curl_getinfo($curl, CURLINFO_HTTP_CODE) != 204) {
-					die('Caught exception: ' . $output);
-					//or some logging function
-			}
-			curl_close($curl);
-			
+						"footer" => [
+							"text" => "This map was Approved by " . $_SESSION["username"] .""
+						],
+
+						"image" => [
+							"url" => "https://assets.ppy.sh/beatmaps/$bsid/covers/cover.jpg"
+						]
+
+					]
+				]
+
+			], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+
+			$ch = curl_init( $webhookurl );
+			curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+			curl_setopt( $ch, CURLOPT_POST, 1);
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, $json_data);
+			curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt( $ch, CURLOPT_HEADER, 0);
+			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+
+			$response = curl_exec( $ch );
+			// If you need to debug, or find out why you can't send message uncomment line below, and execute script.
+			// echo $response;
+			curl_close( $ch );
+			ini_set('display_errors', 1);
+			ini_set('display_startup_errors', 1);
+			error_reporting(E_ALL);
 			// Done
 			redirect("index.php?p=117&s=".$result);
 		} catch (Exception $e) {
