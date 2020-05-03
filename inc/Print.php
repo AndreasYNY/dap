@@ -30,7 +30,7 @@ class P {
 		// $totalPP = "🍆";
 		
 		// THIS SLOW DOWN THE ADMIN PANEL WAHHHHHHHHH
-		/*
+		
 		$recentPlays = $GLOBALS['db']->fetchAll('
 		SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
@@ -41,8 +41,18 @@ class P {
 		LEFT JOIN users ON users.id = scores.userid
 		ORDER BY scores.id DESC
 		LIMIT 10');
-		*/
-		$recentPlays = [];
+
+		$recentPlaysRelax = $GLOBALS['db']->fetchAll('
+		SELECT
+			beatmaps.song_name, scores_relax.beatmap_md5, users.username,
+			scores_relax.userid, scores_relax.time, scores_relax.score, scores_relax.pp,
+			scores_relax.play_mode, scores_relax.mods
+		FROM scores_relax
+		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores_relax.beatmap_md5
+		LEFT JOIN users ON users.id = scores_relax.userid
+		ORDER BY scores_relax.id DESC
+		LIMIT 10');
+		//$recentPlays = [];
 		$topPlays = [];
 		/*$topPlays = $GLOBALS['db']->fetchAll('SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
@@ -83,7 +93,7 @@ class P {
 		<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th>Beatmap</th></th><th>Mode</th><th>Sent</th><th>Score</th><th class="text-right">PP</th></tr>
 		</thead>
 		<tbody>';
-		echo '<tr class="danger"><td colspan=6>Disabled</td></tr>';
+		//echo '<tr class="danger"><td colspan=6>Disabled</td></tr>';
 		foreach ($recentPlays as $play) {
 			// set $bn to song name by default. If empty or null, replace with the beatmap md5.
 			$bn = $play['song_name'];
@@ -105,6 +115,29 @@ class P {
 		}
 		echo '</tbody>';
 		echo '</div>';
+	        echo '<table class="table table-striped table-hover" style="margin-top: 20px;">
+                <thead>
+                <tr><th class="text-left"><i class="fa fa-clock-o"></i> Recent plays Relax</th><th>Beatmap</th></th><th>Mode</th><th>Sent</th><th>Score</th><th class="text-right">PP</th></tr>
+               </thead>
+                <tbody>';
+		foreach ($recentPlaysRelax as $rxplay) {
+			$bn = $rxplay['song_name'];
+			if (!$bn) {
+				$bn = $rxplay['beatmap_md5'];
+			}
+			$pm = getPlaymodeText($rxplay['play_mode']);
+                        echo '<tr class="success">';
+                        echo '<td><p class="text-left"><b><a href="index.php?u='.$play["username"].'">'.$rxplay['username'].'</a></b></p></td>';
+                        echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($rxplay['mods']) . '</b></p></td>';
+                        echo '<td><p class="text-left">'.$pm.'</p></td>';
+                        echo '<td><p class="text-left">'.timeDifference(time(), $rxplay['time']).'</p></td>';
+                        echo '<td><p class="text-left">'.number_format($rxplay['score']).'</p></td>';
+                        echo '<td><p class="text-right"><b>'.number_format($rxplay['pp']).'pp</b></p></td>';
+                        echo '</tr>';
+		}
+		echo '</tbody>';
+		echo '</div>';
+
 	}
 
 	/*
@@ -772,6 +805,7 @@ class P {
 		$r = current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'registrations_enabled'"));
 		$ga = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_global_alert'"));
 		$ha = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_home_alert'"));
+		$fv = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'featuredvideo'"));
 		$aqlTmp = $GLOBALS['db']->fetchAll("SELECT `name`, value_string FROM system_settings WHERE `name` LIKE 'aql\_threshold\_%'");
 		$aql = [];
 		foreach ($aqlTmp as $row) {
@@ -840,6 +874,10 @@ class P {
 		echo '<tr>
 		<td>Homepage alert<br>(visible only on the home page)</td>
 		<td><textarea type="text" name="ha" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$ha.'</textarea></td>
+		</tr>';
+		echo '<tr>
+		<td>Featured Video<br>Add Selected video from community in here</td>
+		<td><textarea type="text" name="fv" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$fv.'</textarea></td>
 		</tr>';
 		echo '<tr>
 		<td>A/Q/L/ PP Threshold</td>
@@ -1124,7 +1162,7 @@ class P {
 				foreach ($icons as $icon) {
 					echo'
 					<tr class="' . ($icon["is_current"] ? "success" : ($icon["is_default"] ? "warning": "")) . '">
-						<td><a href="https://i.ainu.pw/' . $icon["file_id"] . '.png" target="_blank">' . $icon["name"] . '</a> - <a href="' . $icon["url"] . '" target="_blank">' . $icon["url"] . '</td>
+						<td><a href="https://datenshi.xyz/static/' . $icon["file_id"] . '.png" target="_blank">' . $icon["name"] . '</a> - <a href="' . $icon["url"] . '" target="_blank">' . $icon["url"] . '</td>
 						<td style="text-align: right">
 							<a ' . ($icon["is_current"] ? "disabled" : "") . ' title="Set as main menu icon" class="btn btn-success btn-xs" href="submit.php?action=setMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-check"></i></a>
 							<a ' . ($icon["is_default"] ? "disabled" : "") . ' title="Set as default main menu icon" class="btn btn-info btn-xs" href="submit.php?action=setDefaultMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-asterisk"></i></a>
@@ -1252,7 +1290,7 @@ class P {
 			self::ExceptionMessage($error[$_GET['e']]);
 		}
 		echo '<p class="center aligned">
-		<div class="animated bounceIn ripple-logo"><img src="https://datenshi.xyz/static/logos/ainu.png"></div>
+		<div class="animated bounceIn ripple-logo"><img src="https://datenshi.xyz/static/logos/datenshi.png"></div>
 		</p>';
 		global $isBday;
 		if ($isBday) {

@@ -480,7 +480,7 @@ function printAdminSidebar() {
 	echo '<div id="sidebar-wrapper" class="collapse" aria-expanded="false">
 					<ul class="sidebar-nav">
 						<li class="sidebar-brand">
-							<a href="#"><b>A</b>inu <b>A</b>dmin <b>P</b>anel</a>
+							<a href="#"><b>D</b>atenshi <b>A</b>dmin <b>P</b>anel</a>
 						</li>
 						<li><a href="index.php?p=100"><i class="fa fa-tachometer-alt"></i>	Dashboard</a></li>';
 
