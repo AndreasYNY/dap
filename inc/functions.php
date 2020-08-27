@@ -21,6 +21,7 @@ require_once $df.'/helpers/PasswordHelper.php';
 require_once $df.'/helpers/UsernameHelper.php';
 require_once $df.'/helpers/URL.php';
 require_once $df.'/helpers/APITokens.php';
+require_once $df.'/curlcuy.php';
 // controller system v2
 require_once $df.'/pages/Login.php';
 require_once $df.'/pages/Beatmaps.php';
@@ -34,7 +35,7 @@ date_default_timezone_set('Asia/Makassar');
 $GLOBALS['db'] = new DBPDO();
 // Birthday
 global $isBday;
-$isBday = date("dm") == "0508";
+$isBday = date("dm") == "1104";
 /****************************************
  **			GENERAL FUNCTIONS 		   **
  ****************************************/
@@ -438,7 +439,7 @@ function printNavbar() {
 							</button>';
 						}
 						global $isBday;
-						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="https://datenshi.xyz/static/logos/text-white.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="https://datenshi.xyz/static/logos/text-white.png"></a>';
+						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="https://i.datenshi.xyz/static/logos/text-white.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="https://i.datenshi.xyz/static/logos/text-white.png"></a>';
 					echo '</div>
 					<div class="navbar-collapse collapse">';
 	// Left elements
@@ -452,7 +453,7 @@ function printNavbar() {
 		// Just an easter egg that you'll probably never notice, unless you do it on purpose.
 		if (hasPrivilege(Privileges::AdminAccessRAP)) {
 			echo '<li><a href="index.php?p=100"><i class="fa fa-cog"></i>	<b>Admin Panel</b></a></li>';
-			echo '<li><a href="/phpmyadmin"><i class="fa fa-database"></i>	<b>phpMyAdmin</b></a></li>';
+			//echo '<li><a href="/phpmyadmin"><i class="fa fa-database"></i>	<b>phpMyAdmin</b></a></li>';
 		}
 	}
 	// Right elements
@@ -1416,6 +1417,19 @@ function getJsonCurl($url, $timeout = 1) {
 	}
 }
 
+function curlochi($url){
+	$curlHandler = curl_init();
+	curl_setopt_array($curlHandler, [
+	CURLOPT_URL => $url,
+	CURLOPT_RETURNTRANSFER => true,
+
+	CURLOPT_VERBOSE => true,
+]);
+curl_exec($curlHandler);
+curl_close($curlHandler);
+}
+
+
 function postJsonCurl($url, $data, $timeout = 1) {
 	try {
 		$ch = curl_init();
@@ -1466,10 +1480,53 @@ function printBubble($userID, $username, $message, $time, $through) {
 	</div>';
 }
 
-function rapLog($message, $userID = -1, $through = "RAP") {
+function rapLog($message, $userID = -1, $through = "Datenshi Admin Panel") {
 	if ($userID == -1)
 		$userID = $_SESSION["userid"];
 	$GLOBALS["db"]->execute("INSERT INTO rap_logs (id, userid, text, datetime, through) VALUES (NULL, ?, ?, ?, ?);", [$userID, $message, time(), $through]);
+	$webhookurl = "https://discordapp.com/api/webhooks/719194616766791800/nE4BfqEuDSwebokSNhUPSGeTr-mq8hJJBC71LLFG29hukeFxY1qytSp18wRoZOkrKxpI";
+
+			$json_data = json_encode(
+			[
+				"username" => "Log Bot",
+				"embeds" =>
+				[
+					[
+
+						"description" => "($userID) " . $_SESSION["username"] ." $message",
+
+						"color" => hexdec( "3366ff" ),
+
+						"footer" => [
+							"text" => "via $through"
+						],
+
+						"thumbnail" => [
+							"url" => "https://a.datenshi.xyz/$userID"
+						]
+
+					]
+				]
+
+			], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+
+	$ch = curl_init( $webhookurl );
+	curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+	curl_setopt( $ch, CURLOPT_POST, 1);
+	curl_setopt( $ch, CURLOPT_POSTFIELDS, $json_data);
+	curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt( $ch, CURLOPT_HEADER, 0);
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+
+	$response = curl_exec( $ch );
+	// If you need to debug, or find out why you can't send message uncomment line below, and execute script.
+	// echo $response;
+	curl_close( $ch );
+	ini_set('display_errors', 1);
+	ini_set('display_startup_errors', 1);
+	error_reporting(E_ALL);
+	// Done
 }
 
 function readableRank($rank) {
@@ -1708,7 +1765,7 @@ function giveDonor($userID, $months, $add=true) {
 	$monthsExpire = round(($unixExpire-time())/(30*86400));
 	$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixExpire, $userID]);
 
-	$donorBadge = $GLOBALS["db"]->fetch("SELECT id FROM badges WHERE name = 'Donator' OR name = 'Donor' LIMIT 1");
+	$donorBadge = $GLOBALS["db"]->fetch("SELECT id FROM badges WHERE name = 'Donat' OR name = 'Donor' LIMIT 1");
 	if (!$donorBadge) {
 		throw new Exception("There's no Donor badge in the database. Please run bdzr to migrate the database to the latest version.");
 	}

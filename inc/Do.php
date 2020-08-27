@@ -1043,7 +1043,7 @@ class D {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 
 				$msg = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
-				$to = "#announce";
+				$to = "%23ranked";
 				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
 				$resp = getJsonCurl($requesturl);
 	
@@ -1207,7 +1207,7 @@ class D {
 
 			// Remove donor badge
 			// 14 = donor badge id
-			$GLOBALS["db"]->execute("DELETE FROM user_badges WHERE user = ? AND badge = ?", [$_GET["id"], 14]);
+			$GLOBALS["db"]->execute("DELETE FROM user_badges WHERE user = ? AND badge = ?", [$_GET["id"], 1002]);
 
 			rapLog(sprintf("has removed donor from user %s", $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=Donor status changed!");
@@ -1342,8 +1342,8 @@ class D {
 
 						// Restore old scores
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
-						$result .= "$beatmapID has been ranked and its scores have been restored. | ";
-						$rap .= "ranked";
+						$result = "$beatmapID has been ranked and its scores have been restored. | ";
+						$rap = "ranked";
 					break;
 						
 					// Love beatmap (INCASE THE BEATMAP IS TOO MUCH PP)
@@ -1352,8 +1352,8 @@ class D {
 
 						// Restore old scores
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
-						$result .= "$beatmapID has been loved and its scores have been restored. | ";
-						$rap .= "loved";
+						$result = "$beatmapID has been loved and its scores have been restored. | ";
+						$rap = "loved";
 					break;
 
 					// Unrank beatmap (INCASE ITS TOO BAD TO PLAY)
@@ -1362,23 +1362,23 @@ class D {
 
 						// Restore old scores
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2", [$beatmapID]);
-						$result .= "$beatmapID has been ranked and its scores have been mark as old scores. | ";
-						$rap .= "unranked";
+						$result = "$beatmapID has been ranked and its scores have been mark as old scores. | ";
+						$rap = "unranked";
 					break;
 
 					// Force osu!api update (unfreeze)
 					case "update":
 						$updateCache = true;
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-						$result .= "$beatmapID's ranked status is the same from official osu!. | ";
-						$rap .= "updated status from bancho for";
+						$result = "$beatmapID's ranked status is the same from official osu!. | ";
+						$rap = "updated status from bancho for";
 					break;
 
 					// No changes
 					case "no":
 						$logToRap = false;
-						$result .= "$beatmapID's ranked status has not been edited!. | ";
-						$rap .= "nothing to do with";
+						$result = "$beatmapID's ranked status has not been edited!. | ";
+						$rap = "nothing to do with";
 					break;
 
 					// EH! VOLEVI!
@@ -1406,17 +1406,26 @@ class D {
 			if ($status == "rank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msg = "" . $bm["song_name"] . " is now ranked!";
-				
+				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
+				$statuscrot = "ranked";
+				$requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
+				$resp = curloci($requestbro);
 			} else if ($status == "love") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msg = "" . $bm["song_name"] . " is now loved!";
-
+				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now Loved!";
+				$statuscrot = "loved";
+                                $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
+				$resp = curloci($requestbro);
 			} else if ($status == "unrank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msg = "" . $bm["song_name"] . " just got unranked!";
-
+				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] just got unranked!";
+				$statuscrot = "unranked";
+                                $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
+				$resp = curloci($requestbro);
 			}
-			
+
 			$webhookurl = "https://discordapp.com/api/webhooks/700394523812954395/ttwhkESK5wdDW5YnFmF5zZAAX19AdqRwIExY2mOdGplGyTWwYeA20ZnxzW2V2ohSmikq";
 
 			$json_data = json_encode(
@@ -1425,18 +1434,18 @@ class D {
 				"embeds" => 
 				[
 					[
-						"title" => "$msg",
 
-						"description" => "https://osu.ppy.sh/s/$bsid",
+						"description" => "**$msg**\n\n[Download](https://osu.ppy.sh/s/$bsid)",
 						
 						"color" => hexdec( "3366ff" ),
 
 						"footer" => [
-							"text" => "This map was Approved by " . $_SESSION["username"] .""
+							"text" => "This map was $statuscrot by " . $_SESSION["username"] ."",
+							"icon_url" => "https://a.datenshi.xyz/" . $_SESSION["userid"] . ""
 						],
 
-						"image" => [
-							"url" => "https://assets.ppy.sh/beatmaps/$bsid/covers/cover.jpg"
+						"thumbnail" => [
+							"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
 						]
 
 					]
@@ -1454,8 +1463,6 @@ class D {
 			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
 
 			$response = curl_exec( $ch );
-			// If you need to debug, or find out why you can't send message uncomment line below, and execute script.
-			// echo $response;
 			curl_close( $ch );
 			ini_set('display_errors', 1);
 			ini_set('display_startup_errors', 1);
@@ -1826,13 +1833,13 @@ class D {
 				"DELETE FROM osin_expires WHERE token IN (SELECT access_token FROM osin_access WHERE extra = ?)",
 				[$uid]
 			);
-			nuke("osin_access", "extra", $uid);
-			nuke("osin_authorize", "extra", $uid);
-			nukeExt(
-				"osin_client",
-				"DELETE FROM osin_client WHERE id IN (SELECT client_id FROM osin_client_user WHERE user = ?)",
-				[$row["client_id"]]
-			);
+			//nuke("osin_access", "extra", $uid);
+			//nuke("osin_authorize", "extra", $uid);
+			//nukeExt(
+			//	"osin_client",
+			//	"DELETE FROM osin_client WHERE id IN (SELECT client_id FROM osin_client_user WHERE user = ?)",
+			//	[$row["client_id"]]
+			//);
 			nuke("osin_client_user", "user", $uid);
 
 			// WHAT THE FUCK
@@ -1904,13 +1911,13 @@ class D {
 
 			echo "Deleting avatar...   ";
 			try {
-				$avatar = dirname(dirname(dirname(__FILE__))).'/avatars/'.$_GET['id'].'.png';
+				$avatar = dirname(dirname(dirname(__FILE__))).'/root/ripple/avatars-server/avatars/'.$_GET['uid'].'.png';
 				if (file_exists($avatar)) {
 					unlink($avatar);
 					echo 'OK';
-				} else {
+			} else {
 					echo 'the user has no avatar';
-				}
+			}
 			} catch (Exception $e) {
 				echo '<span style="color: orange;">WARNING: Could not delete avatar: ' . $e->getMessage() . '.</span>';
 			}

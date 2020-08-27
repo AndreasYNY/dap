@@ -127,7 +127,7 @@ class P {
 			}
 			$pm = getPlaymodeText($rxplay['play_mode']);
                         echo '<tr class="success">';
-                        echo '<td><p class="text-left"><b><a href="index.php?u='.$play["username"].'">'.$rxplay['username'].'</a></b></p></td>';
+                        echo '<td><p class="text-left"><b><a href="index.php?u='.$rxplay["username"].'">'.$rxplay['username'].'</a></b></p></td>';
                         echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($rxplay['mods']) . '</b></p></td>';
                         echo '<td><p class="text-left">'.$pm.'</p></td>';
                         echo '<td><p class="text-left">'.timeDifference(time(), $rxplay['time']).'</p></td>';
@@ -1162,7 +1162,7 @@ class P {
 				foreach ($icons as $icon) {
 					echo'
 					<tr class="' . ($icon["is_current"] ? "success" : ($icon["is_default"] ? "warning": "")) . '">
-						<td><a href="https://datenshi.xyz/static/' . $icon["file_id"] . '.png" target="_blank">' . $icon["name"] . '</a> - <a href="' . $icon["url"] . '" target="_blank">' . $icon["url"] . '</td>
+						<td><a href="https://i.datenshi.xyz/static/' . $icon["file_id"] . '.png" target="_blank">' . $icon["name"] . '</a> - <a href="' . $icon["url"] . '" target="_blank">' . $icon["url"] . '</td>
 						<td style="text-align: right">
 							<a ' . ($icon["is_current"] ? "disabled" : "") . ' title="Set as main menu icon" class="btn btn-success btn-xs" href="submit.php?action=setMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-check"></i></a>
 							<a ' . ($icon["is_default"] ? "disabled" : "") . ' title="Set as default main menu icon" class="btn btn-info btn-xs" href="submit.php?action=setDefaultMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-asterisk"></i></a>
@@ -1290,7 +1290,7 @@ class P {
 			self::ExceptionMessage($error[$_GET['e']]);
 		}
 		echo '<p class="center aligned">
-		<div class="animated bounceIn ripple-logo"><img src="https://datenshi.xyz/static/logos/datenshi.png"></div>
+		<div class="animated bounceIn ripple-logo"><img width="100%" src="https://i.datenshi.xyz/static/logos/datenshi.png"></div>
 		</p>';
 		global $isBday;
 		if ($isBday) {
@@ -3659,6 +3659,15 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				</select>
 				</td>
 				</tr>';
+				echo '<tr>
+				<td>PP MODE</td>
+				<td>
+				<select name="modevnrx" class="selectpicker bs-select-hidden" data-with="100%">
+					<option value="1">Vanilla</option>
+					<option value="2">Relax</option>
+				</select>
+				</td>
+				</tr>';
 				echo '
 				</form>
 				</tbody>
@@ -3727,6 +3736,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		foreach ($additionalConditions as $x) {
 			$sqlParameters = array_merge($sqlParameters, $x["params"]);
 		}
+
 		$orderBy = $_GET["sort"] === "start" ? ("beatmaps.difficulty_" . getPlaymodeText($gm)) : "pp";
 		$results = $GLOBALS["db"]->fetchAll("SELECT scores.userid, scores.time, scores.id, scores.mods, users.username, scores.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores JOIN users ON scores.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores.id = anticheat_reports.score_id WHERE completed = 3 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
 
@@ -3820,7 +3830,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '</tbody>
 		</table>';
 
-		echo '<a href="#" type="button" class="btn btn-primary" disabled>Add bucket</a>';
+		echo '<a href="#" type="button" class="btn btn-primary">Add bucket</a>';
 
 		echo '</div>';
 		// Template end
