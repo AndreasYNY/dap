@@ -1,5 +1,7 @@
 <?php
 
+use Curl\Curl;
+
 // We aren't calling the class Do because otherwise it would conflict with do { } while ();
 class D {
 	/*
@@ -1409,22 +1411,23 @@ class D {
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
 				$statuscrot = "ranked";
 				$requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
-				$resp = curloci($requestbro);
 			} else if ($status == "love") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msg = "" . $bm["song_name"] . " is now loved!";
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now Loved!";
 				$statuscrot = "loved";
                                 $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
-				$resp = curloci($requestbro);
 			} else if ($status == "unrank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msg = "" . $bm["song_name"] . " just got unranked!";
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] just got unranked!";
 				$statuscrot = "unranked";
                                 $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
-				$resp = curloci($requestbro);
 			}
+
+			$curl = new Curl();
+			$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+			$curl->get($requestbro);
 
 			$webhookurl = "https://discordapp.com/api/webhooks/700394523812954395/ttwhkESK5wdDW5YnFmF5zZAAX19AdqRwIExY2mOdGplGyTWwYeA20ZnxzW2V2ohSmikq";
 

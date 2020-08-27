@@ -21,7 +21,7 @@ require_once $df.'/helpers/PasswordHelper.php';
 require_once $df.'/helpers/UsernameHelper.php';
 require_once $df.'/helpers/URL.php';
 require_once $df.'/helpers/APITokens.php';
-require_once $df.'/curlcuy.php';
+//require_once $df.'/curlcuy.php';
 // controller system v2
 require_once $df.'/pages/Login.php';
 require_once $df.'/pages/Beatmaps.php';
@@ -29,6 +29,8 @@ $pages = [
 	new Login(),
 	new Beatmaps(),
 ];
+//CURL
+use Curl\Curl;
 // Set timezone to UTC
 date_default_timezone_set('Asia/Makassar');
 // Connect to MySQL Database
@@ -1410,6 +1412,7 @@ function getJsonCurl($url, $timeout = 1) {
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		$result=curl_exec($ch);
+		var_dump(curl_getinfo($ch,CURLINFO_HEADER_OUT));
 		curl_close($ch);
 		return json_decode($result, true);
 	} catch (Exception $e) {

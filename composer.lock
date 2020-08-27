@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "34b80a04caf65d07f398a940afd397ba",
-    "content-hash": "57734784e66cc9179665bb1c087a85d2",
+    "content-hash": "d01e0acfc5fbfeb75b4c8e82b561d473",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -72,7 +71,7 @@
                 "singularize",
                 "string"
             ],
-            "time": "2015-11-06 14:35:42"
+            "time": "2015-11-06T14:35:42+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -116,7 +115,7 @@
             "keywords": [
                 "html"
             ],
-            "time": "2016-07-16 12:58:58"
+            "time": "2016-07-16T12:58:58+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -178,7 +177,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2016-10-08 15:01:37"
+            "time": "2016-10-08T15:01:37+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -229,7 +228,7 @@
             "keywords": [
                 "promise"
             ],
-            "time": "2016-05-18 16:56:05"
+            "time": "2016-05-18T16:56:05+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -287,7 +286,7 @@
                 "stream",
                 "uri"
             ],
-            "time": "2016-06-24 23:00:38"
+            "time": "2016-06-24T23:00:38+00:00"
         },
         {
             "name": "illuminate/contracts",
@@ -329,7 +328,7 @@
             ],
             "description": "The Illuminate Contracts package.",
             "homepage": "https://laravel.com",
-            "time": "2016-09-26 20:36:27"
+            "time": "2016-09-26T20:36:27+00:00"
         },
         {
             "name": "illuminate/support",
@@ -386,7 +385,7 @@
             ],
             "description": "The Illuminate Support package.",
             "homepage": "https://laravel.com",
-            "time": "2016-11-03 15:25:28"
+            "time": "2016-11-03T15:25:28+00:00"
         },
         {
             "name": "ircmaxell/random-lib",
@@ -441,7 +440,7 @@
                 "random-numbers",
                 "random-strings"
             ],
-            "time": "2016-09-07 15:52:06"
+            "time": "2016-09-07T15:52:06+00:00"
         },
         {
             "name": "ircmaxell/security-lib",
@@ -487,7 +486,7 @@
             ],
             "description": "A Base Security Library",
             "homepage": "https://github.com/ircmaxell/SecurityLib",
-            "time": "2015-03-20 14:31:23"
+            "time": "2015-03-20T14:31:23+00:00"
         },
         {
             "name": "league/oauth2-client",
@@ -550,7 +549,7 @@
                 "oauth2",
                 "single sign on"
             ],
-            "time": "2016-07-28 13:20:43"
+            "time": "2016-07-28T13:20:43+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -598,19 +597,86 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2016-11-07 23:38:38"
+            "time": "2016-11-07T23:38:38+00:00"
+        },
+        {
+            "name": "php-curl-class/php-curl-class",
+            "version": "8.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-curl-class/php-curl-class.git",
+                "reference": "180273b577148090a62bb7333201d17e0b6efb75"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-curl-class/php-curl-class/zipball/180273b577148090a62bb7333201d17e0b6efb75",
+                "reference": "180273b577148090a62bb7333201d17e0b6efb75",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "ext-gd": "*",
+                "phpunit/phpunit": "*",
+                "squizlabs/php_codesniffer": "*"
+            },
+            "suggest": {
+                "ext-mbstring": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Curl\\": "src/Curl/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Unlicense"
+            ],
+            "authors": [
+                {
+                    "name": "Zach Borboa"
+                }
+            ],
+            "description": "PHP Curl Class makes it easy to send HTTP requests and integrate with web APIs.",
+            "homepage": "https://github.com/php-curl-class/php-curl-class",
+            "keywords": [
+                "API-Client",
+                "api",
+                "class",
+                "client",
+                "curl",
+                "framework",
+                "http",
+                "http-client",
+                "http-proxy",
+                "json",
+                "php",
+                "php-curl",
+                "php-curl-library",
+                "proxy",
+                "requests",
+                "restful",
+                "web-scraper",
+                "web-scraping ",
+                "web-service",
+                "xml"
+            ],
+            "time": "2020-04-20T03:39:57+00:00"
         },
         {
             "name": "predis/predis",
             "version": "v1.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nrk/predis.git",
+                "url": "https://github.com/predis/predis.git",
                 "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nrk/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
+                "url": "https://api.github.com/repos/predis/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
                 "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1",
                 "shasum": ""
             },
@@ -648,7 +714,7 @@
                 "predis",
                 "redis"
             ],
-            "time": "2016-06-16 16:22:20"
+            "time": "2016-06-16T16:22:20+00:00"
         },
         {
             "name": "psr/http-message",
@@ -698,7 +764,7 @@
                 "request",
                 "response"
             ],
-            "time": "2016-08-06 14:39:51"
+            "time": "2016-08-06T14:39:51+00:00"
         },
         {
             "name": "team-reflex/oauth2-discord",
@@ -741,7 +807,7 @@
                 }
             ],
             "description": "OAuth2 client for authenticating with the Discord API servers",
-            "time": "2016-06-20 22:20:04"
+            "time": "2016-06-20T22:20:04+00:00"
         }
     ],
     "packages-dev": [],
@@ -751,5 +817,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
