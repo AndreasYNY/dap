@@ -1406,23 +1406,20 @@ class D {
 
 			// Send a message to #announce
 			if ($status == "rank") {
-				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "" . $bm["song_name"] . " is now ranked!";
+				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
-				$statuscrot = "ranked";
+				$statuscrot = "Ranked";
 				$requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
 			} else if ($status == "love") {
-				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "" . $bm["song_name"] . " is now loved!";
+				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now Loved!";
-				$statuscrot = "loved";
-                                $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
+				$statuscrot = "Loved";
+                $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
 			} else if ($status == "unrank") {
-				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msg = "" . $bm["song_name"] . " just got unranked!";
+				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] just got unranked!";
-				$statuscrot = "unranked";
-                                $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
+				$statuscrot = "Unranked";
+                $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
 			}
 
 			$curl = new Curl();
@@ -1438,7 +1435,7 @@ class D {
 				[
 					[
 
-						"description" => "**$msg**\n\n[Download](https://osu.ppy.sh/s/$bsid)",
+						"description" => "**Map Name: $bm['song_name']**\n**Status : $statuscrot**\n**BPM : $bm['bpm']**\n**Download** : [`Click Here`](https://osu.ppy.sh/s/$bsid)",
 						
 						"color" => hexdec( "3366ff" ),
 
