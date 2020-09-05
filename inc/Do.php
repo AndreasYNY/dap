@@ -1441,7 +1441,7 @@ class D {
 				[
 					[
 
-						"description" => "__**MAP NAME**__ : **$namabm**\n__**STATUS**__ : **$statuscrot**\n__**BPM**__ : **$bpm**\n__**DOWNLOAD**__ : [`Click Here`](https://datenshi.xyz/d/$bsid)",
+						"description" => "`Map Name` : **$namabm**\n`Status` : **$statuscrot**\n`BPM` : **$bpm**\n`Download` : [`Click Here`](https://datenshi.xyz/d/$bsid)",
 						
 						"color" => hexdec( "3366ff" ),
 
