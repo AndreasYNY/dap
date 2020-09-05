@@ -1441,7 +1441,7 @@ class D {
 				[
 					[
 
-						"description" => "`Map Name` : **$namabm**\n`Status` : **$statuscrot**\n`BPM` : **$bpm**\n[`Direct Download`](https://datenshi.xyz/d/$bsid)",
+						"description" => "`Map Name` : **$namabm**\n`Status` : **$statuscrot**\n`BPM` : **$bpm**\n[`Download`](https://datenshi.xyz/d/$bsid) [`osu!direct`](osu://s/$bsid)",
 						
 						"color" => hexdec( "3366ff" ),
 
