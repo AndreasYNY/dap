@@ -152,7 +152,7 @@ class P {
 		$modUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges & '.Privileges::AdminAccessRAP.'> 0'));
 		// Multiple pages
 		$pageInterval = 100;
-		$from = (isset($_GET["from"])) ? $_GET["from"] : 999;
+		$from = (isset($_GET["from"])) ? $_GET["from"] : 1;
 		$to = $from+$pageInterval;
 		$users = $GLOBALS['db']->fetchAll('SELECT * FROM users WHERE id >= ? AND id < ?', [$from, $to]);
 		$groups = $GLOBALS["db"]->fetchAll("SELECT * FROM privileges_groups");
