@@ -1314,6 +1314,7 @@ class D {
 	public static function RankBeatmapNew() {
 		global $URL;
 		global $ScoresConfig;
+		global $DiscordHook;
 		try {
 			if (!isset($_POST["beatmaps"])) {
 				throw new Exception("Invalid form data");
@@ -1432,7 +1433,7 @@ class D {
 			$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
 			$curl->get($requestbro);
 
-			$webhookurl = "https://discordapp.com/api/webhooks/700394523812954395/ttwhkESK5wdDW5YnFmF5zZAAX19AdqRwIExY2mOdGplGyTWwYeA20ZnxzW2V2ohSmikq";
+			$webhookurl = $DiscordHook["ranked-map"];
 
 			$json_data = json_encode(
 			[
@@ -1441,13 +1442,13 @@ class D {
 				[
 					[
 
-						"description" => "`Map Name` : **$namabm**\n`Status` : **$statuscrot**\n`BPM` : **$bpm**\n[`Download`](https://datenshi.xyz/d/$bsid)",
+						"description" => "`Map Name` : **$namabm**\n`Status` : **$statuscrot**\n`BPM` : **$bpm**\n[`Download`](https://s.troke.id/d/$bsid)",
 						
 						"color" => hexdec( "3366ff" ),
 
 						"footer" => [
 							"text" => "This map was $statuscrot by " . $_SESSION["username"] ."",
-							"icon_url" => "https://a.datenshi.xyz/" . $_SESSION["userid"] . ""
+							"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
 						],
 
 						"thumbnail" => [

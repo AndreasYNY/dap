@@ -1162,7 +1162,7 @@ class P {
 				foreach ($icons as $icon) {
 					echo'
 					<tr class="' . ($icon["is_current"] ? "success" : ($icon["is_default"] ? "warning": "")) . '">
-						<td><a href="https://i.datenshi.xyz/static/' . $icon["file_id"] . '.png" target="_blank">' . $icon["name"] . '</a> - <a href="' . $icon["url"] . '" target="_blank">' . $icon["url"] . '</td>
+						<td><a href="https://cdn.troke.id/static/' . $icon["file_id"] . '.png" target="_blank">' . $icon["name"] . '</a> - <a href="' . $icon["url"] . '" target="_blank">' . $icon["url"] . '</td>
 						<td style="text-align: right">
 							<a ' . ($icon["is_current"] ? "disabled" : "") . ' title="Set as main menu icon" class="btn btn-success btn-xs" href="submit.php?action=setMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-check"></i></a>
 							<a ' . ($icon["is_default"] ? "disabled" : "") . ' title="Set as default main menu icon" class="btn btn-info btn-xs" href="submit.php?action=setDefaultMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-asterisk"></i></a>
@@ -1290,7 +1290,7 @@ class P {
 			self::ExceptionMessage($error[$_GET['e']]);
 		}
 		echo '<p class="center aligned">
-		<div class="animated bounceIn ripple-logo"><img width="100%" src="https://i.datenshi.xyz/static/logos/datenshi.png"></div>
+		<div class="animated bounceIn ripple-logo"><img width="100%" src="https://cdn.troke.id/static/logos/datenshi.png"></div>
 		</p>';
 		global $isBday;
 		if ($isBday) {
@@ -2279,9 +2279,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 	 * Prints the admin rank requests
 	*/
 	public static function AdminRankRequests() {
-		global $ScoresConfig;
-		// Get data
-		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id ORDER BY id DESC LIMIT ".$ScoresConfig["rankRequestsQueueSize"]);
+		// get data ampe 100 ranks request
+		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id ORDER BY id DESC LIMIT 100");
 		// Print sidebar and template stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
