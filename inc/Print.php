@@ -84,9 +84,6 @@ class P {
 		printAdminPanel('green', 'fa fa-street-view fa-5x', $onlineUsers, 'Online users');
 		printAdminPanel('yellow', 'fa fa-dot-circle fa-5x', number_format($totalPP), 'Sum of weighted PP');
 		echo '</div>';
-		// Pipoli integration
-		echo '<div id="pipoli" class="row" style="margin-bottom: 0;"></div>';
-		echo '<div style="text-align: right;"><i>Data provided by Pipoli. <a href="https://status.datenshi.xyz" target="_blank">Full status page here.</a></i></div>';
 		// Recent plays table
 		echo '<table class="table table-striped table-hover" style="margin-top: 20px;">
 		<thead>
@@ -148,7 +145,9 @@ class P {
 		// Get admin dashboard data
 		$totalUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users'));
 		$supporters = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges & '.Privileges::UserDonor.' > 0'));
-		$bannedUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges & 1 = 0'));
+		$bannedUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges = 0'));
+		$restrictUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges = 2'));
+		$pendingUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges = 1048576'));
 		$modUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges & '.Privileges::AdminAccessRAP.'> 0'));
 		// Multiple pages
 		$pageInterval = 100;
@@ -174,6 +173,8 @@ class P {
 		echo '<div class="row">';
 		printAdminPanel('primary', 'fa fa-user fa-5x', $totalUsers, 'Total users');
 		printAdminPanel('red', 'fa fa-thumbs-down fa-5x', $bannedUsers, 'Banned users');
+		printAdminPanel('red', 'fa fa-thumbs-down fa-5x', $restrictUsers, 'Restricted users');
+		printAdminPanel('secondary', 'fa fa-user fa-5x', $pendingUsers, 'Pending users');
 		printAdminPanel('yellow', 'fa fa-money-bill fa-5x', $supporters, 'Donors');
 		printAdminPanel('green', 'fa fa-star fa-5x', $modUsers, 'Admins');
 		echo '</div>';
