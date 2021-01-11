@@ -3767,6 +3767,11 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 			global $URL;
 			foreach ($results as $score) {
+				if ($_GET["modevnrx"] == 1) {
+					$replaysurl = "replays";
+				} else if ($_GET["modevnrx"] == 2) {
+					$replaysurl = "replays_relax";
+				}
 				$cheated = isset($score["anticheat_report_id"]);
 				$severityColor = !$cheated ? '' : ($score["severity"] >= 0.75 ? 'danger' : ($score["severity"] <= 0.25 ? 'primary' : 'warning'));
 				$anticheatIcon = $cheated ? '<a href="index.php?p=133&id=' . $score["anticheat_report_id"] . '"><i class="fa fa-exclamation-triangle"></i></a>' : '<i class="fa fa-check-circle"></i>';
@@ -3774,7 +3779,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					<td><p class='text-center'>$score[id]</p></td>
 					<td><p class='text-center'><a href='index.php?u=" . $score["userid"] . "'>$score[username]</a></p></td>
 					<td><p class='text-center'>" . timeDifference(time(), $score["time"]) . "</p></td>
-					<td><p class='text-center'><a href='" . URL::Server() . "/web/replays/$score[id]'>$score[id]	<i class='fa fa-star'></i></a></p></td>
+					<td><p class='text-center'><a href='" . URL::Server() . "/web/$replaysurl/$score[id]'>$score[id]	<i class='fa fa-star'></i></a></p></td>
 					<td><p class='text-center'>" . getPlaymodeText($score["play_mode"], true) . "</p></td>
 					<td><p class='text-center'><a href='" . URL::Server() . "/b/$score[beatmap_id]'>$score[song_name] " . getScoreMods($score["mods"]) . "	<i class='fa fa-music'></i> </a></p></td>
 					<td><p class='text-center'>$anticheatIcon</p></td>
