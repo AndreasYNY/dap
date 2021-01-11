@@ -26,7 +26,11 @@ $ScoresConfig = [
 
 // ip env (ip fix with caddy)
 $ipEnv = 'REMOTE_ADDR';	// HTTP_X_FORWARDED_FOR
-
+// DiscordLog
+$DiscordHook = [
+	"ranked-map" => "",
+	"admin-log" => ""
+]
 // Google recaptcha config
 $reCaptchaConfig = [
 	"site_key" => "",
