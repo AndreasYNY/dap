@@ -2900,7 +2900,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$assignee = "Useless";
 			} else {
 				$rowClass = "";
-				$assignee = '<img class="circle" style="width: 30px; height: 30px; margin-top: 0px;" src="https://a.datenshi.xyz/' . $report['assigned'] . '"> ' . getUserUsername($report['assigned']);
+				$assignee = '<img class="circle" style="width: 30px; height: 30px; margin-top: 0px;" src="https://a.troke.id/' . $report['assigned'] . '"> ' . getUserUsername($report['assigned']);
 			}
 			echo '<tr class="' . $rowClass . '">
 			<td><p class="text-center">'.$report['id'].'</p></td>
@@ -3682,7 +3682,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 
 	public static function AdminTopScoresResults() {
-		$limit = 30;
+		$limit = 100;
 		echo '<div id="wrapper">';
 		printAdminSidebar();
 		echo '<div id="page-content-wrapper">';
@@ -3736,7 +3736,11 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		}
 
 		$orderBy = $_GET["sort"] === "start" ? ("beatmaps.difficulty_" . getPlaymodeText($gm)) : "pp";
-		$results = $GLOBALS["db"]->fetchAll("SELECT scores.userid, scores.time, scores.id, scores.mods, users.username, scores.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores JOIN users ON scores.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores.id = anticheat_reports.score_id WHERE completed = 3 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+		if ($_POST["modevnrx"] == 1) {
+			$results = $GLOBALS["db"]->fetchAll("SELECT scores.userid, scores.time, scores.id, scores.mods, users.username, scores.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores JOIN users ON scores.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores.id = anticheat_reports.score_id WHERE completed = 3 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+		} else if ($_POST["modevnrx"] == 2) {
+			$results = $GLOBALS["db"]->fetchAll("SELECT scores_relax.userid, scores_relax.time, scores_relax.id, scores_relax.mods, users.username, scores_relax.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores_relax.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores_relax JOIN users ON scores_relax.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores_relax.id = anticheat_reports.score_id WHERE completed = 3 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+		}
 
 		echo '<p align="center"><h2><i class="fa fa-fighter-jet"></i>	Top Scores (max ' . $limit . ' results)</h2></p>';
 
