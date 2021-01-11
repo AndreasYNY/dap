@@ -174,8 +174,8 @@ class P {
 		printAdminPanel('primary', 'fa fa-user fa-5x', $totalUsers, 'Total users');
 		printAdminPanel('red', 'fa fa-thumbs-down fa-5x', $bannedUsers, 'Banned users');
 		printAdminPanel('red', 'fa fa-thumbs-down fa-5x', $restrictUsers, 'Restricted users');
-		printAdminPanel('secondary', 'fa fa-user fa-5x', $pendingUsers, 'Pending users');
-		printAdminPanel('yellow', 'fa fa-money-bill fa-5x', $supporters, 'Donors');
+		printAdminPanel('yellow', 'fa fa-user fa-5x', $pendingUsers, 'Pending users');
+		printAdminPanel('green', 'fa fa-money-bill fa-5x', $supporters, 'Donors');
 		printAdminPanel('green', 'fa fa-star fa-5x', $modUsers, 'Admins');
 		echo '</div>';
 		// Quick edit/silence/kick user button

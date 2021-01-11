@@ -1412,21 +1412,21 @@ class D {
 				$statuscrot = "Ranked";
 				$bpm = $bm["bpm"];
 				$namabm = $bm["song_name"];
-				$requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
+				$requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			} else if ($status == "love") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now Loved!";
 				$statuscrot = "Loved";
 				$bpm = $bm["bpm"];
 				$namabm = $bm["song_name"];
-                $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
+                $requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			} else if ($status == "unrank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] just got unranked!";
 				$statuscrot = "Unranked";
 				$bpm = $bm["bpm"];
 				$namabm = $bm["song_name"];
-                $requestbro = "https://c.datenshi.xyz/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23announce&msg=" . $msgtoannounce . "";
+                $requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			}
 
 			$curl = new Curl();

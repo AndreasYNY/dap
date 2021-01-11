@@ -155,7 +155,7 @@ function setTitle($p) {
 			136 => 'Search users by IP - Results',
 			137 => 'Top Scores',
 			138 => 'Top Scores Results',
-			139 => 'S3 Replays Buckets',
+			//139 => 'S3 Replays Buckets',
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -441,7 +441,7 @@ function printNavbar() {
 							</button>';
 						}
 						global $isBday;
-						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="https://i.datenshi.xyz/static/logos/text-white.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="https://i.datenshi.xyz/static/logos/text-white.png"></a>';
+						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="https://cdn.troke.id/static/logos/text-white.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="https://cdn.troke.id/static/logos/text-white.png"></a>';
 					echo '</div>
 					<div class="navbar-collapse collapse">';
 	// Left elements
@@ -492,9 +492,9 @@ function printAdminSidebar() {
 							<li><a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a></li>';
 						}
 
-						if (hasPrivilege(Privileges::AdminCaker)) {
-							echo '<li><a href="index.php?p=139"><i class="fa fa-boxes"></i>	S3 Replays Buckets</a></li>';
-						}
+						//if (hasPrivilege(Privileges::AdminCaker)) {
+						//	echo '<li><a href="index.php?p=139"><i class="fa fa-boxes"></i>	S3 Replays Buckets</a></li>';
+						//}
 
 						if (hasPrivilege(Privileges::AdminSilenceUsers)) {
 							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
@@ -564,7 +564,7 @@ function getUserCountry() {
 
 	}
 	// otherwise, retrieve the contents from ip.zxq.co's API
-	$data = get_contents_http("http://ip.vanilla.rocks/$ip/country");
+	$data = get_contents_http("http://ip.zxq.co/$ip/country");
 	// And return the country. If it's set, that is.
 	return strlen($data) == 2 ? $data : 'XX';
 }
@@ -1484,10 +1484,11 @@ function printBubble($userID, $username, $message, $time, $through) {
 }
 
 function rapLog($message, $userID = -1, $through = "Datenshi Admin Panel") {
+	global $DiscordHook;
 	if ($userID == -1)
 		$userID = $_SESSION["userid"];
 	$GLOBALS["db"]->execute("INSERT INTO rap_logs (id, userid, text, datetime, through) VALUES (NULL, ?, ?, ?, ?);", [$userID, $message, time(), $through]);
-	$webhookurl = "https://discordapp.com/api/webhooks/719194616766791800/nE4BfqEuDSwebokSNhUPSGeTr-mq8hJJBC71LLFG29hukeFxY1qytSp18wRoZOkrKxpI";
+	$webhookurl = $DiscordHook["admin-log"];
 
 			$json_data = json_encode(
 			[
@@ -1505,7 +1506,7 @@ function rapLog($message, $userID = -1, $through = "Datenshi Admin Panel") {
 						],
 
 						"thumbnail" => [
-							"url" => "https://a.datenshi.xyz/$userID"
+							"url" => "https://a.troke.id/$userID"
 						]
 
 					]
