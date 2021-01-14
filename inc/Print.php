@@ -31,7 +31,7 @@ class P {
 		
 		// THIS SLOW DOWN THE ADMIN PANEL WAHHHHHHHHH
 		
-		$recentPlays = $GLOBALS['db']->fetchAll('
+		/*$recentPlays = $GLOBALS['db']->fetchAll('
 		SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
 			scores.userid, scores.time, scores.score, scores.pp,
@@ -51,8 +51,8 @@ class P {
 		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores_relax.beatmap_md5
 		LEFT JOIN users ON users.id = scores_relax.userid
 		ORDER BY scores_relax.id DESC
-		LIMIT 10');
-		//$recentPlays = [];
+		LIMIT 10');*/
+		$recentPlays = [];
 		$topPlays = [];
 		/*$topPlays = $GLOBALS['db']->fetchAll('SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
@@ -84,7 +84,7 @@ class P {
 		printAdminPanel('green', 'fa fa-street-view fa-5x', $onlineUsers, 'Online users');
 		printAdminPanel('yellow', 'fa fa-dot-circle fa-5x', number_format($totalPP), 'Sum of weighted PP');
 		echo '</div>';
-		// Recent plays table
+		/* Recent plays table
 		echo '<table class="table table-striped table-hover" style="margin-top: 20px;">
 		<thead>
 		<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th>Beatmap</th></th><th>Mode</th><th>Sent</th><th>Score</th><th class="text-right">PP</th></tr>
@@ -133,7 +133,7 @@ class P {
                         echo '</tr>';
 		}
 		echo '</tbody>';
-		echo '</div>';
+		echo '</div>';*/
 
 	}
 
