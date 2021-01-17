@@ -410,6 +410,7 @@ class P {
 			// Get user data
 			$userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
 			$userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_GET['id']);
+			$userStatsDataRX = $GLOBALS['db']->fetch('SELECT * FROM rx_stats WHERE id = ? LIMIT 1', $_GET['id']);
 			$ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE userid = ?', $_GET['id']);
 			$discordData = getDiscordData($userData["id"]);
 			// Check if this user exists
@@ -561,12 +562,12 @@ class P {
 			<td><p class="text-center"><input type="text" name="aka" class="form-control" value="'.htmlspecialchars($userStatsData['username_aka']).'"></td>
 			</tr>';
 			echo '<tr>
-			<td>Discord User ID</td>
-			<td>' . (isset($discordData["discordid"]) ? $discordData["discordid"] : "Not linked") . '</td>
+			<td>PP-Limit Vanilla</td>
+			<td><p class="text-center"><input type="text" name="ppvanilla" class="form-control" value="'.htmlspecialchars($userStatsData['unrestricted_pp']).'"></td>
 			</tr>';
 			echo '<tr>
-			<td>Discord Custom Role ID</td>
-			<td>' . (isset($discordData["roleid"]) ? $discordData["roleid"] : "No custom role") . '</td>
+			<td>PP-Limit Relax</td>
+			<td><p class="text-center"><input type="text" name="pprelax" class="form-control" value="'.htmlspecialchars($userStatsDataRX['unrestricted_pp']).'"></td>
 			</tr>';
 			echo '<tr>
 			<td>Userpage<br><a onclick="censorUserpage();">(reset userpage)</a></td>
