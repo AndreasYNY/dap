@@ -362,8 +362,8 @@ class D {
 				rapLog(sprintf("has changed %s's flag to %s", $_POST["u"], $_POST['country']));
 			}
 			// Set username style/color/aka
-			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, user_style = ?, username_aka = ?, unrestricted_pp = ? WHERE id = ? LIMIT 1', [$c, $bg, $_POST['aka'], $_POST['unrestricted_pp'], $_POST['id']]);
-			$GLOBALS['db']->execute('UPDATE rx_stats SET unrestricted_pp = ? WHERE id = ? LIMIT 1', [$_POST['unrestricted_pp'], $_POST['id']]);
+			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, user_style = ?, username_aka = ?, unrestricted_pp = ? WHERE id = ? LIMIT 1', [$c, $bg, $_POST['aka'], $_POST['ppvanilla'], $_POST['id']]);
+			$GLOBALS['db']->execute('UPDATE rx_stats SET unrestricted_pp = ? WHERE id = ? LIMIT 1', [$_POST['pprelax'], $_POST['id']]);
 			// RAP log
 			rapLog(sprintf("has edited user %s", $_POST["u"]));
 			// Done, redirect to success page
