@@ -2,7 +2,7 @@
 
 $server="localhost";         /*local server localhost*/
 $user="root";               /*User server mysql anda*/
-$pass="ochidarmaputra1290";                  /*password server mysql anda*/
+$pass="ga tau mungkin loe tau?";                  /*password server mysql anda*/
 $database="ripple";    /*Nama database yang dikoneksikan, sesuaikan dengan nama database anda*/
 
 //koneksi ke server , jika gagal muncul notifikasi Error Conection Network
