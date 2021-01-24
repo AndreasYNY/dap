@@ -477,6 +477,7 @@ class D {
 	 * Change identity function (ADMIN CP)
 	*/
 	public static function ChangeIdentity() {
+		global $DiscordHook;
 		try {
 			// Check if everything is set
 			if (!isset($_POST['id']) || !isset($_POST['oldu']) || !isset($_POST['newu']) || empty($_POST['id']) || empty($_POST['oldu']) || empty($_POST['newu'])) {
@@ -505,6 +506,37 @@ class D {
 				"userID" => intval($_POST["id"]),
 				"newUsername" => $_POST["newu"]
 			]));
+			//DiscordLog
+			$webhookurl = $DiscordHook["name-log"];
+			$lama = $_POST["oldu"];
+			$baru = $_POST["newu"];
+			$json_data = json_encode(
+			[
+				"username" => "Log Name",
+				"embeds" => 
+				[
+					[
+
+						"description" => "User : $lama has changed their name to $baru !",
+						
+						"color" => hexdec( "eb34c6" )
+
+					]
+				]
+
+			], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+
+			$ch = curl_init( $webhookurl );
+			curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+			curl_setopt( $ch, CURLOPT_POST, 1);
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, $json_data);
+			curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt( $ch, CURLOPT_HEADER, 0);
+			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+
+			$response = curl_exec( $ch );
+			curl_close( $ch );
 			// rap log
 			rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));
 			// Done, redirect to success page
@@ -1472,9 +1504,6 @@ class D {
 
 			$response = curl_exec( $ch );
 			curl_close( $ch );
-			ini_set('display_errors', 1);
-			ini_set('display_startup_errors', 1);
-			error_reporting(E_ALL);
 			// Done
 			redirect("index.php?p=117&s=".$result);
 		} catch (Exception $e) {
