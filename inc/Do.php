@@ -1078,8 +1078,8 @@ class D {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 
 				$msg = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
-				$to = "%23ranked";
-				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
+				$to = "%23ranked-now";
+				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
 				$resp = getJsonCurl($requesturl);
 	
 				if ($resp["message"] != "ok") {
@@ -1441,25 +1441,25 @@ class D {
 			// Send a message to #announce
 			if ($status == "rank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
+				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] has been ranked by [https://osu.troke.id/u/" . $_SESSION["userid"] . " " . $_SESSION["username"] . "]!";
 				$statuscrot = "Ranked";
 				$bpm = $bm["bpm"];
 				$namabm = $bm["song_name"];
-				$requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
+				$requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			} else if ($status == "love") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now Loved!";
+				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] has been loved by [https://osu.troke.id/u/" . $_SESSION["userid"] . " " . $_SESSION["username"] . "]!";
 				$statuscrot = "Loved";
 				$bpm = $bm["bpm"];
 				$namabm = $bm["song_name"];
-                $requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
+                		$requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			} else if ($status == "unrank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] just got unranked!";
+				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] has been unranked by [https://osu.troke.id/u/" . $_SESSION["userid"] . " " . $_SESSION["username"] . "]!";
 				$statuscrot = "Unranked";
 				$bpm = $bm["bpm"];
 				$namabm = $bm["song_name"];
-                $requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
+                		$requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			}
 
 			$curl = new Curl();
@@ -1476,7 +1476,7 @@ class D {
 					[
 
 						"description" => "`Map Name` : **$namabm**\n`Status` : **$statuscrot**\n`BPM` : **$bpm**\n[`Download`](https://s.troke.id/d/$bsid)",
-						
+
 						"color" => hexdec( "3366ff" ),
 
 						"footer" => [
