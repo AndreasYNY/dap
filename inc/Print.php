@@ -1114,6 +1114,7 @@ class P {
 		$ln = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'"));
 		$cv = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'osu_versions'"));
 		$cmd5 = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'osu_md5s'"));
+		$mnicon = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'menu_icons"))
 		$icons = $GLOBALS["db"]->fetchAll("SELECT * FROM main_menu_icons");
 		$hasDefault = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_default = 1 LIMIT 1")) > 0;
 		$hasIcon = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_current = 1 LIMIT 1")) > 0;
@@ -1157,51 +1158,8 @@ class P {
 		</td>
 		</tr>';
 		echo '<tr>
-		<td>Main menu icon</td>
-		<td>
-			<table class="table table-striped">
-				<tbody>';
-				foreach ($icons as $icon) {
-					echo'
-					<tr class="' . ($icon["is_current"] ? "success" : ($icon["is_default"] ? "warning": "")) . '">
-						<td><a href="https://cdn.troke.id/static/' . $icon["file_id"] . '.png" target="_blank">' . $icon["name"] . '</a> - <a href="' . $icon["url"] . '" target="_blank">' . $icon["url"] . '</td>
-						<td style="text-align: right">
-							<a ' . ($icon["is_current"] ? "disabled" : "") . ' title="Set as main menu icon" class="btn btn-success btn-xs" href="submit.php?action=setMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-check"></i></a>
-							<a ' . ($icon["is_default"] ? "disabled" : "") . ' title="Set as default main menu icon" class="btn btn-info btn-xs" href="submit.php?action=setDefaultMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-asterisk"></i></a>
-							<a title="Send to all online \'developers\' (to test the image)" class="btn btn-warning btn-xs" href="submit.php?action=testMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-bug"></i></a>
-							<a title="Delete main menu icon" class="btn btn-danger btn-xs" href="submit.php?action=deleteMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-trash"></i></a>
-						</td>
-					</tr>';
-				}
-				echo '
-					<tr class="info">
-						<td colspan="2" style="vertical-align: middle"><input form="uploadForm" type="file" name="file"></td>
-					</tr>
-					<tr class="info">
-						<td>
-							<input form="uploadForm" type="text" name="name" class="form-control" placeholder="Icon name">
-						</td>
-						<td>
-							<input form="uploadForm" type="text" name="url" class="form-control" placeholder="Click URL">
-						</td>
-					</tr>
-					<tr class="info">
-						<td colspan="3">PNG only. Recommended size: 927x100.</td>
-					</tr>
-					<tr class="info">
-						<td colspan="3">
-							<button form="uploadForm" type="submit" class="btn btn-primary" style="width: 100%"><i class="fa fa-upload"></i> Upload</button>
-						</td>
-					</tr>
-					<tr class="warning">
-						<td colspan="3">
-							<a style="width: 49%; float: left;" ' . ((!$hasDefault || $isDefault) ? "disabled" : "") . ' href="submit.php?action=restoreMainMenuIcon&csrf='.csrfToken(). '" class="btn btn-warning"><i class="fa fa-fast-backward"></i> Restore default</a>
-							<a style="width: 49%; float: right;"' . (!$hasIcon ? "disabled" : "") . ' href="submit.php?action=removeMainMenuIcon&csrf='.csrfToken(). '" class="btn btn-danger"><i class="fa fa-eraser"></i> Remove main menu icon</a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</td>
+		<td>Main menu icon (cdn.troke.id/static/NAMAFILE.png)</td>
+		<td><textarea type="text" name="mnicon" class="form-control" style="overflow:auto">'.$mnicon.'</textarea></td>
 		</tr>';
 		echo '<tr>
 		<td>Login notification</td>

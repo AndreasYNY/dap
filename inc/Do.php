@@ -242,6 +242,11 @@ class D {
 			} else {
 				$lm = '';
 			}
+			if (!empty($_POST['mnicon'])) {
+				$mnicon = $_POST['mnicon'];
+			} else {
+				$mnicon = '';
+			}
 			if (!empty($_POST['ln'])) {
 				$ln = $_POST['ln'];
 			} else {
