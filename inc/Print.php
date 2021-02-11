@@ -1159,10 +1159,16 @@ class P {
 		</td>
 		</tr>';
 		echo '<tr>
-		<td>Main menu icon</td>
-		<td><input type="text" name="mnicon" class="form-control">'.$mnicon.'</input></td>
-		<td><input type="text" name="lokasiicon" class="form-control">'.$lokasiicon.'</input></td>
-		<td><input type="text" name="urlikon" class="form-control">'.$urlikon.'</input></td>
+		<td>Main menu icon (nama file)</td>
+		<td><input type="text" name="mnicon" class="form-control" value="'.$mnicon.'"></input></td>
+		</tr>';
+		echo '<tr>
+		<td>Main menu icon (lokasi file)</td>
+		<td><input type="text" name="lokasiicon" class="form-control value="'.$lokasiicon.'"></input></td>
+		</tr>';
+		echo '<tr>
+		<td>Main menu icon (link tujuan)</td>
+		<td><input type="text" name="lokasiicon" class="form-control value="'.$urlikon.'"></input></td>
 		</tr>';
 		echo '<tr>
 		<td>Login notification</td>
