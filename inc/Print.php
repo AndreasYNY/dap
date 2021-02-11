@@ -1114,8 +1114,9 @@ class P {
 		$ln = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'"));
 		$cv = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'osu_versions'"));
 		$cmd5 = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'osu_md5s'"));
-		$mnicon = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'menu_icons"))
-		$icons = $GLOBALS["db"]->fetchAll("SELECT * FROM main_menu_icons");
+		$mnicon = current($GLOBALS['db']->fetch("SELECT file_id FROM main_menu_icons WHERE id = '1'"));
+		$lokasiicon = current($GLOBALS['db']->fetch("SELECT lokasi_file FROM main_menu_icons WHERE id = '1'"));
+		$urlikon = current($GLOBALS['db']->fetch("SELECT url FROM main_menu_icons WHERE id = '1'"));
 		$hasDefault = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_default = 1 LIMIT 1")) > 0;
 		$hasIcon = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_current = 1 LIMIT 1")) > 0;
 		$isDefault = $GLOBALS["db"]->fetch("SELECT is_default FROM main_menu_icons WHERE is_current = 1 LIMIT 1")["is_default"] == 1;
