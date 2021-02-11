@@ -1140,11 +1140,7 @@ class P {
 		} else {
 			$selected[2][2] = 'selected';
 		}
-		echo '<form id="uploadForm" action="submit.php" method="POST" enctype="multipart/form-data">
-		<input form="uploadForm" name="action" value="uploadMainMenuIcon" hidden>
-		<input name="csrf" type="hidden" value="'.csrfToken().'">
-		</form>
-		<p align="center"><font size=5><i class="fa fa-server"></i>	Bancho settings</font></p>';
+		echo '<p align="center"><font size=5><i class="fa fa-server"></i>	Bancho settings</font></p>';
 		echo '<table class="table table-striped table-hover table-75-center">';
 		echo '<tbody><form id="system-settings-form" action="submit.php" method="POST">
 		<input name="csrf" type="hidden" value="'.csrfToken().'">
@@ -1177,8 +1173,9 @@ class P {
 		echo '<tr class="success">
 		<td colspan=2><p align="center"><b>Settings are automatically reloaded on Bancho when you press "Save settings".</b> There\'s no need to do <i>!system reload</i> manually anymore.</p></td>
 		</tr>';
-		echo '</tbody><table>
-		<div class="text-center"><button type="submit" class="btn btn-primary">Save settings</button></div></form>';
+		echo '</tbody></form>';
+		echo '</table>';
+		echo '<div class="text-center"><button type="submit" form="system-settings-form" class="btn btn-primary">Save settings</button></div>';
 		echo '</div>';
 	}
 

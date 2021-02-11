@@ -227,21 +227,6 @@ class D {
 			} else {
 				$bm = 0;
 			}
-			if (isset($_POST['od'])) {
-				$od = $_POST['od'];
-			} else {
-				$od = 0;
-			}
-			if (isset($_POST['rm'])) {
-				$rm = $_POST['rm'];
-			} else {
-				$rm = 0;
-			}
-			if (!empty($_POST['lm'])) {
-				$lm = $_POST['lm'];
-			} else {
-				$lm = '';
-			}
 			if (!empty($_POST['mnicon'])) {
 				$mnicon = $_POST['mnicon'];
 			} else {
@@ -262,25 +247,13 @@ class D {
 			} else {
 				$ln = '';
 			}
-			if (!empty($_POST['cv'])) {
-				$cv = $_POST['cv'];
-			} else {
-				$cv = '';
-			}
-			if (!empty($_POST['cmd5'])) {
-				$cmd5 = $_POST['cmd5'];
-			} else {
-				$cmd5 = '';
-			}
+			
 			// Save new values
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'bancho_maintenance' LIMIT 1", [$bm]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'free_direct' LIMIT 1", [$od]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'restricted_joke' LIMIT 1", [$rm]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_messages' LIMIT 1", [$lm]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_notification' LIMIT 1", [$ln]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_versions' LIMIT 1", [$cv]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_md5s' LIMIT 1", [$cmd5]);
-			$GLOBALS['db']->execute("UPDATE main_menu_icons SET file_id = ?, lokasi_file = ?, url = ? WHERE id = '1'", [$mnicon],[$lokasiicon],[$urlikon]);
+			$GLOBALS['db']->execute("UPDATE main_menu_icons SET file_id = ? WHERE id = '1'", [$mnicon]);
+			$GLOBALS['db']->execute("UPDATE main_menu_icons SET lokasi_file = ? WHERE id = '1'", [$lokasiicon]);
+			$GLOBALS['db']->execute("UPDATE main_menu_icons SET url = ? WHERE id = '1'", [$urlikon]);
 			// Pubsub
 			redisConnect();
 			$GLOBALS["redis"]->publish("peppy:reload_settings", "reload");
