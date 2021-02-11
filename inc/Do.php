@@ -242,6 +242,21 @@ class D {
 			} else {
 				$lm = '';
 			}
+			if (!empty($_POST['mnicon'])) {
+				$mnicon = $_POST['mnicon'];
+			} else {
+				$mnicon = '';
+			}
+			if (!empty($_POST['lokasiicon'])) {
+				$lokasiicon = $_POST['lokasiicon'];
+			} else {
+				$lokasiicon = '';
+			}
+			if (!empty($_POST['urlikon'])) {
+				$urlikon = $_POST['urlikon'];
+			} else {
+				$urlikon = '';
+			}
 			if (!empty($_POST['ln'])) {
 				$ln = $_POST['ln'];
 			} else {
@@ -265,6 +280,7 @@ class D {
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_notification' LIMIT 1", [$ln]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_versions' LIMIT 1", [$cv]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_md5s' LIMIT 1", [$cmd5]);
+			$GLOBALS['db']->execute("UPDATE main_menu_icons SET file_id = ?, lokasi_file = ?, url = ?", [$mnicon],[$lokasiicon],[$urlikon]);
 			// Pubsub
 			redisConnect();
 			$GLOBALS["redis"]->publish("peppy:reload_settings", "reload");
