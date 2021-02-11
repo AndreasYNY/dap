@@ -1159,10 +1159,10 @@ class P {
 		</td>
 		</tr>';
 		echo '<tr>
-		<td>Main menu icon (cdn.troke.id/static/NAMAFILE.png)</td>
-		<td><textarea type="text" name="mnicon" class="form-control" style="overflow:auto">'.$mnicon.'</textarea></td>
-		<td><textarea type="text" name="lokasiicon" class="form-control" style="overflow:auto">'.$lokasiicon.'</textarea></td>
-		<td><textarea type="text" name="urlikon" class="form-control" style="overflow:auto">'.$urlikon.'</textarea></td>
+		<td>Main menu icon</td>
+		<td><input type="text" name="mnicon" class="form-control">'.$mnicon.'</textarea></td>
+		<td><input type="text" name="lokasiicon" class="form-control">'.$lokasiicon.'</textarea></td>
+		<td><input type="text" name="urlikon" class="form-control">'.$urlikon.'</textarea></td>
 		</tr>';
 		echo '<tr>
 		<td>Login notification</td>
