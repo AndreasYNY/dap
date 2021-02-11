@@ -1160,9 +1160,9 @@ class P {
 		</tr>';
 		echo '<tr>
 		<td>Main menu icon</td>
-		<td><input type="text" name="mnicon" class="form-control">'.$mnicon.'</textarea></td>
-		<td><input type="text" name="lokasiicon" class="form-control">'.$lokasiicon.'</textarea></td>
-		<td><input type="text" name="urlikon" class="form-control">'.$urlikon.'</textarea></td>
+		<td><input type="text" name="mnicon" class="form-control">'.$mnicon.'</input></td>
+		<td><input type="text" name="lokasiicon" class="form-control">'.$lokasiicon.'</input></td>
+		<td><input type="text" name="urlikon" class="form-control">'.$urlikon.'</input></td>
 		</tr>';
 		echo '<tr>
 		<td>Login notification</td>
