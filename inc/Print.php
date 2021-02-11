@@ -1168,7 +1168,7 @@ class P {
 		</tr>';
 		echo '<tr>
 		<td>Main menu icon (link tujuan)</td>
-		<td><input type="text" name="lokasiicon" class="form-control value="'.$urlikon.'"></input></td>
+		<td><input type="text" name="urlikon" class="form-control value="'.$urlikon.'"></input></td>
 		</tr>';
 		echo '<tr>
 		<td>Login notification</td>
