@@ -404,23 +404,15 @@ class P {
 	*/
 	public static function AdminWhitelistIP() {
 		try {
-			if(!isset($_GET['id']) || empty($_GET['id'])) {
-				throw new Exception('Invalid IP');
-			}
 			$cekIp = $GLOBALS['db']->fetch('SELECT * FROM simpen_ip WHERE id = ?', $_GET['id']);
-			$ipAddress = $GLOBALS['db']->fetch('SELECT alamat_ip FROM simpen_ip WHERE id = ?', $_GET['id']);
 			$kodeNegara = $GLOBALS['db']-fetch('SELECT kode_negara FROM simpen_ip WHERE id = ?', $_GET['id']);
-			// Print edit user stuff
 			echo '<div id="wrapper">';
 			printAdminSidebar();
 			echo '<div id="page-content-wrapper">';
-			// Maintenance check
 			self::MaintenanceStuff();
-			// Print Success if set
 			if (isset($_GET['s']) && !empty($_GET['s'])) {
 				self::SuccessMessageStaccah($_GET['s']);
 			}
-			// Print Exception if set
 			if (isset($_GET['e']) && !empty($_GET['e'])) {
 				self::ExceptionMessageStaccah($_GET['e']);
 			}
@@ -431,15 +423,15 @@ class P {
 			<input name="action" value="saveWhitelistIP" hidden>';
 			echo '<tr>
 			<td>ID</td>
-			<td><input type="text" name="cekIp" class="form-control" value="'.$_GET['id'].'" readonly></td>
+			<td><input type="text" name="cekIp" class="form-control" value="'.$cekIp['id'].'" readonly></td>
 			</tr>';
 			echo '<tr>
 			<td>Alamat IP</td>
-			<td><input type="text" name="ipAddress" class="form-control" value="'.$ipAddress.'" readonly></td>
+			<td><input type="text" name="ipAddress" class="form-control" value="'.$cekIp['alamat_ip'].'" readonly></td>
 			</tr>';
 			echo '<tr>
 			<td>Kode Negara (Untuk Whitelist pakai ID)</td>
-			<td><input type="text" name="kodeNegara" class="form-control" value="'.$kodeNegara.'"></input></td>
+			<td><input type="text" name="kn" class="form-control" value="'.$kodeNegara.'"></input></td>
 			</tr>';
 			echo '</tbody></form>';
 			echo '</table>';
@@ -450,7 +442,7 @@ class P {
 		}
 		catch(Exception $e) {
 			// Redirect to exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			redirect('index.php?p=139&e='.$e->getMessage());
 		}
 	}
 	/*

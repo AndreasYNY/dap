@@ -80,11 +80,11 @@ class D {
 			// RAP log
 			rapLog("has whitelisted IP");
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=Settings saved!');
+			redirect('index.php?p=139&s=Settings saved!');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			redirect('index.php?p=139&e='.$e->getMessage());
 		}
 	}
 	/*
