@@ -282,29 +282,29 @@ class P {
 		</div>
 		</div>
 		</div>';
-		// Search user by email modal
-		echo '<div class="modal fade" id="quickEditEmailModal" tabindex="-1" role="dialog" aria-labelledby="quickEditEmailModalLabel">
+		// Search ip for whitelist
+		echo '<div class="modal fade" id="quickWhitelistIP" tabindex="-1" role="dialog" aria-labelledby="quickWhitelistIPLabel">
 		<div class="modal-dialog">
 		<div class="modal-content">
 		<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h4 class="modal-title" id="quickEditEmailModalLabel">Quick edit user</h4>
+		<h4 class="modal-title" id="quickWhitelistIPLabel">Quick edit user</h4>
 		</div>
 		<div class="modal-body">
 		<p>
-		<form id="quick-edit-user-email-form" action="submit.php" method="POST">
+		<form id="quick-edit-user-ip-form" action="submit.php" method="POST">
 		<input name="csrf" type="hidden" value="'.csrfToken().'">
-		<input name="action" value="quickEditUserEmail" hidden>
+		<input name="action" value="quickWhitelistIP" hidden>
 		<div class="input-group">
 		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></span>
-		<input type="text" name="u" class="form-control" placeholder="Email" aria-describedby="basic-addon1" required>
+		<input type="text" name="ipnya" class="form-control" placeholder="IP Address" aria-describedby="basic-addon1" required>
 		</div>
 		</form>
 		</p>
 		</div>
 		<div class="modal-footer">
 		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		<button type="submit" form="quick-edit-user-email-form" class="btn btn-primary">Edit user</button>
+		<button type="submit" form="quick-edit-user-ip-form" class="btn btn-primary">Edit user</button>
 		</div>
 		</div>
 		</div>
@@ -396,7 +396,63 @@ class P {
 		</div>
 		</div>';
 	}
-
+	
+	/*
+	 *
+	 * AdminEditIP
+	 * 
+	*/
+	public static function AdminWhitelistIP() {
+		try {
+			if(!isset($_GET['id']) || empty($_GET['id'])) {
+				throw new Exception('Invalid IP');
+			}
+			$cekIp = $GLOBALS['db']->fetch('SELECT * FROM simpen_ip WHERE id = ?', $_GET['id']);
+			$ipAddress = $GLOBALS['db']->fetch('SELECT alamat_ip FROM simpen_ip WHERE id = ?', $_GET['id']);
+			$kodeNegara = $GLOBALS['db']-fetch('SELECT kode_negara FROM simpen_ip WHERE id = ?', $_GET['id']);
+			// Print edit user stuff
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			// Print Success if set
+			if (isset($_GET['s']) && !empty($_GET['s'])) {
+				self::SuccessMessageStaccah($_GET['s']);
+			}
+			// Print Exception if set
+			if (isset($_GET['e']) && !empty($_GET['e'])) {
+				self::ExceptionMessageStaccah($_GET['e']);
+			}
+			echo '<p align="center"><font size=5><i class="fa fa-cog"></i>	IP Whitelist settings</font></p>';
+			echo '<table class="table table-striped table-hover table-50-center">';
+			echo '<tbody><form id="system-settings-form" action="submit.php" method="POST">
+			<input name="csrf" type="hidden" value="'.csrfToken().'">
+			<input name="action" value="saveWhitelistIP" hidden>';
+			echo '<tr>
+			<td>ID</td>
+			<td><input type="text" name="cekIp" class="form-control" value="'.$_GET['id'].'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Alamat IP</td>
+			<td><input type="text" name="ipAddress" class="form-control" value="'.$ipAddress.'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Kode Negara (Untuk Whitelist pakai ID)</td>
+			<td><input type="text" name="kodeNegara" class="form-control" value="'.$kodeNegara.'"></input></td>
+			</tr>';
+			echo '</tbody></form>';
+			echo '</table>';
+			echo '<div class="text-center"><div class="btn-group" role="group">
+			<button type="submit" form="system-settings-form" class="btn btn-primary">Save settings</button>
+			</div></div>';
+			echo '</div>';
+		}
+		catch(Exception $e) {
+			// Redirect to exception page
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
 	/*
 	 * AdminEditUser
 	 * Prints the admin panel edit user page
@@ -1107,19 +1163,10 @@ class P {
 		}
 		// Get values
 		$bm = current($GLOBALS['db']->fetch("SELECT value_int FROM bancho_settings WHERE name = 'bancho_maintenance'"));
-		$od = current($GLOBALS['db']->fetch("SELECT value_int FROM bancho_settings WHERE name = 'free_direct'"));
-		$rm = current($GLOBALS['db']->fetch("SELECT value_int FROM bancho_settings WHERE name = 'restricted_joke'"));
-		//$mi = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'menu_icon'"));
-		$lm = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_messages'"));
 		$ln = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'"));
-		$cv = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'osu_versions'"));
-		$cmd5 = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'osu_md5s'"));
 		$mnicon = current($GLOBALS['db']->fetch("SELECT file_id FROM main_menu_icons WHERE id = '1'"));
 		$lokasiicon = current($GLOBALS['db']->fetch("SELECT lokasi_file FROM main_menu_icons WHERE id = '1'"));
 		$urlikon = current($GLOBALS['db']->fetch("SELECT url FROM main_menu_icons WHERE id = '1'"));
-		$hasDefault = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_default = 1 LIMIT 1")) > 0;
-		$hasIcon = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_current = 1 LIMIT 1")) > 0;
-		$isDefault = $GLOBALS["db"]->fetch("SELECT is_default FROM main_menu_icons WHERE is_current = 1 LIMIT 1")["is_default"] == 1;
 		// Default select stuff
 		$selected[0] = [1 => '', 2 => ''];
 		$selected[1] = [1 => '', 2 => ''];

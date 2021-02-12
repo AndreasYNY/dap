@@ -68,6 +68,25 @@ class D {
 		}
 	}
 
+	public static function SaveEditWhitelistIP() {
+		try {
+			if (!empty($_POST['kodeNegara'])) {
+				$kodeNegara = $_POST['kodeNegara'];
+			} else {
+				$kodeNegara = '';
+			}
+			// save value
+			$GLOBALS['db']->execute("UPDATE simpen_ip SET kode_negara = ? WHERE id = ? LIMIT 1", $_POST['kodeNegara'], $_POST['id']);
+			// RAP log
+			rapLog("has whitelisted IP");
+			// Done, redirect to success page
+			redirect('index.php?p=102&s=Settings saved!');
+		}
+		catch(Exception $e) {
+			// Redirect to Exception page
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
 	/*
 	 * SaveBanchoSettings
 	 * Save bancho settings function (ADMIN CP)
@@ -278,17 +297,17 @@ class D {
 	public static function QuickEditWhitelistIP() {
 		try {
 			// Check if everything is set
-			if (empty($_POST['u'])) {
+			if (empty($_POST['ipnya'])) {
 				throw new Exception('Nice troll.');
 			}
 			// Get user id
-			$id = current($GLOBALS['db']->fetch(sprintf('SELECT id FROM users WHERE %s = ? LIMIT 1', $email ? 'email' : 'username'), [$_POST['u']]));
+			$id = current($GLOBALS['db']->fetch('SELECT id FROM simpen_ip WHERE alamat_ip = ? LIMIT 1', $_POST['ipnya']));
 			// Check if that user exists
 			if (!$id) {
-				throw new Exception("That user doesn't exist");
+				throw new Exception("That ip doesn't exist");
 			}
 			// Done, redirect to edit page
-			redirect('index.php?p=103&id='.$id);
+			redirect('index.php?p=139&id='.$id);
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
