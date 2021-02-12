@@ -72,7 +72,7 @@ try {
 		break;
 		case 'saveWhitelistIP':
 			sessionCheckAdmin(Privileges::AdminManageUsers);
-			D::EditWhitelistIP();
+			D::SaveEditWhitelistIP();
 		break;
 		case 'quickEditUserEmail':
 			sessionCheckAdmin(Privileges::AdminManageUsers);
@@ -177,34 +177,6 @@ try {
 		case 'restoreScores':
 			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::RestoreScores();
-		break;
-		case 'setMainMenuIcon':
-			sessionCheckAdmin(Privileges::AdminManageSettings);
-			D::SetMainMenuIcon();
-		break;
-		case 'setDefaultMainMenuIcon':
-			sessionCheckAdmin(Privileges::AdminManageSettings);
-			D::SetDefaultMainMenuIcon();
-		break;
-		case 'testMainMenuIcon':
-			sessionCheckAdmin(Privileges::AdminManageSettings);
-			D::TestMainMenuIcon();
-		break;
-		case 'restoreMainMenuIcon':
-			sessionCheckAdmin(Privileges::AdminManageSettings);
-			D::RestoreMainMenuIcon();
-		break;
-		case 'deleteMainMenuIcon':
-			sessionCheckAdmin(Privileges::AdminManageSettings);
-			D::DeleteMainMenuIcon();
-		break;
-		case 'uploadMainMenuIcon':
-			sessionCheckAdmin(Privileges::AdminManageSettings);
-			D::UploadMainMenuIcon();
-		break;
-		case 'removeMainMenuIcon':
-			sessionCheckAdmin(Privileges::AdminManageSettings);
-			D::RemoveMainMenuIcon();
 		break;
 		case 'bulkBan':
 			sessionCheckAdmin(Privileges::AdminBanUsers);

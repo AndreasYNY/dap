@@ -181,7 +181,7 @@ class P {
 		// Quick edit/silence/kick user button
 		if (hasPrivilege(Privileges::AdminManageUsers)) {
 			echo '<br><p align="center" class="mobile-flex"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user (username)</button>';
-			echo '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickEditEmailModal">Quick edit user (email)</button>';
+			echo '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickWhitelistIPModal">Quick edit IP Whitelist</button>';
 			echo '<a href="index.php?p=135" type="button" class="btn btn-warning">Search user by IP</a>';
 		}
 		echo '<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>	';
@@ -283,16 +283,16 @@ class P {
 		</div>
 		</div>';
 		// Search ip for whitelist
-		echo '<div class="modal fade" id="quickWhitelistIP" tabindex="-1" role="dialog" aria-labelledby="quickWhitelistIPLabel">
+		echo '<div class="modal fade" id="quickWhitelistIPModal" tabindex="-1" role="dialog" aria-labelledby="quickWhitelistIPModalLabel">
 		<div class="modal-dialog">
 		<div class="modal-content">
 		<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h4 class="modal-title" id="quickWhitelistIPLabel">Quick edit user</h4>
+		<h4 class="modal-title" id="quickWhitelistIPModalLabel">Quick edit IP</h4>
 		</div>
 		<div class="modal-body">
 		<p>
-		<form id="quick-edit-user-ip-form" action="submit.php" method="POST">
+		<form id="quick-edit-user-form" action="submit.php" method="POST">
 		<input name="csrf" type="hidden" value="'.csrfToken().'">
 		<input name="action" value="quickWhitelistIP" hidden>
 		<div class="input-group">
@@ -304,7 +304,7 @@ class P {
 		</div>
 		<div class="modal-footer">
 		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		<button type="submit" form="quick-edit-user-ip-form" class="btn btn-primary">Edit user</button>
+		<button type="submit" form="quick-edit-user-form" class="btn btn-primary">Edit user</button>
 		</div>
 		</div>
 		</div>
