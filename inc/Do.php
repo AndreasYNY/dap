@@ -5,153 +5,6 @@ use Curl\Curl;
 // We aren't calling the class Do because otherwise it would conflict with do { } while ();
 class D {
 	/*
-	 * Register
-	 * Register function
-	*/
-	public static function Register() {
-		global $reCaptchaConfig;
-		try {
-			// Check if everything is set
-			if (empty($_POST['u']) || empty($_POST['p1']) || empty($_POST['p2']) || empty($_POST['e']) /*|| empty($_POST['k'])*/) {
-				throw new Exception('Nope.');
-			}
-			// Get user IP
-			$ip = getIp();
-			// Make sure registrations are enabled
-			if (!checkRegistrationsEnabled()) {
-				throw new Exception('Registrations are currently disabled.');
-			}
-			// Validate password through our helper
-			$pres = PasswordHelper::ValidatePassword($_POST['p1'], $_POST['p2']);
-			if ($pres !== -1) {
-				throw new Exception($pres);
-			}
-			// trim spaces or other memes from username (hi kirito)
-			$_POST['u'] = trim($_POST['u']);
-			// Check if email is valid
-			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
-				throw new Exception("Email isn't valid.");
-			}
-			// Check if username is valid
-			if (!preg_match('/^[A-Za-z0-9 _\\-\\[\\]]{2,15}$/i', $_POST['u'])) {
-				throw new Exception("Username is not valid! It must be from 2 to 15 characters long, " .
-									"and can only contain alphanumeric chararacters, spaces, and these " .
-									"characters: <code>_-[]</code>");
-			}
-			// Make sure username is not forbidden
-			if (UsernameHelper::isUsernameForbidden($_POST['u'])) {
-				throw new Exception('Username now allowed. Please choose another one.');
-			}
-			// Username with mixed spaces
-			if (strpos($_POST["u"], " ") !== false && strpos($_POST["u"], "_") !== false) {
-				throw new Exception('Usernames with both spaces and underscores are not supported.');
-			}
-			// Check if username is already in db
-			$safe = safeUsername($_POST["u"]);
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username_safe = ?', [$safe])) {
-				throw new Exception('That username was already found in the database! Perhaps someone stole it from you? Those bastards!');
-			}
-			// Check if email is already in db
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE email = ?', $_POST['e'])) {
-				throw new Exception('An user with that email already exists!');
-			}
-			// Check captcha
-			if (!isset($_POST["g-recaptcha-response"])) {
-				throw new Exception("Invalid captcha");
-			}
-			$data = [
-				"secret" => $reCaptchaConfig["secret_key"],
-				"response" => $_POST["g-recaptcha-response"]
- 			];
-			if ($reCaptchaConfig["ip"]) {
-				$data[] = [
-					"ip" => $ip
-				];
-			}
-			$reCaptchaResponse = postJsonCurl("https://www.google.com/recaptcha/api/siteverify", $data, $timeout = 10);
-			if (!$reCaptchaResponse["success"]) {
-				throw new Exception("Invalid captcha");
-			}
-			// Multiacc notice if needed
-			$multiIP = multiaccCheckIP($ip);
-			$multiToken = multiaccCheckToken();
-			if ($multiIP !== FALSE || $multiToken !== FALSE) {
-				if ($multiIP !== FALSE) {
-					$multiUserInfo = $multiIP;
-					$criteria = "IP **($ip)**";
-				} else {
-					$multiUserInfo = $multiToken;
-					$criteria = "Multiaccount token (IP is **$ip**)";
-				}
-				$multiUsername = $multiUserInfo["username"];
-				$multiUserID = $multiUserInfo["userid"];
-			}
-			// Create password
-			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
-			// Put some data into the db
-			$GLOBALS['db']->execute("INSERT INTO `users`(username, username_safe, password_md5, salt, email, register_datetime, privileges, password_version)
-			                                     VALUES (?,        ?,             ?,            '',   ?,     ?,                 ?, 2);",
-												 		[$_POST['u'], $safe,      $md5Password,       $_POST['e'], time(true), Privileges::UserPendingVerification]);
-			// Get user ID
-			$uid = $GLOBALS['db']->lastInsertId();
-			// Put some data into users_stats
-			// TODO: Move this query above to avoid mysql thread conflict memes
-			$GLOBALS['db']->execute("INSERT INTO `users_stats`(id, username, user_color, user_style, ranked_score_std, playcount_std, total_score_std, ranked_score_taiko, playcount_taiko, total_score_taiko, ranked_score_ctb, playcount_ctb, total_score_ctb, ranked_score_mania, playcount_mania, total_score_mania) VALUES (?, ?, 'black', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);", [$uid, $_POST['u']]);
-			// Update leaderboard (insert new user) for each mode.
-			foreach (['std', 'taiko', 'ctb', 'mania'] as $m) {
-				Leaderboard::Update($uid, 0, $m);
-			}
-			// Generate and set identity token ("y" cookie)
-			setYCookie($uid);
-			// log user ip
-			logIP($uid);
-			//addSuccess("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
-			// All fine, done
-			redirect('index.php?p=38&u='.$uid);
-		} catch(Exception $e) {
-			// Redirect to Exception page
-			addError($e->getMessage());
-			redirect('index.php?p=3&iseethestopsign=1');
-		}
-	}
-
-	/*
-	 * ChangePassword
-	 * Change password function
-	*/
-	public static function ChangePassword() {
-		try {
-			// Check if we are logged in
-			sessionCheck();
-			// Check if everything is set
-			if (empty($_POST['pold']) || empty($_POST['p1']) || empty($_POST['p2'])) {
-				throw new Exception('Nope.');
-			}
-			$pres = PasswordHelper::ValidatePassword($_POST['p1'], $_POST['p2']);
-			if ($pres !== -1) {
-				throw new Exception($pres);
-			}
-			if (!PasswordHelper::CheckPass($_SESSION['username'], $_POST['pold'], false)) {
-				throw new Exception('Your old password is incorrect.');
-			}
-			// Calculate new password
-			$newPassword = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
-			// Change both passwords and salt
-			$GLOBALS['db']->execute("UPDATE users SET password_md5 = ?, password_version = 2, salt = '' WHERE username = ?", [$newPassword, $_SESSION['username']]);
-			// Set in session that we've changed our password otherwise sessionCheck() will kick us
-			$_SESSION['passwordChanged'] = true;
-			// Redirect to success page
-			addSuccess('Password changed!');
-			redirect('index.php?p=7');
-		}
-		catch(Exception $e) {
-			addError($e->getMessage());
-			// Redirect to Exception page
-			redirect('index.php?p=7');
-		}
-	}
-
-	/*
 	 * SaveSystemSettings
 	 * Save system settings function (ADMIN CP)
 	*/
@@ -265,20 +118,6 @@ class D {
 		catch(Exception $e) {
 			// Redirect to Exception page
 			redirect('index.php?p=111&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * RunCron
-	 * Runs cron.php from admin cp with exec/redirect
-	*/
-	public static function RunCron() {
-		if ($CRON['adminExec']) {
-			// howl master linux shell pr0
-			exec(PHP_BIN_DIR.'/php '.dirname(__FILE__).'/../cron.php 2>&1 > /dev/null &');
-		} else {
-			// Run from browser
-			redirect('./cron.php');
 		}
 	}
 
@@ -845,86 +684,6 @@ class D {
 	}
 
 	/*
-	 * SaveUserpage
-	 * Save userpage functions
-	*/
-	public static function SaveUserpage() {
-		try {
-			// Check if we are logged in
-			sessionCheck();
-			// Restricted check
-			if (isRestricted()) {
-				throw new Exception(2);
-			}
-			// Check if everything is set
-			if (!isset($_POST['c'])) {
-				throw new Exception(0);
-			}
-			// Check userpage length
-			if (strlen($_POST['c']) > 1500) {
-				throw new Exception(1);
-			}
-			// Save data in db
-			$GLOBALS['db']->execute('UPDATE users_stats SET userpage_content = ? WHERE username = ?', [$_POST['c'], $_SESSION['username']]);
-			if (isset($_POST['view']) && $_POST['view'] == 1) {
-				redirect('index.php?u=' . $_SESSION['userid']);
-			}
-			// Done, redirect to success page
-			redirect('index.php?p=8&s=ok');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=8&e='.$e->getMessage().$r);
-		}
-	}
-
-	/*
-	 * ChangeAvatar
-	 * Chhange avatar functions
-	*/
-	public static function ChangeAvatar() {
-		try {
-			// Check if we are logged in
-			sessionCheck();
-			// Restricted check
-			if (isRestricted()) {
-				throw new Exception(5);
-			}
-			// Check if everything is set
-			if (!isset($_FILES['file'])) {
-				throw new Exception(0);
-			}
-			// Check if image file is a actual image or fake image
-			if (!getimagesize($_FILES['file']['tmp_name'])) {
-				throw new Exception(1);
-			}
-			// Allow certain file formats
-			$allowedFormats = ['jpg', 'jpeg', 'png'];
-			if (!in_array(pathinfo($_FILES['file']['name']) ['extension'], $allowedFormats)) {
-				throw new Exception(2);
-			}
-			// Check file size
-			if ($_FILES['file']['size'] > 1000000) {
-				throw new Exception(3);
-			}
-			// Resize
-			if (!smart_resize_image($_FILES['file']['tmp_name'], null, 100, 100, false, dirname(dirname(dirname(__FILE__))).'/avatarserver/avatars/'.getUserID($_SESSION['username']).'.png', false, false, 100)) {
-				throw new Exception(4);
-			}
-			/* "Convert" to png
-												if (!move_uploaded_file($_FILES["file"]["tmp_name"], dirname(dirname(dirname(__FILE__)))."/avatarserver/avatars/".getUserID($_SESSION["username"]).".png")) {
-												    throw new Exception(4);
-												}*/
-			// Done, redirect to success page
-			redirect('index.php?p=5&s=ok');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=5&e='.$e->getMessage());
-		}
-	}
-
-	/*
 	 * WipeAccount
 	 * Wipes an account
 	*/
@@ -996,34 +755,6 @@ class D {
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=102&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * AddRemoveFriend
-	 * Add remove friends
-	*/
-	public static function AddRemoveFriend() {
-		try {
-			// Check if we are logged in
-			sessionCheck();
-			// Check if everything is set
-			if (!isset($_GET['u']) || empty($_GET['u'])) {
-				throw new Exception(0);
-			}
-			// Get our user id
-			$uid = getUserID($_SESSION['username']);
-			// Add/remove friend
-			if (getFriendship($uid, $_GET['u'], true) == 0) {
-				addFriend($uid, $_GET['u'], true);
-			} else {
-				removeFriend($uid, $_GET['u'], true);
-			}
-			// Done, redirect
-			redirect('index.php?u='.$_GET['u']);
-		}
-		catch(Exception $e) {
-			redirect('index.php?p=99&e='.$e->getMessage());
 		}
 	}
 	
@@ -1209,6 +940,11 @@ class D {
 		try {
 			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
 				throw new Exception("Invalid user");
+			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
+			if (!$username) {
+				throw new Exception("That user doesn't exist");
+			}
+			$username = current($username);
 			$months = giveDonor($_POST["id"], $_POST["m"], $_POST["type"] == 0);
 			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
@@ -1277,34 +1013,6 @@ class D {
 			redirect('index.php?p=102&e='.$e->getMessage());
 		}
 	}
-
-	public static function ToggleCustomBadge() {
-		try {
-			if (!isset($_GET["id"]) || empty($_GET["id"]))
-				throw new Exception("Invalid user");
-			$userData = $GLOBALS["db"]->fetch("SELECT username, privileges FROM users WHERE id = ? LIMIT 1", [$_GET["id"]]);
-			if (!$userData) {
-				throw new Exception("That user doesn't exist");
-			}
-			$username = $userData["username"];
-			// Check if we can edit this user
-			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0) {
-				throw new Exception("You don't have enough permissions to grant/revoke custom badge privilege on this account");
-			}
-
-			// Grant/revoke custom badge privilege
-			$can = current($GLOBALS["db"]->fetch("SELECT can_custom_badge FROM users_stats WHERE id = ? LIMIT 1", [$_GET["id"]]));
-			$grantRevoke = ($can == 0) ? "granted" : "revoked";
-			$can = !$can;
-			$GLOBALS["db"]->execute("UPDATE users_stats SET can_custom_badge = ? WHERE id = ? LIMIT 1", [$can, $_GET["id"]]);
-
-			rapLog(sprintf("has %s custom badge privilege on %s's account", $grantRevoke, $username), $_SESSION["userid"]);
-			redirect("index.php?p=102&s=Custom badge privilege revoked/granted!");
-		} catch(Exception $e) {
-			redirect('index.php?p=102&e='.$e->getMessage());
-		}
-	}
-
 
 	public static function lockUnlockUser() {
 		try {
@@ -1675,112 +1383,6 @@ class D {
 			// redirect(index.php?p=134&id=" . $userID);
 		} catch (Exception $e) {
 			redirect("index.php?p=134&e=" . $e->getMessage());
-		}
-	}
-
-	public static function UploadMainMenuIcon() {
-		try {
-			if (!isset($_POST["name"]) || empty($_POST["name"]) || !isset($_POST["url"]) || empty($_POST["url"])) {
-				throw new Exception("Missing required parameter(s).");
-			}
-			if (!isset($_FILES["file"]) || empty($_FILES["file"]) || $_FILES["file"]["error"] != 0) {
-				throw new Exception("Nothing uploaded");
-			}
-			$path = "main_menu_icons";
-			$verifyImg = getimagesize($_FILES["file"]["tmp_name"]);
-			if ($verifyImg["mime"] !== "image/png") {
-				throw new Exception("Only png images are allowed");
-			}
-			$fileName = randomFileName($path, ".png");
-			$finalFilePath = $path . "/" . $fileName . ".png";
-			if (!move_uploaded_file($_FILES["file"]["tmp_name"], $finalFilePath)) {
-				throw new Exception("File upload failed. Check server's permissions.");
-			}
-			$defaultCount = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_default = 1"));
-			$GLOBALS["db"]->execute("INSERT INTO main_menu_icons (name, file_id, url, is_default) VALUES (?, ?, ?, ?)", [$_POST["name"], $fileName, $_POST["url"], (int)($defaultCount == 0)]);
-			$msg = "Main menu icon uploaded successfully";
-			$msg .= $defaultCount == 0 ? " and set as default image." : "!";
-			redirect("index.php?p=111&s=" . $msg);
-		} catch (Exception $e) {
-			redirect("index.php?p=111&e=" . $e->getMessage());
-		}
-	}
-
-	public static function DeleteMainMenuIcon() {
-		try {
-			if (!isset($_GET["id"]) || empty($_GET["id"])) {
-				throw new Exception("Missing required parameter");
-			}
-			$icon = $GLOBALS["db"]->fetch("SELECT file_id FROM main_menu_icons WHERE id = ? LIMIT 1", [$_GET["id"]]);
-			if (!$icon) {
-				throw new Exception("The icon doesn't exist.");
-			}
-			unlink("main_menu_icons/" . $icon["file_id"] . ".png");
-			$GLOBALS["db"]->execute("DELETE FROM main_menu_icons WHERE id = ? LIMIT 1", [$_GET["id"]]);
-			updateMainMenuIconBancho();
-			redirect("index.php?p=111&s=Main menu icon deleted successfully!");
-		} catch (Exception $e) {
-			redirect("index.php?p=111&e=" . $e->getMessage());
-		}
-	}
-
-	public static function SetDefaultMainMenuIcon() {
-		try {
-			if (!isset($_GET["id"]) || empty($_GET["id"])) {
-				throw new Exception("Missing required parameter");
-			}
-			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_default = IF(id = ?, 1, 0)", [$_GET["id"]]);
-			redirect("index.php?p=111&s=Default main menu icon set successfully!");
-		} catch (Exception $e) {
-			redirect("index.php?p=111&e=" . $e->getMessage());
-		}
-	}
-
-	public static function SetMainMenuIcon() {
-		try {
-			if (!isset($_GET["id"]) || empty($_GET["id"])) {
-				throw new Exception("Missing required parameter");
-			}
-			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_current = IF(id = ?, 1, 0)", [$_GET["id"]]);
-			updateMainMenuIconBancho();
-			redirect("index.php?p=111&s=Main menu icon set successfully!");
-		} catch (Exception $e) {
-			redirect("index.php?p=111&e=" . $e->getMessage());
-		}
-	}
-
-	public static function TestMainMenuIcon() {
-		try {
-			if (!isset($_GET["id"]) || empty($_GET["id"])) {
-				throw new Exception("Missing required parameter");
-			}
-			$devs = $GLOBALS["db"]->fetchAll("SELECT id FROM users WHERE privileges & " . Privileges::AdminManageServers . " > 0");
-			foreach ($devs as $row) {
-				testMainMenuIconBancho($row["id"], $_GET["id"]);
-			}
-			redirect("index.php?p=111&s=Main menu icon sent to all online developers!");
-		} catch (Exception $e) {
-			redirect("index.php?p=111&e=" . $e->getMessage());
-		}
-	}
-
-	public static function RestoreMainMenuIcon() {
-		try {
-			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_current = IF((SELECT id FROM (SELECT * FROM main_menu_icons) AS x WHERE x.is_default = 1 AND x.id = main_menu_icons.id LIMIT 1), 1, 0)", [$_GET["id"]]);
-			updateMainMenuIconBancho();
-			redirect("index.php?p=111&s=Main menu icon restored successfully!");
-		} catch (Exception $e) {
-			redirect("index.php?p=111&e=" . $e->getMessage());
-		}
-	}
-
-	public static function RemoveMainMenuIcon() {
-		try {
-			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_current = 0", [$_GET["id"]]);
-			updateMainMenuIconBancho();
-			redirect("index.php?p=111&s=Main menu icon removed successfully!");
-		} catch (Exception $e) {
-			redirect("index.php?p=111&e=" . $e->getMessage());
 		}
 	}
 

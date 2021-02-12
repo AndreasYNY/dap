@@ -155,7 +155,7 @@ function setTitle($p) {
 			136 => 'Search users by IP - Results',
 			137 => 'Top Scores',
 			138 => 'Top Scores Results',
-			//139 => 'S3 Replays Buckets',
+			139 => 'Edit Whitelist IP',
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -379,10 +379,10 @@ function printPage($p) {
 				P::AdminTopScoresResults();
 			break;
 
-			// Admin panel - S3 replays buckets
+			// Admin panel - QuickEditIP
 			case 139:
-				sessionCheckAdmin(Privileges::AdminCaker);
-				P::AdminS3ReplaysBuckets();
+				sessionCheckAdmin(Privileges::AdminManageUsers);
+				P::AdminWhitelistIP();
 			break;
 
 			// 404 page
