@@ -68,7 +68,7 @@ try {
 		break;
 		case 'quickWhitelistIP':
 			sessionCheckAdmin(Privileges::AdminManageUsers);
-			D::QuickWhitelistIP(false);
+			D::QuickEditWhitelistIP(false);
 		break;
 		case 'quickEditUserEmail':
 			sessionCheckAdmin(Privileges::AdminManageUsers);

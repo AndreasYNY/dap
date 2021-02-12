@@ -275,6 +275,27 @@ class D {
 		}
 	}
 
+	public static function QuickEditWhitelistIP() {
+		try {
+			// Check if everything is set
+			if (empty($_POST['u'])) {
+				throw new Exception('Nice troll.');
+			}
+			// Get user id
+			$id = current($GLOBALS['db']->fetch(sprintf('SELECT id FROM users WHERE %s = ? LIMIT 1', $email ? 'email' : 'username'), [$_POST['u']]));
+			// Check if that user exists
+			if (!$id) {
+				throw new Exception("That user doesn't exist");
+			}
+			// Done, redirect to edit page
+			redirect('index.php?p=103&id='.$id);
+		}
+		catch(Exception $e) {
+			// Redirect to Exception page
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
+
 	/*
 	 * QuickEditUserBadges
 	 * Redirects to the edit user badges page for the user with $_POST["u"] username
