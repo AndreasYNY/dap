@@ -405,7 +405,7 @@ class P {
 	public static function AdminWhitelistIP() {
 		try {
 			$cekIp = $GLOBALS['db']->fetch('SELECT * FROM simpen_ip WHERE id = ?', $_GET['id']);
-			$kodeNegara = $GLOBALS['db']-fetch('SELECT kode_negara FROM simpen_ip WHERE id = ?', $_GET['id']);
+			$kodeNegara = $GLOBALS['db']->fetch('SELECT kode_negara FROM simpen_ip WHERE id = ?', $_GET['id']);
 			echo '<div id="wrapper">';
 			printAdminSidebar();
 			echo '<div id="page-content-wrapper">';
