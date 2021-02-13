@@ -73,7 +73,7 @@ class D {
 			// save value
 			$GLOBALS['db']->execute("UPDATE simpen_ip SET kode_negara = ? WHERE id = ? LIMIT 1", [$_POST["kn"], $_POST["idip"]]);
 			// RAP log
-			rapLog("has whitelisted IP");
+			rapLog(sprintf("has whitelisted IP %s", $_POST["ipaddress"]));
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=Settings saved!');
 		}

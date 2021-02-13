@@ -426,7 +426,7 @@ class P {
 			</tr>';
 			echo '<tr>
 			<td>Alamat IP</td>
-			<td><input type="text" class="form-control" value="'.$cekIp['alamat_ip'].'" readonly></td>
+			<td><input type="text" name="ipaddress" class="form-control" value="'.$cekIp['alamat_ip'].'" readonly></td>
 			</tr>';
 			echo '<tr>
 			<td>Kode Negara (Harus pakai ID)</td>
