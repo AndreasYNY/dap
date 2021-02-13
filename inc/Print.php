@@ -304,7 +304,7 @@ class P {
 		</div>
 		<div class="modal-footer">
 		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		<button type="submit" form="quick-whitelist-ip-form" class="btn btn-primary">Edit user</button>
+		<button type="submit" form="quick-whitelist-ip-form" class="btn btn-primary">Edit IP</button>
 		</div>
 		</div>
 		</div>
