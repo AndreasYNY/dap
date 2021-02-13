@@ -422,7 +422,7 @@ class P {
 			<input name="action" value="saveWhitelistIP" hidden>';
 			echo '<tr>
 			<td>ID</td>
-			<td><input type="text" class="form-control" value="'.$cekIp['id'].'" readonly></td>
+			<td><input type="text" name="idip" class="form-control" value="'.$cekIp['id'].'" readonly></td>
 			</tr>';
 			echo '<tr>
 			<td>Alamat IP</td>
