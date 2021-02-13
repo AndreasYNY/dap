@@ -404,8 +404,8 @@ class P {
 	*/
 	public static function AdminWhitelistIP() {
 		try {
-			$cekIp = $GLOBALS['db']->fetchAll('SELECT alamat_ip FROM simpen_ip WHERE id = ?', $_GET['id']);
-			$kodeNegara = $GLOBALS['db']->fetchAll('SELECT kode_negara FROM simpen_ip WHERE id = ?', $_GET['id']);
+			$cekIp = current($GLOBALS['db']->fetchAll('SELECT alamat_ip FROM simpen_ip WHERE id = ?', $_GET['id']));
+			$kodeNegara = current($GLOBALS['db']->fetchAll('SELECT kode_negara FROM simpen_ip WHERE id = ?', $_GET['id']));
 			echo '<div id="wrapper">';
 			printAdminSidebar();
 			echo '<div id="page-content-wrapper">';
@@ -431,7 +431,7 @@ class P {
 			</tr>';
 			echo '<tr>
 			<td>Kode Negara (Harus pakai ID)</td>
-			<td><input type="text" name="kn" class="form-control" value="'.$kodeNegara.'"></input></td>
+			<td><input type="text" name="kn" class="form-control" value="'.$kodeNegara.'"></td>
 			</tr>';
 			echo '</tbody></form>';
 			echo '</table>';
