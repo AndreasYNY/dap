@@ -980,10 +980,13 @@ class D {
 		try {
 			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
 				throw new Exception("Invalid user");
-			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
-			$username = current($username);
+			$uname = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_POST["id"]]);
+			if (!$uname) {
+				throw new Exception("Invalid user");
+			}
+			$uname = current($uname);
 			$months = giveDonor($_POST["id"], $_POST["m"], $_POST["type"] == 0);
-			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $username), $_SESSION["userid"]);
+			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $uname), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
 		}
 		catch(Exception $e) {
