@@ -292,7 +292,7 @@ class P {
 		</div>
 		<div class="modal-body">
 		<p>
-		<form id="quick-edit-user-form" action="submit.php" method="POST">
+		<form id="quick-whitelist-ip-form" action="submit.php" method="POST">
 		<input name="csrf" type="hidden" value="'.csrfToken().'">
 		<input name="action" value="quickWhitelistIP" hidden>
 		<div class="input-group">
@@ -304,7 +304,7 @@ class P {
 		</div>
 		<div class="modal-footer">
 		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		<button type="submit" form="quick-edit-user-form" class="btn btn-primary">Edit user</button>
+		<button type="submit" form="quick-whitelist-ip-form" class="btn btn-primary">Edit user</button>
 		</div>
 		</div>
 		</div>
