@@ -71,7 +71,7 @@ class D {
 	public static function SaveEditWhitelistIP() {
 		try {
 			// save value
-			$GLOBALS['db']->execute("UPDATE simpen_ip SET kode_negara = ? WHERE id = ? LIMIT 1", [$_POST["kn"], $_POST["id"]]);
+			$GLOBALS['db']->execute("UPDATE simpen_ip SET kode_negara = ? WHERE id = ? LIMIT 1", [$_POST["kn"], $_GET["id"]]);
 			// RAP log
 			rapLog("has whitelisted IP");
 			// Done, redirect to success page
