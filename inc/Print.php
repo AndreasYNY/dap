@@ -404,8 +404,7 @@ class P {
 	*/
 	public static function AdminWhitelistIP() {
 		try {
-			$cekIp = current($GLOBALS['db']->fetchAll('SELECT alamat_ip FROM simpen_ip WHERE id = ?', $_GET['id']));
-			$kodeNegara = current($GLOBALS['db']->fetchAll('SELECT kode_negara FROM simpen_ip WHERE id = ?', $_GET['id']));
+			$cekIp = current($GLOBALS['db']->fetchAll('SELECT * FROM simpen_ip WHERE id = ?', $_GET['id']));
 			echo '<div id="wrapper">';
 			printAdminSidebar();
 			echo '<div id="page-content-wrapper">';
@@ -423,15 +422,15 @@ class P {
 			<input name="action" value="saveWhitelistIP" hidden>';
 			echo '<tr>
 			<td>ID</td>
-			<td><input type="text" class="form-control" value="'.$_GET['id'].'" readonly></td>
+			<td><input type="text" class="form-control" value="'.$cekIp['id'].'" readonly></td>
 			</tr>';
 			echo '<tr>
 			<td>Alamat IP</td>
-			<td><input type="text" class="form-control" value="'.$cekIp.'" readonly></td>
+			<td><input type="text" class="form-control" value="'.$cekIp['alamat_ip'].'" readonly></td>
 			</tr>';
 			echo '<tr>
 			<td>Kode Negara (Harus pakai ID)</td>
-			<td><input type="text" name="kn" class="form-control" value="'.$kodeNegara.'"></td>
+			<td><input type="text" name="kn" class="form-control" value="'.$cekIp['kode_negara'].'"></td>
 			</tr>';
 			echo '</tbody></form>';
 			echo '</table>';
