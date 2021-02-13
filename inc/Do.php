@@ -981,9 +981,6 @@ class D {
 			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
 				throw new Exception("Invalid user");
 			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
-			if (!$username) {
-				throw new Exception("That user doesn't exist");
-			}
 			$username = current($username);
 			$months = giveDonor($_POST["id"], $_POST["m"], $_POST["type"] == 0);
 			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $username), $_SESSION["userid"]);
