@@ -70,13 +70,17 @@ class D {
 
 	public static function SaveEditWhitelistIP() {
 		try {
+			// Check if everything is set (username color, username style, rank, allowed and notes can be empty)
+			if (!isset($_POST['id']) || empty($_POST['id'])) {
+				throw new Exception('Nice troll');
+			}
 			if (!empty($_POST['kn'])) {
 				$kn = $_POST['kn'];
 			} else {
 				$kn = '';
 			}
 			// save value
-			$GLOBALS['db']->execute("UPDATE simpen_ip SET kode_negara = ? WHERE id = ? LIMIT 1", [$kn], [$_POST['id']]);
+			$GLOBALS['db']->execute("UPDATE simpen_ip SET kode_negara = ? WHERE id = ? LIMIT 1", [$kn], [$_POST["id"]]);
 			// RAP log
 			rapLog("has whitelisted IP");
 			// Done, redirect to success page
