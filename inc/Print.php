@@ -296,7 +296,7 @@ class P {
 		<input name="csrf" type="hidden" value="'.csrfToken().'">
 		<input name="action" value="quickWhitelistIP" hidden>
 		<div class="input-group">
-		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></span>
+		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span></span>
 		<input type="text" name="ipnya" class="form-control" placeholder="IP Address" aria-describedby="basic-addon1" required>
 		</div>
 		</form>
