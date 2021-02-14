@@ -1768,7 +1768,9 @@ function giveDonor($userID, $months, $add=true) {
 	$unixExpire = $start+((30*86400)*$months);
 	$monthsExpire = round(($unixExpire-time())/(30*86400));
 	$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixExpire, $userID]);
-
+	//can custom badge
+	$GLOBALS["db"]->execute("UPDATE users_stats SET can_custom_badge = 1 WHERE id = ?", [$userID]);
+	
 	$donorBadge = $GLOBALS["db"]->fetch("SELECT id FROM badges WHERE name = 'Donat' OR name = 'Donor' LIMIT 1");
 	if (!$donorBadge) {
 		throw new Exception("There's no Donor badge in the database. Please run bdzr to migrate the database to the latest version.");

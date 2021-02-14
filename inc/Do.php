@@ -1003,6 +1003,8 @@ class D {
 			// Remove donor badge
 			// 14 = donor badge id
 			$GLOBALS["db"]->execute("DELETE FROM user_badges WHERE user = ? AND badge = ?", [$_GET["id"], 1002]);
+			// Set custom badge
+			$GLOBALS["db"]->execute("UPDATE users_stats SET can_custom_badge = 0 WHERE id = ?", [$_GET["id"]]);
 
 			rapLog(sprintf("has removed donor from user %s", $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=Donor status changed!");
