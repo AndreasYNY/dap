@@ -80,7 +80,7 @@ try {
 		break;
 		case 'ReqMarkedDone':
 			sessionCheckAdmin(Privileges:AdminManageBeatmaps);
-			D::MarkDone():
+			D::MarkDone();
 		break;
 		case 'removeBadge':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBadges);
