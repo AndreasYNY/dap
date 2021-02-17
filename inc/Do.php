@@ -872,6 +872,19 @@ class D {
 		}
 	}
 
+	public static function MarkDone() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"]))
+				throw new Exception("bruh");
+				$GLOBALS["db"]->execute("DELETE FROM rank_requests WHERE id = ?", [$_GET["id"]]);
+				rapLog("has marked done some beatmaps");
+				redirect("index.php?p=117&s=The beatmap was marked as done and deleted on database!");
+		}
+		catch(Exception $e) {
+			redirect('index.php?p=117&e='.$e->getMessage());
+		}
+	}
+	
 	public static function savePrivilegeGroup() {
 		try {
 			// Args check
