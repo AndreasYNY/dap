@@ -2284,7 +2284,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 	*/
 	public static function AdminRankRequests() {
 		// get data ampe 100 ranks request
-		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id ORDER BY id DESC LIMIT 100");
+		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id ORDER BY id DESC LIMIT 50");
 		// Print sidebar and template stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -2303,10 +2303,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '<span class="centered"><h2><i class="fa fa-music"></i>	Beatmap rank requests</h2></span>';
 		// Main page content here
 		echo '<div class="page-content-wrapper">';
-		//echo '<div style="width: 50%; margin-left: 25%;" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Make sure to load every difficulty in-game before ranking a map.</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
-		//echo '<hr>
-		//<h2 style="display: inline;">'.$rankRequestsToday["count"].'</h2><h3 style="display: inline;">/'.$ScoresConfig["rankRequestsQueueSize"].'</h3><br><h4>requests submitted today</h4>
-		//<hr>';
 		echo '<table class="table table-striped table-hover" style="width: 94%; margin-left: 3%;">
 		<thead>
 		<tr><th><i class="fa fa-music"></i>	ID</th><th>Artist & song</th><th>Difficulties</th><th>Mode</th><th>From</th><th>When</th><th class="text-center">Actions</th></tr>
@@ -2324,7 +2320,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					$song = "Wat";
 				}
 			} else {
-				$song = "Unknown";
+				$song = "Unknown (Klik Edit untuk melihat info beatmap)";
 			}
 
 			if ($req["type"] == "s")
@@ -2376,14 +2372,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$rowClass = "default";
 			}
 
-			/*if (($bsid & 1073741824) > 0) {
-				$host = "osu!mp";
-			} else if (($bsid & 536870912) > 0) {
-				$host = "ripple";
-			} else {
-				$host = "osu!";
-			}*/
-
 			echo "<tr class='$rowClass'>
 				<td><a href='https://osu.ppy.sh/s/$bsid' target='_blank'>$req[type]/$req[bid]</a></td>
 				<td>$song</td>
@@ -2395,6 +2383,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<td>".timeDifference(time(), $req["time"])."</td>
 				<td>
 					<p class='text-center'>
+						<a title='Mark as done' class='btn btn-xs btn-success' href='submit.php?action=ReqMarkedDone&id=$req[id]'><span class='glyphicon glyphicon-ok'></span></a>
 						<a title='Edit ranked status' class='btn btn-xs btn-primary' href='index.php?p=124&bsid=$bsid&force=".$forceParam."'><span class='glyphicon glyphicon-pencil'></span></a>
 						<a title='Toggle blacklist' class='btn btn-xs btn-danger' href='submit.php?action=blacklistRankRequest&id=$req[id]&csrf=".csrfToken()."'><span class='glyphicon glyphicon-flag'></span></a>
 					</p>
