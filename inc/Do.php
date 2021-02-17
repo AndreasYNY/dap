@@ -805,7 +805,7 @@ class D {
 				throw new Exception("no");
 
 			// Get beatmapset id
-			$requestData = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			$requestData = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE id = ? AND hidden = 0 LIMIT 1", [$_GET["id"]]);
 			if (!$requestData)
 				throw new Exception("Rank request not found");
 
@@ -838,7 +838,7 @@ class D {
 				$resp = getJsonCurl($requesturl);
 	
 				if ($resp["message"] != "ok") {
-				rapLog("failed to send FokaBot message :( err: " . print_r($resp["message"], true));
+					rapLog("failed to send YohaneBot message :( err: " . print_r($resp["message"], true));
 				}
 			}
 
@@ -846,7 +846,7 @@ class D {
 			rapLog(sprintf("has %s beatmap set %s", $_GET["r"] == 0 ? "unranked" : "ranked", $bsid), $_SESSION["userid"]);
 
 			// Done
-			redirect("index.php?p=117&s=野生のちんちんが現れる");
+			redirect("index.php?p=117&s=野生のちんちんが現れる"); // kontol gue bisa baca ini
 		}
 		catch(Exception $e) {
 			redirect("index.php?p=117&e=".$e->getMessage());
@@ -863,7 +863,7 @@ class D {
 			if (!isset($_GET["id"]) || empty($_GET["id"]))
 				throw new Exception("no");
 			$GLOBALS["db"]->execute("UPDATE rank_requests SET blacklisted = IF(blacklisted=1, 0, 1) WHERE id = ? LIMIT 1", [$_GET["id"]]);
-			$reqData = $GLOBALS["db"]->fetch("SELECT type, bid FROM rank_requests WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			$reqData = $GLOBALS["db"]->fetch("SELECT type, bid FROM rank_requests WHERE id = ? AND hidden = 0 LIMIT 1", [$_GET["id"]]);
 			rapLog(sprintf("has toggled blacklist flag on beatmap %s %s", $reqData["type"] == "s" ? "set" : "", $reqData["bid"]), $_SESSION["userid"]);
 			redirect("index.php?p=117&s=Blacklisted flag changed");
 		}
@@ -876,7 +876,7 @@ class D {
 		try {
 			if (!isset($_GET["id"]) || empty($_GET["id"]))
 				throw new Exception("bruh");
-				$GLOBALS["db"]->execute("DELETE FROM rank_requests WHERE id = ?", [$_GET["id"]]);
+				$GLOBALS["db"]->execute("UPDATE rank_requests SET hidden = 1 WHERE id = ?", [$_GET["id"]]);
 				rapLog("has marked done some beatmaps");
 				redirect("index.php?p=117&s=The beatmap was marked as done and deleted on database!");
 		}

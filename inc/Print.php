@@ -2284,7 +2284,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 	*/
 	public static function AdminRankRequests() {
 		// get data ampe 100 ranks request
-		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id ORDER BY id DESC LIMIT 50");
+		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE rank_requests.hidden = 0 ORDER BY id DESC LIMIT 50");
 		// Print sidebar and template stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
