@@ -78,6 +78,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ChangeIdentity();
 		break;
+		case 'ReqMarkedDone':
+			sessionCheckAdmin(Privileges:AdminManageBeatmaps);
+			D::MarkDone():
+		break;
 		case 'removeBadge':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBadges);
 			D::RemoveBadge();
