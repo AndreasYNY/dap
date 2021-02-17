@@ -2383,9 +2383,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<td>".timeDifference(time(), $req["time"])."</td>
 				<td>
 					<p class='text-center'>
-						<a title='Mark as done' class='btn btn-xs btn-success' href='submit.php?action=ReqMarkedDone&id=$req[id]&csrf=".csrfToken()."'><span class='glyphicon glyphicon-ok'></span></a>
 						<a title='Edit ranked status' class='btn btn-xs btn-primary' href='index.php?p=124&bsid=$bsid&force=".$forceParam."'><span class='glyphicon glyphicon-pencil'></span></a>
 						<a title='Toggle blacklist' class='btn btn-xs btn-danger' href='submit.php?action=blacklistRankRequest&id=$req[id]&csrf=".csrfToken()."'><span class='glyphicon glyphicon-flag'></span></a>
+						<a title='Mark as done' class='btn btn-xs btn-success' href='submit.php?action=ReqMarkedDone&id=$req[id]&csrf=".csrfToken()."'><span class='glyphicon glyphicon-ok'></span></a>
 					</p>
 				</td>
 			</tr>";
