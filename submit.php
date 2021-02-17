@@ -79,7 +79,7 @@ try {
 			D::ChangeIdentity();
 		break;
 		case 'ReqMarkedDone':
-			sessionCheckAdmin(Privileges:AdminManageBeatmaps);
+			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::MarkDone();
 		break;
 		case 'removeBadge':	// TODO
