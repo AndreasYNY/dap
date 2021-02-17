@@ -876,9 +876,9 @@ class D {
 		try {
 			if (!isset($_GET["id"]) || empty($_GET["id"]))
 				throw new Exception("bruh");
-				$GLOBALS["db"]->execute("UPDATE rank_requests SET hidden = 1 WHERE id = ?", [$_GET["id"]]);
-				rapLog("has marked done some beatmaps");
-				redirect("index.php?p=117&s=The beatmap was marked as done and deleted on database!");
+			$GLOBALS["db"]->execute("UPDATE rank_requests SET hidden = 1 WHERE id = ?", [$_GET["id"]]);
+			rapLog("has marked done some beatmaps");
+			redirect("index.php?p=117&s=The beatmap was marked as done and deleted on database!");
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=117&e='.$e->getMessage());
