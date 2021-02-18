@@ -1189,6 +1189,7 @@ class D {
 					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE id = ?", [$_POST['mapnotes'],$noteCurrent['id']]);
 				}
 				$usernames = $GLOBALS['db']->fetch(sprintf('select id, username from users where id in (%s)',implode(',',$noteUsers)));
+				foreach($usernames as $ud) $noteUsers[$ud['id']] = $ud['username'];
 				foreach($noteAction as $reqID => $reqStruct) {
 					$rq = [0,0];
 					if($reqStruct[0] == 'b') $rq[0] = $reqStruct[1];
@@ -1212,7 +1213,7 @@ class D {
 								],
 								"color" => hexdec( "3366ff" ),
 								"footer" => [
-									"text" => sprintf("Requested by [https://osu.troke.id/%d](%s)", $reqStruct[2], $usernames[$reqStruct[2]]),
+									"text" => sprintf("Requested by %s", $noteUsers[$reqStruct[2]]),
 									"icon_url" => sprintf("https://a.troke.id/%d", $reqStruct[2])
 								],
 								"thumbnail" => [
