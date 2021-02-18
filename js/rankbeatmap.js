@@ -10,7 +10,7 @@ function properBeatmapStatus(bm) {
 	else {
 		requestText = requestText.replace('{}',`UID ${bm.request.user_id}`);
 	}
-	return freezeText.replace('{}', `<b>${readableRankedStatus(bm.status)}</b>{}`)
+	return (freezeText.replace('{}', `<b>${readableRankedStatus(bm.status)}</b>`)+'{}')
 		.replace('{}',`<br>${escapeHtml(requestText)}`);
 }
 
