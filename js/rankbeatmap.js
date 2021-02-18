@@ -8,9 +8,9 @@ function readableRankedStatus(ranked) {
 	} else if (ranked == 2) {
 		return "Ranked"
 	} else if (ranked == 3) {
-		return "Approved (ranked)"
+		return "Approved"
 	} else if (ranked == 4) {
-		return "Qualified (ranked)"
+		return "Qualified"
 	} else if (ranked == 5) {
 		return "Loved"
 	}
@@ -26,7 +26,7 @@ function readableYesNo(yn) {
 
 function printPP(pp, beatmapID) {
 	if (pp == 0) {
-		return `<a href="#" class="calc-pp" data-beatmapID="${beatmapID}">Ask Fokabot</a>`;
+		return `<a href="#" class="calc-pp" data-beatmapID="${beatmapID}">Ask Yohane</a>`;
 	} else {
 		return `${pp} pp`;
 	}
@@ -52,16 +52,17 @@ $("document").ready(function() {
 				tableHtml += `
 					<table id="ranktable" class="table table-striped table-hover">
 						<thead class="no-mobile">
-							<th><i class="fa fa-music"></i>	Beatmap ID</td>
-							<th>Beatmap name & Diff</td>
-							<th>Status</td>
-							<th>Frozen</td>
-							<th>PP (std SS)</td>
-							<th>Rank</td>
-							<th>Love</td>
-							<th>Unrank (Pending)</td>
-							<th>Reset status<br>from osu!api</td>
-							<th>Don't edit</td>
+							<th><i class="fa fa-music"></i>	Beatmap ID</th>
+							<th>Difficulty Name</th>
+							<th>Status</th>
+							<th>Frozen</th>
+							<th>PP (std SS)</th>
+							<th>Rank</th>
+							<th>Love</th>
+							<th>Unrank (Pending)</th>
+							<th>Reset status<br>from osu!api</th>
+							<th>Don't edit</th>
+							<th>Mark for Notes</th>
 						</thead>
 						<tbody>
 				`;
@@ -73,15 +74,17 @@ $("document").ready(function() {
 					}
 					tableHtml += `<tr class="text-center">
 						<td class="${rowClass}">${escapeHtml(String(value.id))}</td>
-						<td class="${rowClass}">${escapeHtml(String(value.name))}</td>
+						<td class="${rowClass}">${escapeHtml(String(value.diffName || value.name))}</td>
 						<td class="${rowClass}"><b>${escapeHtml(readableRankedStatus(value.status))}</b></td>
 						<td class="info"><span class="mobile-only rank">Frozen:</span> <span>${escapeHtml(String(readableYesNo(value.frozen)))}</span></td>
 						<td class="info"><span class="mobile-only rank">PP:</span>${printPP(value.pp, value.id)}</td>
+						<!-- ripple kalo kontol emang ya ini apaan anjir how to array woi what the fuck anjing -->
 						<td class="success"><span class="mobile-only rank">Rank</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="rank" type="radio"></td>
 						<td class="success"><span class="mobile-only">Love</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="love" type="radio"></td>
 						<td class="success"><span class="mobile-only">Unrank</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="unrank" type="radio"></td>
 						<td class="success"><span class="mobile-only">Reset status from osu!api</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="update" type="radio"></td>
 						<td class="success"><span class="mobile-only">Don't edit</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="no" type="radio" checked></td>
+						<td class="success"><span class="mobile-only">Set notes</span> <input name="beatmapNotes[${escapeHtml(String(value.id))}]" type="checkbox" value=0 /></td>
 					</tr>`;
 				});
 
@@ -98,7 +101,8 @@ $("document").ready(function() {
 				tableHtml += `<hr>`;
 				tableHtml += `<div class="alert alert-warning table-50-center"><i class="fa fa-exclamation-triangle"></i>	<b>Saving changes might take several seconds, especially if you want to update some beatmap from osu!api. Don't close the page until you see the success message to avoid errors.</b></div>`
 				tableHtml += `<button type="submit" class="btn btn-primary"><b><span class="glyphicon glyphicon-floppy-disk"></span>	Submit</b></button>`;
-				tableHtml += `</form>`;
+				tableHtml += `<p style="text-align=center;">Extra beatmap notes:</p>`;
+				tableHtml += `<textarea name="mapnotes"></textarea>`;
 				$("#main-content").html(tableHtml);
 			} else {
 				$("#main-content").html(`

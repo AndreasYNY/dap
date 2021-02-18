@@ -122,7 +122,7 @@ function setTitle($p) {
 			'u' => 'Userpage',
 		];
 		$namesAAP = [
-			99 =>  'You\'ve been tracked',
+			99 =>  "You've been tracked",
 			100 => 'Dashboard',
 			101 => 'System settings',
 			102 => 'Users',

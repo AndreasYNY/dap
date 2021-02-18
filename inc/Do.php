@@ -1103,6 +1103,7 @@ class D {
 			$bsid = -1;
 			$result = "";
 			$updateCache = false;
+			$mapBTS = array();
 
 			// Do stuff for each beatmap
 			foreach ($_POST["beatmaps"] as $beatmapID => $status) {
@@ -1116,6 +1117,7 @@ class D {
 					}
 					$bsid = current($bsid);
 				}
+				$mapBTS[$beatmapID] = $bsid; // reverse association, look up to parent
 
 				// Change beatmap status
 				switch ($status) {
@@ -1128,7 +1130,6 @@ class D {
 						$result = "$beatmapID has been ranked and its scores have been restored. | ";
 						$rap = "ranked";
 					break;
-						
 					// Love beatmap (INCASE THE BEATMAP IS TOO MUCH PP)
 					case "love":
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 5, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
@@ -1138,8 +1139,7 @@ class D {
 						$result = "$beatmapID has been loved and its scores have been restored. | ";
 						$rap = "loved";
 					break;
-
-					// Unrank beatmap (INCASE ITS TOO BAD TO PLAY)
+					// Unrank beatmap (If there are any unfair ranking like TEAR FUCKING RAIN BY JONATHAN LOSER FUCKING JONATHAN)
 					case "unrank":
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 
@@ -1148,7 +1148,6 @@ class D {
 						$result = "$beatmapID has been ranked and its scores have been mark as old scores. | ";
 						$rap = "unranked";
 					break;
-
 					// Force osu!api update (unfreeze)
 					case "update":
 						$updateCache = true;
@@ -1164,15 +1163,27 @@ class D {
 						$rap = "nothing to do with";
 					break;
 
-					// EH! VOLEVI!
+					// osuHOW
 					default:
 						throw new Exception("Unknown ranked status value.");
 					break;
 				}
 
-				// RAP Log
+				// DAP Log
 				if ($logToRap)
 					rapLog(sprintf("has %s beatmap set %s", $rap, $bsid), $_SESSION["userid"]);
+			}
+			// Place notes "manually" (actually I have no idea on what interface I should do this, fuck this template)
+			$falsyTrucy = array(0,'false','0');
+			$noteSet = false;
+			if(array_key_exists('mapnotes',$_POST)) {
+				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
+					if(in_array($beatmapSetNote, $falsyTrucy)) continue;
+					$beatmapSetID = $mapBTS[$beatmapID];
+					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)", [$_POST['mapnotes'],$beatmapID, $beatmapSetID]);
+					$noteSet = true;
+				}
+				// webhook belom
 			}
 
 			// Update beatmap set from osu!api if
@@ -1186,6 +1197,7 @@ class D {
 			}
 
 			// Send a message to #announce
+			// TODO BENERIN INI
 			if ($status == "rank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] has been ranked by [https://osu.troke.id/u/" . $_SESSION["userid"] . " " . $_SESSION["username"] . "]!";
