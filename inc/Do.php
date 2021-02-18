@@ -1191,9 +1191,7 @@ class D {
 					if($reqStruct[0] == 'b') $rq[0] = $reqStruct[1];
 					if($reqStruct[0] == 's') $rq[1] = $reqStruct[1];
 					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, beatmap_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ? LIMIT 1", $rq);
-					$curl = new Curl();
-					$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
-					$curl->get($requestbro);
+					//Discord start
 					$webhookurl = $DiscordHook["map-log"];
 					$datanotesmaps = json_encode(
 					[
@@ -1270,9 +1268,9 @@ class D {
 			$curl = new Curl();
 			$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
 			$curl->get($requestbro);
-
+			
+			//Discord Start
 			$rankwebhook = $DiscordHook["ranked-map"];
-
 			$json_data = json_encode(
 			[
 				// "username" => "Ranked Bot",
