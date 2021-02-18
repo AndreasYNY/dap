@@ -91,7 +91,7 @@ $("document").ready(function() {
 					tableHtml += `<tr class="text-center">
 						<td class="${rowClass}">${escapeHtml(String(value.id))}</td>
 						<td class="${rowClass}">${escapeHtml(String(value.diffName || value.name))}</td>
-						<td class="${rowClass}">${properBeatmapStatus(value)}></td>
+						<td class="${rowClass}">${properBeatmapStatus(value)}</td>
 						<td class="info"><span class="mobile-only rank">PP:</span>${printPP(value.pp, value.id)}</td>
 						<!-- ripple kalo kontol emang ya ini apaan anjir how to array woi what the fuck anjing -->
 						<td class="success"><span class="mobile-only rank">Rank</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="rank" type="radio"></td>
