@@ -1103,6 +1103,7 @@ class D {
 			$result = "";
 			$updateCache = false;
 			$mapBTS = array();
+			$momIdoSomething = false;
 
 			// Do stuff for each beatmap
 			foreach ($_POST["beatmaps"] as $beatmapID => $status) {
@@ -1119,6 +1120,7 @@ class D {
 				$mapBTS[$beatmapID] = $bsid; // reverse association, look up to parent
 
 				// Change beatmap status
+				$momIdoSomething = $momIdoSomething or ($status != 'no');
 				switch ($status) {
 					// Rank beatmap
 					case "rank":
@@ -1236,6 +1238,8 @@ class D {
 
 			// Send a message to #announce
 			// TODO BENERIN INI
+			if($momIdoSomething) {
+
 			if ($status == "rank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] has been ranked by [https://osu.troke.id/u/" . $_SESSION["userid"] . " " . $_SESSION["username"] . "]!";
@@ -1295,6 +1299,8 @@ class D {
 
 			$response = curl_exec( $ch );
 			curl_close( $ch );
+
+			}
 			// Done
 			redirect("index.php?p=117&s=".$result);
 		} catch (Exception $e) {
