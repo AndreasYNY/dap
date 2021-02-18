@@ -84,7 +84,7 @@ $("document").ready(function() {
 						<td class="success"><span class="mobile-only">Unrank</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="unrank" type="radio"></td>
 						<td class="success"><span class="mobile-only">Reset status from osu!api</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="update" type="radio"></td>
 						<td class="success"><span class="mobile-only">Don't edit</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="no" type="radio" checked></td>
-						<td class="success"><span class="mobile-only">Set notes</span> <input name="beatmapNotes[${escapeHtml(String(value.id))}]" type="checkbox" value=0 /></td>
+						<td class="success"><span class="mobile-only">Set notes</span> <input name="beatmapNotes[${escapeHtml(String(value.id))}]" type="checkbox" value=1 /></td>
 					</tr>`;
 				});
 
