@@ -2310,15 +2310,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '<tbody>';
 		foreach ($rankRequests as $req) {
 			$criteria = $req["type"] == "s" ? "beatmapset_id" : "beatmap_id";
-			$b = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, ranked FROM beatmaps WHERE ".$criteria." = ? LIMIT 1", [$req["bid"]]);
+			$b = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, ranked FROM beatmaps WHERE $criteria = ? LIMIT 1", [$req["bid"]]);
 
 			if ($b) {
-				$matches = [];
-				if (preg_match("/(.+)(\[.+\])/i", $b["song_name"], $matches)) {
-					$song = $matches[1];
-				} else {
-					$song = "Wat";
-				}
+				$song = sprintf("%s - %s", $b['artist'], $b['title']);
 			} else {
 				$song = "Unknown (Klik Edit untuk melihat info beatmap)";
 			}
@@ -2328,14 +2323,14 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			else
 				$bsid = $b ? $b["beatmapset_id"] : 0;
 
-			$beatmaps = $GLOBALS["db"]->fetchAll("SELECT song_name, beatmap_id, ranked, difficulty_std, difficulty_taiko, difficulty_ctb, difficulty_mania FROM beatmaps WHERE beatmapset_id = ? LIMIT 15", [$bsid]);
+			$beatmaps = $GLOBALS["db"]->fetchAll("SELECT difficulty_name, beatmap_id, ranked, difficulty_std, difficulty_taiko, difficulty_ctb, difficulty_mania FROM beatmaps WHERE beatmapset_id = ? LIMIT 15", [$bsid]);
 			$diffs = "";
 			$allUnranked = true;
 			$forceParam = "1";
 			$modes = [];
 			foreach ($beatmaps as $beatmap) {
 				$icon = ($beatmap["ranked"] >= 2) ? "check" : "times";
-				$name = htmlspecialchars("$beatmap[song_name] ($beatmap[beatmap_id])");
+				$name = htmlspecialchars("$beatmap[difficulty_name] ($beatmap[beatmap_id])");
 				$diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content=\"$name\" data-trigger='hover'>";
 				$diffs .= "<i class='fa fa-$icon'></i>";
 				$diffs .= "</a>";
@@ -2374,7 +2369,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 			echo "<tr class='$rowClass'>
 				<td><a href='https://osu.ppy.sh/s/$bsid' target='_blank'>$req[type]/$req[bid]</a></td>
-				<td>$song</td>
+				<td><span title='$req[notes]'>$song</span></td>
 				<td>
 					$diffs
 				</td>
