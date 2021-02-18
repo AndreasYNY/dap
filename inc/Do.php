@@ -1271,7 +1271,7 @@ class D {
 			$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
 			$curl->get($requestbro);
 
-			$webhookurl = $DiscordHook["ranked-map"];
+			$rankwebhook = $DiscordHook["ranked-map"];
 
 			$json_data = json_encode(
 			[
@@ -1293,16 +1293,16 @@ class D {
 			], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
 
-			$ch = curl_init( $webhookurl );
-			curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
-			curl_setopt( $ch, CURLOPT_POST, 1);
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, $json_data);
-			curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt( $ch, CURLOPT_HEADER, 0);
-			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+			$crot = curl_init( $rankwebhook );
+			curl_setopt( $crot, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+			curl_setopt( $crot, CURLOPT_POST, 1);
+			curl_setopt( $crot, CURLOPT_POSTFIELDS, $json_data);
+			curl_setopt( $crot, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt( $crot, CURLOPT_HEADER, 0);
+			curl_setopt( $crot, CURLOPT_RETURNTRANSFER, 1);
 
-			$response = curl_exec( $ch );
-			curl_close( $ch );
+			$resp = curl_exec( $crot );
+			curl_close( $crot );
 
 			}
 			// Done
