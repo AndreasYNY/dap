@@ -1178,14 +1178,17 @@ class D {
 			$falsyTrucy = array(0,'false','0');
 			if(array_key_exists('mapnotes',$_POST)) {
 				$noteAction = array();
+				$noteUsers = array();
 				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
 					if(in_array($beatmapSetNote, $falsyTrucy)) continue;
 					$beatmapSetID = $mapBTS[$beatmapID];
-					$noteCurrent = $GLOBALS['db']->fetch("select id, type, bid from rank_requests where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
+					$noteCurrent = $GLOBALS['db']->fetch("select id, type, bid, userid from rank_requests where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
 					if(!$noteCurrent) continue;
-					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid']);
+					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid'],$noteCurrent['userid']);
+					if(!array_key_exists($noteCurrent['userid'],$noteUsers)) $noteUsers[$noteCurrent['userid']] = "";
 					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE id = ?", [$_POST['mapnotes'],$noteCurrent['id']]);
 				}
+				$usernames = $GLOBALS['db']->fetch(sprintf('select id, username from users where id in (%s)',implode(',',$noteUsers)));
 				foreach($noteAction as $reqID => $reqStruct) {
 					$rq = [0,0];
 					if($reqStruct[0] == 'b') $rq[0] = $reqStruct[1];
@@ -1203,10 +1206,14 @@ class D {
 								"title" => ($reqStruct[0] == 's') ? sprintf("%s - %s",$bm['artist'],$bm['title']) : sprintf("%s - %s [%s]",$bm['artist'],$bm['title'],$bm['difficulty_name']),
 								"url" => sprintf("https://osu.ppy.sh/%s/%d?titipsalambuatpepes",$reqStruct[0],$reqStruct[1]),
 								"description" => $_POST['mapnotes'],
+								"author" => [
+									"name" => $_SESSION['username'], "icon_url" => sprintf("https://a.troke.id/%d", $_SESSION['userid']),
+									"url" => sprintf("https://osu.troke.id/%d", $_SESSION['userid'])
+								],
 								"color" => hexdec( "3366ff" ),
 								"footer" => [
-									"text" => "Notes written by " . $_SESSION["username"] ."",
-									"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
+									"text" => sprintf("Requested by [https://osu.troke.id/%d](%s)", $reqStruct[2], $usernames[$reqStruct[2]]),
+									"icon_url" => sprintf("https://a.troke.id/%d", $reqStruct[2])
 								],
 								"thumbnail" => [
 									"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
