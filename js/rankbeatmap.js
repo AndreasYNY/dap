@@ -100,9 +100,10 @@ $("document").ready(function() {
 				tableHtml += `</div>`
 				tableHtml += `<hr>`;
 				tableHtml += `<div class="alert alert-warning table-50-center"><i class="fa fa-exclamation-triangle"></i>	<b>Saving changes might take several seconds, especially if you want to update some beatmap from osu!api. Don't close the page until you see the success message to avoid errors.</b></div>`
-				tableHtml += `<button type="submit" class="btn btn-primary"><b><span class="glyphicon glyphicon-floppy-disk"></span>	Submit</b></button>`;
 				tableHtml += `<p style="text-align=center;">Extra beatmap notes:</p>`;
 				tableHtml += `<textarea name="mapnotes"></textarea>`;
+				tableHtml += `<button type="submit" class="btn btn-primary"><b><span class="glyphicon glyphicon-floppy-disk"></span>	Submit</b></button>`;
+				tableHtml += `</form>`;
 				$("#main-content").html(tableHtml);
 			} else {
 				$("#main-content").html(`
