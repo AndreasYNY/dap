@@ -1174,7 +1174,70 @@ class D {
 				if ($logToRap)
 					rapLog(sprintf("has %s beatmap set %s", $rap, $bsid), $_SESSION["userid"]);
 			}
-			
+			// Place notes "manually" (actually I have no idea on what interface I should do this, fuck this template)
+			$falsyTrucy = array(0,'false','0');
+			if(array_key_exists('mapnotes',$_POST)) {
+				$noteAction = array();
+				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
+					if(in_array($beatmapSetNote, $falsyTrucy)) continue;
+					$beatmapSetID = $mapBTS[$beatmapID];
+					$noteCurrent = $GLOBALS['db']->fetch("select rr.id, rr.type, rr.bid, rr.userid, u.username from rank_requests as rr left join users as u on rr.userid = u.id where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
+					if(!$noteCurrent) continue;
+					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid'],$noteCurrent['userid'],$noteCurrent['username']);
+					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE id = ?", [$_POST['mapnotes'],$noteCurrent['id']]);
+				}
+				foreach($noteAction as $reqID => $reqStruct) {
+					$rq = [0,0];
+					if($reqStruct[0] == 'b') $rq[0] = $reqStruct[1];
+					if($reqStruct[0] == 's') $rq[1] = $reqStruct[1];
+					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, beatmap_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ? LIMIT 1", $rq);
+					//Discord start
+					$webhookurl = $DiscordHook["map-log"];
+					$datanotesmaps = json_encode(
+					[
+						// "username" => "Naze",
+						"embeds" => [
+							[
+								"title" => ($reqStruct[0] == 's') ? sprintf("%s - %s",$bm['artist'],$bm['title']) : sprintf("%s - %s [%s]",$bm['artist'],$bm['title'],$bm['difficulty_name']),
+								"url" => sprintf("https://osu.ppy.sh/%s/%d?titipsalambuatpepes",$reqStruct[0],$reqStruct[1]),
+								"description" => $_POST['mapnotes'],
+								"author" => [
+									"name" => $_SESSION['username'], "icon_url" => sprintf("https://a.troke.id/%d", $_SESSION['userid']),
+									"url" => sprintf("https://osu.troke.id/u/%d", $_SESSION['userid'])
+								],
+								"color" => hexdec( "3366ff" ),
+								"footer" => [
+									"text" => sprintf("Requested by %s", $reqStruct[3]),
+									"icon_url" => sprintf("https://a.troke.id/%d", $reqStruct[2])
+								],
+								"thumbnail" => [
+									"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
+								]
+							]
+						]
+					], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+					$ch = curl_init( $webhookurl );
+					curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+					curl_setopt( $ch, CURLOPT_POST, 1);
+					curl_setopt( $ch, CURLOPT_POSTFIELDS, $datanotesmaps);
+					curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+					curl_setopt( $ch, CURLOPT_HEADER, 0);
+					curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+					$response = curl_exec( $ch );
+					curl_close( $ch );
+				}
+			}
+
+			// Update beatmap set from osu!api if
+			// at least one diff has been unfrozen
+			global $URL;
+			if ($updateCache) {
+				post_content_http($URL["scores"]."/api/v1/cacheBeatmap", [
+					"sid" => $bsid,
+					"refresh" => 1
+				], 30);
+			}
+
 			// Send a message to #announce
 			// TODO BENERIN INI
 			if($momIdoSomething) {
@@ -1240,71 +1303,6 @@ class D {
 			curl_close( $crot );
 
 			}
-			// Place notes "manually" (actually I have no idea on what interface I should do this, fuck this template)
-			$falsyTrucy = array(0,'false','0');
-			if(array_key_exists('mapnotes',$_POST)) {
-				$noteAction = array();
-				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
-					if(in_array($beatmapSetNote, $falsyTrucy)) continue;
-					$beatmapSetID = $mapBTS[$beatmapID];
-					$noteCurrent = $GLOBALS['db']->fetch("select rr.id, rr.type, rr.bid, rr.userid, u.username from rank_requests as rr left join users as u on rr.userid = u.id where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
-					if(!$noteCurrent) continue;
-					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid'],$noteCurrent['userid'],$noteCurrent['username']);
-					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE id = ?", [$_POST['mapnotes'],$noteCurrent['id']]);
-				}
-				foreach($noteAction as $reqID => $reqStruct) {
-					$rq = [0,0];
-					if($reqStruct[0] == 'b') $rq[0] = $reqStruct[1];
-					if($reqStruct[0] == 's') $rq[1] = $reqStruct[1];
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, beatmap_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ? LIMIT 1", $rq);
-					//Discord start
-					$webhookurl = $DiscordHook["map-log"];
-					$datanotesmaps = json_encode(
-					[
-						// "username" => "Naze",
-						"embeds" => [
-							[
-								"title" => ($reqStruct[0] == 's') ? sprintf("%s - %s",$bm['artist'],$bm['title']) : sprintf("%s - %s [%s]",$bm['artist'],$bm['title'],$bm['difficulty_name']),
-								"url" => sprintf("https://osu.ppy.sh/%s/%d?titipsalambuatpepes",$reqStruct[0],$reqStruct[1]),
-								"description" => $_POST['mapnotes'],
-								"author" => [
-									"name" => $_SESSION['username'], "icon_url" => sprintf("https://a.troke.id/%d", $_SESSION['userid']),
-									"url" => sprintf("https://osu.troke.id/u/%d", $_SESSION['userid'])
-								],
-								"color" => hexdec( "3366ff" ),
-								"footer" => [
-									"text" => sprintf("Requested by %s", $reqStruct[3]),
-									"icon_url" => sprintf("https://a.troke.id/%d", $reqStruct[2])
-								],
-								"thumbnail" => [
-									"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
-								]
-							]
-						]
-					], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-					$ch = curl_init( $webhookurl );
-					curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
-					curl_setopt( $ch, CURLOPT_POST, 1);
-					curl_setopt( $ch, CURLOPT_POSTFIELDS, $datanotesmaps);
-					curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
-					curl_setopt( $ch, CURLOPT_HEADER, 0);
-					curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
-					$response = curl_exec( $ch );
-					curl_close( $ch );
-				}
-			}
-
-			// Update beatmap set from osu!api if
-			// at least one diff has been unfrozen
-			global $URL;
-			if ($updateCache) {
-				post_content_http($URL["scores"]."/api/v1/cacheBeatmap", [
-					"sid" => $bsid,
-					"refresh" => 1
-				], 30);
-			}
-
-
 			// Done
 			redirect("index.php?p=117&s=".$result);
 		} catch (Exception $e) {
