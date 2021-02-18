@@ -1130,6 +1130,7 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
 						$result = "$beatmapID has been ranked and its scores have been restored. | ";
 						$rap = "ranked";
+						$logtodiscord = "Ranked";
 					break;
 					// Love beatmap (INCASE THE BEATMAP IS TOO MUCH PP)
 					case "love":
@@ -1139,6 +1140,7 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
 						$result = "$beatmapID has been loved and its scores have been restored. | ";
 						$rap = "loved";
+						$logtodiscord = "Loved";
 					break;
 					// Unrank beatmap (If there are any unfair ranking like TEAR FUCKING RAIN BY JONATHAN LOSER FUCKING JONATHAN)
 					case "unrank":
@@ -1148,6 +1150,7 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2", [$beatmapID]);
 						$result = "$beatmapID has been ranked and its scores have been mark as old scores. | ";
 						$rap = "unranked";
+						$logtodiscord = "Unranked";
 					break;
 					// Force osu!api update (unfreeze)
 					case "update":
@@ -1155,6 +1158,7 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 						$result = "$beatmapID's ranked status is the same from official osu!. | ";
 						$rap = "updated status from bancho for";
+						$logtodiscord = "Update Status";
 					break;
 
 					// No changes
@@ -1162,6 +1166,7 @@ class D {
 						$logToRap = false;
 						$result = "$beatmapID's ranked status has not been edited!. | ";
 						$rap = "nothing to do with";
+						$logtodiscord = "Nothing to do";
 					break;
 
 					// osuHOW
@@ -1169,7 +1174,41 @@ class D {
 						throw new Exception("Unknown ranked status value.");
 					break;
 				}
+				//Discord Start
+			$getBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, beatmap_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ?", [$bsid]);
+			$rankwebhook = $DiscordHook["ranked-map"];
+			$json_data = json_encode(
+			[
+				// "username" => "Ranked Bot",
+				"embeds" => [
+					[
+						"title" => "" . $getBM["artist"] . " - " . $getBM["title"] . " [" . $getBM["difficulty_name"] . "]",
+						"url" => "https://osu.ppy.sh/s/$bsid",
+						"description" => "The beatmaps has been set $logtodiscord\nDownload : https://osu.troke.id/d/$bsid",
+						"color" => hexdec( "3366ff" ),
+						"footer" => [
+							"text" => "This map was $logtodiscord by " . $_SESSION["username"] . "",
+							"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
+						],
+						"thumbnail" => [
+							"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
+						]
+					]
+				]
 
+			], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+
+			$crot = curl_init( $rankwebhook );
+			curl_setopt( $crot, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+			curl_setopt( $crot, CURLOPT_POST, 1);
+			curl_setopt( $crot, CURLOPT_POSTFIELDS, $json_data);
+			curl_setopt( $crot, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt( $crot, CURLOPT_HEADER, 0);
+			curl_setopt( $crot, CURLOPT_RETURNTRANSFER, 1);
+
+			$resp = curl_exec( $crot );
+			curl_close( $crot );
 				// DAP Log
 				if ($logToRap)
 					rapLog(sprintf("has %s beatmap set %s", $rap, $bsid), $_SESSION["userid"]);
@@ -1245,63 +1284,21 @@ class D {
 			if ($status == "rank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] has been ranked by [https://osu.troke.id/u/" . $_SESSION["userid"] . " " . $_SESSION["username"] . "]!";
-				$statuscrot = "Ranked";
-				$bpm = $bm["bpm"];
-				$namabm = $bm["song_name"];
 				$requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			} else if ($status == "love") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] has been loved by [https://osu.troke.id/u/" . $_SESSION["userid"] . " " . $_SESSION["username"] . "]!";
-				$statuscrot = "Loved";
-				$bpm = $bm["bpm"];
-				$namabm = $bm["song_name"];
-                		$requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
+                $requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			} else if ($status == "unrank") {
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, bpm FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 				$msgtoannounce = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] has been unranked by [https://osu.troke.id/u/" . $_SESSION["userid"] . " " . $_SESSION["username"] . "]!";
-				$statuscrot = "Unranked";
-				$bpm = $bm["bpm"];
-				$namabm = $bm["song_name"];
-                		$requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
+                $requestbro = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=%23ranked-now&msg=" . $msgtoannounce . "";
 			}
 
 			$curl = new Curl();
 			$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
 			$curl->get($requestbro);
 			
-			//Discord Start
-			$rankwebhook = $DiscordHook["ranked-map"];
-			$json_data = json_encode(
-			[
-				// "username" => "Ranked Bot",
-				"embeds" => [
-					[
-						"description" => "`Map Name` : **$namabm**\n`Status` : **$statuscrot**\n`BPM` : **$bpm**\n[`Download`](https://s.troke.id/d/$bsid)",
-						"color" => hexdec( "3366ff" ),
-						"footer" => [
-							"text" => "This map was $statuscrot by " . $_SESSION["username"] ."",
-							"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
-						],
-						"thumbnail" => [
-							"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
-						]
-					]
-				]
-
-			], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-
-
-			$crot = curl_init( $rankwebhook );
-			curl_setopt( $crot, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
-			curl_setopt( $crot, CURLOPT_POST, 1);
-			curl_setopt( $crot, CURLOPT_POSTFIELDS, $json_data);
-			curl_setopt( $crot, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt( $crot, CURLOPT_HEADER, 0);
-			curl_setopt( $crot, CURLOPT_RETURNTRANSFER, 1);
-
-			$resp = curl_exec( $crot );
-			curl_close( $crot );
-
 			}
 			// Done
 			redirect("index.php?p=117&s=".$result);
