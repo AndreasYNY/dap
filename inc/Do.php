@@ -1174,7 +1174,6 @@ class D {
 			}
 			// Place notes "manually" (actually I have no idea on what interface I should do this, fuck this template)
 			$falsyTrucy = array(0,'false','0');
-			$noteSet = false;
 			if(array_key_exists('mapnotes',$_POST)) {
 				$noteAction = array();
 				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
@@ -1182,9 +1181,8 @@ class D {
 					$beatmapSetID = $mapBTS[$beatmapID];
 					$noteCurrent = $GLOBALS['db']->fetch("select id, type, bid from rank_requests where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
 					if(!$noteCurrent) continue;
-					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid'])
+					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid']);
 					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE id = ?", [$_POST['mapnotes'],$noteCurrent['id']]);
-					$noteSet = true;
 				}
 				foreach($noteAction as $reqID => $reqStruct) {
 					$rq = [0,0];
@@ -1214,7 +1212,6 @@ class D {
 							]
 						]
 					], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-
 					$ch = curl_init( $webhookurl );
 					curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
 					curl_setopt( $ch, CURLOPT_POST, 1);
@@ -1222,7 +1219,6 @@ class D {
 					curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
 					curl_setopt( $ch, CURLOPT_HEADER, 0);
 					curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
-
 					$response = curl_exec( $ch );
 					curl_close( $ch );
 				}
