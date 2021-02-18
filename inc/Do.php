@@ -381,7 +381,6 @@ class D {
 					[
 
 						"description" => "User : $lama has changed their name to $baru !",
-						
 						"color" => hexdec( "eb34c6" )
 
 					]
@@ -1177,13 +1176,56 @@ class D {
 			$falsyTrucy = array(0,'false','0');
 			$noteSet = false;
 			if(array_key_exists('mapnotes',$_POST)) {
+				$noteAction = array();
 				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
 					if(in_array($beatmapSetNote, $falsyTrucy)) continue;
 					$beatmapSetID = $mapBTS[$beatmapID];
-					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)", [$_POST['mapnotes'],$beatmapID, $beatmapSetID]);
+					$noteCurrent = $GLOBALS['db']->fetch("select id, type, bid from rank_requests where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
+					if(!$noteCurrent) continue;
+					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid'])
+					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE id = ?", [$_POST['mapnotes'],$noteCurrent['id']]);
 					$noteSet = true;
 				}
-				// webhook belom
+				foreach($noteAction as $reqID => $reqStruct) {
+					$rq = [0,0];
+					if($reqStruct[0] == 'b') $rq[0] = $reqStruct[1];
+					if($reqStruct[0] == 's') $rq[1] = $reqStruct[1];
+					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, beatmap_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ? LIMIT 1", $rq);
+					$curl = new Curl();
+					$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+					$curl->get($requestbro);
+					$webhookurl = $DiscordHook["map-log"];
+					$json_data = json_encode(
+					[
+						// "username" => "Naze",
+						"embeds" => [
+							[
+								"title" => ($reqStruct[0] == 's') ? sprintf("%s - %s",$bm['artist'],$bm['title']) : sprintf("%s - %s [%s]",$bm['artist'],$bm['title'],$bm['difficulty_name']),
+								"url" => sprintf("https://osu.ppy.sh/%s/%d?titipsalambuatpepes",$reqStruct[0],$reqStruct[1]),
+								"description" => $_POST['mapnotes'],
+								"color" => hexdec( "3366ff" ),
+								"footer" => [
+									"text" => "Notes written by " . $_SESSION["username"] ."",
+									"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
+								],
+								"thumbnail" => [
+									"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
+								]
+							]
+						]
+					], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+					$ch = curl_init( $webhookurl );
+					curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+					curl_setopt( $ch, CURLOPT_POST, 1);
+					curl_setopt( $ch, CURLOPT_POSTFIELDS, $json_data);
+					curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+					curl_setopt( $ch, CURLOPT_HEADER, 0);
+					curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+
+					$response = curl_exec( $ch );
+					curl_close( $ch );
+				}
 			}
 
 			// Update beatmap set from osu!api if
@@ -1229,24 +1271,18 @@ class D {
 
 			$json_data = json_encode(
 			[
-				"username" => "Ranked Bot",
-				"embeds" => 
-				[
+				// "username" => "Ranked Bot",
+				"embeds" => [
 					[
-
 						"description" => "`Map Name` : **$namabm**\n`Status` : **$statuscrot**\n`BPM` : **$bpm**\n[`Download`](https://s.troke.id/d/$bsid)",
-
 						"color" => hexdec( "3366ff" ),
-
 						"footer" => [
 							"text" => "This map was $statuscrot by " . $_SESSION["username"] ."",
 							"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
 						],
-
 						"thumbnail" => [
 							"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
 						]
-
 					]
 				]
 
