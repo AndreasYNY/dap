@@ -1,3 +1,13 @@
+function properMode(bm) {
+	switch(bm.mode) {
+	case 0: return 'std';
+	case 1: return 'taiko';
+	case 2: return 'ctb';
+	case 3: return 'mania';
+	default: return '?';
+	}
+}
+
 function properBeatmapStatus(bm) {
 	let freezeText = "Manual {}";
 	switch(bm.frozen){
@@ -89,7 +99,7 @@ $("document").ready(function() {
 					if ([4].indexOf(value.status)+1) rowClass = "muted";
 					if (value.request && value.request.bad) rowClass = "danger";
 					tableHtml += `<tr class="text-center">
-						<td class="${rowClass}">${escapeHtml(String(value.id))}</td>
+						<td class="${rowClass}">${escapeHtml(String(value.id))}<br>${properMode(value)}</td>
 						<td class="${rowClass}">${escapeHtml(String(value.diffName || value.name))}</td>
 						<td class="${rowClass}">${properBeatmapStatus(value)}</td>
 						<td class="info"><span class="mobile-only rank">PP:</span>${printPP(value.pp, value.id)}</td>
