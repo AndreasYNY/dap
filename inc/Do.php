@@ -1209,7 +1209,7 @@ class D {
 								"description" => $_POST['mapnotes'],
 								"author" => [
 									"name" => $_SESSION['username'], "icon_url" => sprintf("https://a.troke.id/%d", $_SESSION['userid']),
-									"url" => sprintf("https://osu.troke.id/%d", $_SESSION['userid'])
+									"url" => sprintf("https://osu.troke.id/u/%d", $_SESSION['userid'])
 								],
 								"color" => hexdec( "3366ff" ),
 								"footer" => [
