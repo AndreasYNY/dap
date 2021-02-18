@@ -1,3 +1,19 @@
+function properBeatmapStatus(bm) {
+	let freezeText = "Manual {}";
+	switch(bm.frozen){
+	case 0: freezeText = "{}"; break;
+	case 3: freezeText = "Auto-Rank ({})"; break;
+	case 4: freezeText = "Auto-Filter ({})"; break;
+	}
+	let requestText = "Requested by {}";
+	if(!bm.request || bm.request.done) requestText = "";
+	else {
+		requestText = requestText.replace('{}',`UID ${bm.request.user_id}`);
+	}
+	return freezeText.replace('{}', `<b>${readableRankedStatus(bm.status)}</b>{}`)
+		.replace('{}',`<br>${escapeHtml(requestText)}`);
+}
+
 function readableRankedStatus(ranked) {
 	if (ranked == -1) {
 		return "Not submitted";
@@ -49,13 +65,13 @@ $("document").ready(function() {
 				tableHtml = `<form id="rank-beatmap-form" action="submit.php" method="POST">
 				<input name="csrf" type="hidden" value="${$("#csrf").val()}">
 				<input name="action" value="rankBeatmapNew" hidden>`;
+				tableHtml += `<p style="text-align-center; font-size:1.8em">${data.maps[0].baseName}</p>`;
 				tableHtml += `
 					<table id="ranktable" class="table table-striped table-hover">
 						<thead class="no-mobile">
 							<th><i class="fa fa-music"></i>	Beatmap ID</th>
 							<th>Difficulty Name</th>
 							<th>Status</th>
-							<th>Frozen</th>
 							<th>PP (std SS)</th>
 							<th>Rank</th>
 							<th>Love</th>
@@ -69,14 +85,13 @@ $("document").ready(function() {
 
 				$.each(data.maps, function(index, value) {
 					rowClass = "warning";
-					if (value.status >= 2) {
-						rowClass = "success";
-					}
+					if ([2,3,5].indexOf(value.status)+1) rowClass = "success";
+					if ([4].indexOf(value.status)+1) rowClass = "muted";
+					if (value.request && value.request.bad) rowClass = "error";
 					tableHtml += `<tr class="text-center">
 						<td class="${rowClass}">${escapeHtml(String(value.id))}</td>
 						<td class="${rowClass}">${escapeHtml(String(value.diffName || value.name))}</td>
-						<td class="${rowClass}"><b>${escapeHtml(readableRankedStatus(value.status))}</b></td>
-						<td class="info"><span class="mobile-only rank">Frozen:</span> <span>${escapeHtml(String(readableYesNo(value.frozen)))}</span></td>
+						<td class="${rowClass}">${properBeatmapStatus(value)}></td>
 						<td class="info"><span class="mobile-only rank">PP:</span>${printPP(value.pp, value.id)}</td>
 						<!-- ripple kalo kontol emang ya ini apaan anjir how to array woi what the fuck anjing -->
 						<td class="success"><span class="mobile-only rank">Rank</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="rank" type="radio"></td>
