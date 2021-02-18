@@ -1182,7 +1182,7 @@ class D {
 				// "username" => "Ranked Bot",
 				"embeds" => [
 					[
-						"title" => sprintf("%s - %s [%s]",$bm['artist'],$bm['title'],$bm['difficulty_name']),
+						"title" => sprintf("%s - %s [%s]",$getBM['artist'],$getBM['title'],$getBM['difficulty_name']),
 						"url" => "https://osu.ppy.sh/s/$bsid",
 						"description" => "Status : $logtodiscord\nDownload : https://osu.troke.id/d/$bsid",
 						"color" => hexdec( "3366ff" ),
