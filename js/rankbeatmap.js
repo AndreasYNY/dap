@@ -87,7 +87,7 @@ $("document").ready(function() {
 					rowClass = "warning";
 					if ([2,3,5].indexOf(value.status)+1) rowClass = "success";
 					if ([4].indexOf(value.status)+1) rowClass = "muted";
-					if (value.request && value.request.bad) rowClass = "error";
+					if (value.request && value.request.bad) rowClass = "danger";
 					tableHtml += `<tr class="text-center">
 						<td class="${rowClass}">${escapeHtml(String(value.id))}</td>
 						<td class="${rowClass}">${escapeHtml(String(value.diffName || value.name))}</td>
