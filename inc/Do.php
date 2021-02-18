@@ -1176,18 +1176,22 @@ class D {
 				}
 				//Discord Start
 			$getBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, beatmap_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ?", [$bsid]);
+			$getArtist = $GLOBALS["db"]->fetch("SELECT artist FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ?", [$bsid]);
+			$getTitle = $GLOBALS["db"]->fetch("SELECT title FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ?", [$bsid]);
+			$getDiff = $GLOBALS["db"]->fetch("SELECT difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ?", [$bsid]);
+
 			$rankwebhook = $DiscordHook["ranked-map"];
 			$json_data = json_encode(
 			[
 				// "username" => "Ranked Bot",
 				"embeds" => [
 					[
-						"title" => "" . $getBM["artist"] . " - " . $getBM["title"] . " [" . $getBM["difficulty_name"] . "]",
+						"title" => "$getArtist - $getTitle [$getDiff]",
 						"url" => "https://osu.ppy.sh/s/$bsid",
-						"description" => "The beatmaps has been set $logtodiscord\nDownload : https://osu.troke.id/d/$bsid",
+						"description" => "Status : $logtodiscord\nDownload : https://osu.troke.id/d/$bsid",
 						"color" => hexdec( "3366ff" ),
 						"footer" => [
-							"text" => "This map was $logtodiscord by " . $_SESSION["username"] . "",
+							"text" => "This map was $logtodiscord by " . $_SESSION["username"] . " from DAP",
 							"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
 						],
 						"thumbnail" => [
