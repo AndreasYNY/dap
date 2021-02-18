@@ -1178,18 +1178,14 @@ class D {
 			$falsyTrucy = array(0,'false','0');
 			if(array_key_exists('mapnotes',$_POST)) {
 				$noteAction = array();
-				$noteUsers = array();
 				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
 					if(in_array($beatmapSetNote, $falsyTrucy)) continue;
 					$beatmapSetID = $mapBTS[$beatmapID];
-					$noteCurrent = $GLOBALS['db']->fetch("select id, type, bid, userid from rank_requests where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
+					$noteCurrent = $GLOBALS['db']->fetch("select rr.id, rr.type, rr.bid, rr.userid, u.username from rank_requests as rr left join users as u on rr.userid = u.id where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
 					if(!$noteCurrent) continue;
-					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid'],$noteCurrent['userid']);
-					if(!array_key_exists($noteCurrent['userid'],$noteUsers)) $noteUsers[$noteCurrent['userid']] = "";
+					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid'],$noteCurrent['userid'],$noteCurrent['username']);
 					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE id = ?", [$_POST['mapnotes'],$noteCurrent['id']]);
 				}
-				$usernames = $GLOBALS['db']->fetch(sprintf('select id, username from users where id in (%s)',implode(',',$noteUsers)));
-				foreach($usernames as $ud) $noteUsers[$ud['id']] = $ud['username'];
 				foreach($noteAction as $reqID => $reqStruct) {
 					$rq = [0,0];
 					if($reqStruct[0] == 'b') $rq[0] = $reqStruct[1];
@@ -1213,7 +1209,7 @@ class D {
 								],
 								"color" => hexdec( "3366ff" ),
 								"footer" => [
-									"text" => sprintf("Requested by %s", $noteUsers[$reqStruct[2]]),
+									"text" => sprintf("Requested by %s", $reqStruct[3]),
 									"icon_url" => sprintf("https://a.troke.id/%d", $reqStruct[2])
 								],
 								"thumbnail" => [
