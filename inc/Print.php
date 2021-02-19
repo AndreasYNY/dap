@@ -2315,7 +2315,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			if ($b) {
 				$song = sprintf("%s - %s", $b['artist'], $b['title']);
 			} else {
-				$song = "Unknown (Klik Edit untuk melihat info beatmap)";
+				$song = "Beatmap not found, klik Edit untuk melihat info beatmap";
 			}
 
 			if ($req["type"] == "s")

@@ -1102,8 +1102,6 @@ class D {
 			$bsid = -1;
 			$result = "";
 			$updateCache = false;
-			$mapBTS = array();
-			$momIdoSomething = false;
 
 			// Do stuff for each beatmap
 			foreach ($_POST["beatmaps"] as $beatmapID => $status) {
@@ -1117,10 +1115,7 @@ class D {
 					}
 					$bsid = current($bsid);
 				}
-				$mapBTS[$beatmapID] = $bsid; // reverse association, look up to parent
 
-				// Change beatmap status
-				$momIdoSomething = $momIdoSomething or ($status != 'no');
 				switch ($status) {
 					// Rank beatmap
 					case "rank":
@@ -1130,7 +1125,6 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
 						$result = "$beatmapID has been ranked and its scores have been restored. | ";
 						$rap = "ranked";
-						$logtodiscord = "Ranked";
 					break;
 					// Love beatmap (INCASE THE BEATMAP IS TOO MUCH PP)
 					case "love":
@@ -1140,7 +1134,6 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
 						$result = "$beatmapID has been loved and its scores have been restored. | ";
 						$rap = "loved";
-						$logtodiscord = "Loved";
 					break;
 					// Unrank beatmap (If there are any unfair ranking like TEAR FUCKING RAIN BY JONATHAN LOSER FUCKING JONATHAN)
 					case "unrank":
@@ -1150,7 +1143,6 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2", [$beatmapID]);
 						$result = "$beatmapID has been ranked and its scores have been mark as old scores. | ";
 						$rap = "unranked";
-						$logtodiscord = "Unranked";
 					break;
 					// Force osu!api update (unfreeze)
 					case "update":
@@ -1158,15 +1150,12 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 						$result = "$beatmapID's ranked status is the same from official osu!. | ";
 						$rap = "updated status from bancho for";
-						$logtodiscord = "Update Status";
 					break;
 
 					// No changes
 					case "no":
-						$logToRap = false;
 						$result = "$beatmapID's ranked status has not been edited!. | ";
 						$rap = "nothing to do with";
-						$logtodiscord = "Nothing to do";
 					break;
 
 					// osuHOW
@@ -1178,124 +1167,7 @@ class D {
 				if ($logToRap)
 					rapLog(sprintf("has %s beatmap set %s", $rap, $bsid), $_SESSION["userid"]);
 			}
-			// Send a message to #announce
-			// TODO BENERIN INI
-			// SEMENTARA GA MASOK KE BANCHO MESSAGENYA
-			// NANTI DITAMBAH KALAU MOOD -trok
-			if($momIdoSomething) {
-				// ini ngapain pake $bm di tiap kondisi?
-				if ($status == "rank") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Ranked";
-				} else if ($status == "love") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Loved";
-				} else if ($status == "unrank") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Unranked";
-				} else if ($status == "update") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Reset";
-				// kondisi no kan gak bakal masuk
-				} else if ($status == "no") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Ga diapain";
-				}
-				//MANUKE
-				$waktuMap = gmdate("i:s", $bm["hit_length"]);
-				$beatPM = $bm["bpm"];
-				//KIRIM KE DISCORD
-				$rankwebhook = $DiscordHook["ranked-map"];
-				$json_data = json_encode(
-				[
-					// "username" => "Ranked Bot",
-					"embeds" => [
-						[
-							"title" => sprintf("%s - %s [%s]", $bm['artist'], $bm['title'], $bm['difficulty_name']),
-							"url" => "https://osu.ppy.sh/s/$beatmapID",
-							"description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\nDownload : https://osu.troke.id/d/$bsid",
-							"color" => hexdec( "3366ff" ),
-							"footer" => [
-								"text" => "Beatmaps ini di $postStatus oleh " . $_SESSION["username"] . "",
-								"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
-							],
-							"thumbnail" => [
-								"url" => "https://b.ppy.sh/thumb/$beatmapID.jpg"
-							]
-						]
-					]
 
-				], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-
-				$crot = curl_init( $rankwebhook );
-				curl_setopt( $crot, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
-				curl_setopt( $crot, CURLOPT_POST, 1);
-				curl_setopt( $crot, CURLOPT_POSTFIELDS, $json_data);
-				curl_setopt( $crot, CURLOPT_FOLLOWLOCATION, 1);
-				curl_setopt( $crot, CURLOPT_HEADER, 0);
-				curl_setopt( $crot, CURLOPT_RETURNTRANSFER, 1);
-
-				$resp = curl_exec( $crot );
-				curl_close( $crot );
-			}
-			// END
-
-			// Place notes "manually" (actually I have no idea on what interface I should do this, fuck this template)
-			$falsyTrucy = array(0,'false','0');
-			if(array_key_exists('mapnotes',$_POST) && array_key_exists('beatmapNotes',$_POST)) {
-				$noteAction = array();
-				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
-					if(in_array($beatmapSetNote, $falsyTrucy)) continue;
-					$beatmapSetID = $mapBTS[$beatmapID];
-					$noteCurrent = $GLOBALS['db']->fetch("select rr.id, rr.type, rr.bid, rr.userid, u.username from rank_requests as rr left join users as u on rr.userid = u.id where (`type` = 'b' and bid = ?) or (`type` = 's' and bid = ?)",[$beatmapID,$beatmapSetID]);
-					if(!$noteCurrent) continue;
-					$noteAction[$noteCurrent['id']] = array($noteCurrent['type'],$noteCurrent['bid'],$noteCurrent['userid'],$noteCurrent['username']);
-					$GLOBALS['db']->execute("UPDATE rank_requests SET notes = ? WHERE id = ?", [$_POST['mapnotes'],$noteCurrent['id']]);
-				}
-				foreach($noteAction as $reqID => $reqStruct) {
-					$rq = [0,0];
-					if($reqStruct[0] == 'b') $rq[0] = $reqStruct[1];
-					if($reqStruct[0] == 's') $rq[1] = $reqStruct[1];
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, beatmap_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ? LIMIT 1", $rq);
-					//Discord start
-					$webhookurl = $DiscordHook["map-log"];
-					$datanotesmaps = json_encode(
-					[
-						// "username" => "Naze",
-						"embeds" => [
-							[
-								"title" => ($reqStruct[0] == 's') ? sprintf("%s - %s",$bm['artist'],$bm['title']) : sprintf("%s - %s [%s]",$bm['artist'],$bm['title'],$bm['difficulty_name']),
-								"url" => sprintf("https://osu.ppy.sh/%s/%d?titipsalambuatpepes",$reqStruct[0],$reqStruct[1]),
-								"description" => $_POST['mapnotes'],
-								"author" => [
-									"name" => $_SESSION['username'], "icon_url" => sprintf("https://a.troke.id/%d", $_SESSION['userid']),
-									"url" => sprintf("https://osu.troke.id/u/%d", $_SESSION['userid'])
-								],
-								"color" => hexdec( "3366ff" ),
-								"footer" => [
-									"text" => sprintf("Requested by %s", $reqStruct[3]),
-									"icon_url" => sprintf("https://a.troke.id/%d", $reqStruct[2])
-								],
-								"thumbnail" => [
-									"url" => "https://b.ppy.sh/thumb/$bsid.jpg"
-								]
-							]
-						]
-					], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-					$ch = curl_init( $webhookurl );
-					curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
-					curl_setopt( $ch, CURLOPT_POST, 1);
-					curl_setopt( $ch, CURLOPT_POSTFIELDS, $datanotesmaps);
-					curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
-					curl_setopt( $ch, CURLOPT_HEADER, 0);
-					curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
-					$response = curl_exec( $ch );
-					curl_close( $ch );
-				}
-			}
-
-			// Update beatmap set from osu!api if
-			// at least one diff has been unfrozen
 			global $URL;
 			if ($updateCache) {
 				post_content_http($URL["scores"]."/api/v1/cacheBeatmap", [
@@ -1304,6 +1176,59 @@ class D {
 				], 30);
 			}
 
+
+			// Send a message to #announce
+			// TODO BENERIN INI
+			// SEMENTARA GA MASOK KE BANCHO MESSAGENYA
+			// NANTI DITAMBAH KALAU MOOD -trok
+			$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+			if ($status == "rank") {
+				$postStatus = "ranked";
+			} else if ($status == "love") {
+				$postStatus = "loved";
+			} else if ($status == "unrank") {
+				$postStatus = "unranked";
+			} else if ($status == "update") {
+				$postStatus = "reset";
+			} else if ($status == "no") {
+				$postStatus = "nothing to do";
+			}
+			//MANUKE
+			$waktuMap = gmdate("i:s", $bm["hit_length"]);
+			$beatPM = $bm["bpm"];
+			$bmSETid = $bm["beatmapset_id"];
+			//KIRIM KE DISCORD
+			$rankwebhook = $DiscordHook["ranked-map"];
+			$json_data = json_encode(
+			[
+				// "username" => "Ranked Bot",
+				"embeds" => [
+					[
+						"title" => sprintf("%s - %s [%s]", $bm['artist'], $bm['title'], $bm['difficulty_name']),
+						"url" => "https://osu.ppy.sh/s/$bmSETid",
+						"description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\n[Download](https://osu.troke.id/d/$bmSETid)",
+						"color" => hexdec( "3366ff" ),
+						"footer" => [
+							"text" => "This map was $postStatus by " . $_SESSION["username"] . "",
+							"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
+						],
+						"thumbnail" => [
+							"url" => "https://b.ppy.sh/thumb/$bmSETid.jpg"
+						]
+					]
+				]
+			], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+			$crot = curl_init( $rankwebhook );
+			curl_setopt( $crot, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+			curl_setopt( $crot, CURLOPT_POST, 1);
+			curl_setopt( $crot, CURLOPT_POSTFIELDS, $json_data);
+			curl_setopt( $crot, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt( $crot, CURLOPT_HEADER, 0);
+			curl_setopt( $crot, CURLOPT_RETURNTRANSFER, 1);
+
+			$resp = curl_exec( $crot );
+			curl_close( $crot );
+			// END
 			redirect("index.php?p=117&s=".$result);
 		} catch (Exception $e) {
 			redirect('index.php?p=117&e='.$e->getMessage());
