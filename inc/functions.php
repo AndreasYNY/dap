@@ -156,6 +156,7 @@ function setTitle($p) {
 			137 => 'Top Scores',
 			138 => 'Top Scores Results',
 			139 => 'Edit Whitelist IP',
+			140 => 'BAT Give Reason',
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -383,6 +384,12 @@ function printPage($p) {
 			case 139:
 				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminWhitelistIP();
+			break;
+
+			// BAT Give Reason
+			case 140:
+				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+				P::BATGiveReason();
 			break;
 
 			// 404 page

@@ -88,7 +88,7 @@ $("document").ready(function() {
 							<th>Unrank (Pending)</th>
 							<th>Reset status<br>from osu!api</th>
 							<th>Don't edit</th>
-							<th>Mark for Notes</th>
+							<th>Reason</th>
 						</thead>
 						<tbody>
 				`;
@@ -109,7 +109,7 @@ $("document").ready(function() {
 						<td class="success"><span class="mobile-only">Unrank</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="unrank" type="radio"></td>
 						<td class="success"><span class="mobile-only">Reset status from osu!api</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="update" type="radio"></td>
 						<td class="success"><span class="mobile-only">Don't edit</span> <input name="beatmaps[${escapeHtml(String(value.id))}]${escapeHtml(String(value.id))}" value="no" type="radio" checked></td>
-						<td class="success"><span class="mobile-only">Set notes</span> <input name="beatmapNotes[${escapeHtml(String(value.id))}]" type="checkbox" value=1 /></td>
+						<td class="success"><span class="mobile-only">Reason</span> <a class="btn btn-primary" href="submit.php?action=AddBeatmapNotes&id=${escapeHtml(String(value.id))}" role="button">Give Reason</a></td>
 					</tr>`;
 				});
 
@@ -125,8 +125,6 @@ $("document").ready(function() {
 				tableHtml += `</div>`
 				tableHtml += `<hr>`;
 				tableHtml += `<div class="alert alert-warning table-50-center"><i class="fa fa-exclamation-triangle"></i>	<b>Saving changes might take several seconds, especially if you want to update some beatmap from osu!api. Don't close the page until you see the success message to avoid errors.</b></div>`
-				tableHtml += `<p style="text-align=center;">Extra beatmap notes:</p>`;
-				tableHtml += `<textarea name="mapnotes"></textarea><br>`;
 				tableHtml += `<button type="submit" class="btn btn-primary"><b><span class="glyphicon glyphicon-floppy-disk"></span>	Submit</b></button>`;
 				tableHtml += `</form>`;
 				$("#main-content").html(tableHtml);

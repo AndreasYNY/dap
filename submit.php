@@ -82,6 +82,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::MarkDone();
 		break;
+		case 'AddBeatmapNotes':
+			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+			D::AddBmNotes();
+		break;
 		case 'removeBadge':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBadges);
 			D::RemoveBadge();

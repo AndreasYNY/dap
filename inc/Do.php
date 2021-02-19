@@ -871,6 +871,12 @@ class D {
 		}
 	}
 
+	//public static function ProcessBmNotes() {
+	//	try {
+	//		if (!isset($_GET["id"]) || empty($_GET["id"]))
+	//			throw new Exception("nice try");
+			
+
 	public static function MarkDone() {
 		try {
 			if (!isset($_GET["id"]) || empty($_GET["id"]))
