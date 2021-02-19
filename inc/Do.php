@@ -874,9 +874,13 @@ class D {
 	public static function BMNotes() {
 		global $DiscordHook;
 		try {
-			if (!isset($_GET["id"]) || empty($_GET["id"]) || (!isset($_GET["reqID"))
-				throw new Exception("nice try");
-			$infoBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$_GET["id"]);
+			if (isset($_POST['bmid'])) {
+                                $bmid = $_POST['bmid'];
+                        } else {
+                                $bmid = 0;
+                        }
+			$infoBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$_POST["bmid"]]);
+			$Alasan = $_POST["bmreason"];
 			//KIRIM KE DISCORD
                         $NotesWebhook = $DiscordHook["map-log"];
                         $datamap_json = json_encode(
@@ -884,16 +888,16 @@ class D {
                                 // "username" => "Ranked Bot",
                                 "embeds" => [
                                         [
-                                                "title" => sprintf("%s - %s [%s]", $bm['artist'], $bm['title'], $bm['difficulty_name']),
-                                                "url" => "https://osu.ppy.sh/s/$bmSETid",
-                                                "description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\n[Download](https://osu.troke.id/d/$bmSETid)",
+                                                "title" => sprintf("%s - %s [%s]", $infoBM['artist'], $infoBM['title'], $infoBM['difficulty_name']),
+                                                "url" => "https://osu.ppy.sh/s/" . $infoBM["beatmapset_id"] . "",
+                                                "description" => "$Alasan",
                                                 "color" => hexdec( "3366ff" ),
                                                 "footer" => [
-                                                        "text" => "This map was $postStatus by " . $_SESSION["username"] . "",
+                                                        "text" => "Reason give by " . $_SESSION["username"] . "",
                                                         "icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
                                                 ],
                                                 "thumbnail" => [
-                                                        "url" => "https://b.ppy.sh/thumb/$bmSETid.jpg"
+                                                        "url" => "https://b.ppy.sh/thumb/" . $infoBM["beatmapset_id"] . ".jpg"
                                                 ]
                                         ]
                                 ]
@@ -909,6 +913,8 @@ class D {
                         $respon = curl_exec( $cr );
                         curl_close( $cr );
                         // END
+			rapLog("telah memberikan alasan pada sebuah beatmap");
+                        redirect("index.php?p=117&s=Success Memberikan Alasan!");
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=117&e='.$e->getMessage());
