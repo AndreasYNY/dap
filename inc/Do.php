@@ -1178,9 +1178,71 @@ class D {
 				if ($logToRap)
 					rapLog(sprintf("has %s beatmap set %s", $rap, $bsid), $_SESSION["userid"]);
 			}
+			// Send a message to #announce
+			// TODO BENERIN INI
+			// SEMENTARA GA MASOK KE BANCHO MESSAGENYA
+			// NANTI DITAMBAH KALAU MOOD -trok
+			if($momIdoSomething) {
+				// ini ngapain pake $bm di tiap kondisi?
+				if ($status == "rank") {
+					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+					$postStatus = "Ranked";
+				} else if ($status == "love") {
+					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+					$postStatus = "Loved";
+				} else if ($status == "unrank") {
+					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+					$postStatus = "Unranked";
+				} else if ($status == "update") {
+					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+					$postStatus = "Reset";
+				// kondisi no kan gak bakal masuk
+				} else if ($status == "no") {
+					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+					$postStatus = "Ga diapain";
+				}
+				//MANUKE
+				$waktuMap = gmdate("H:i:s", $bm["hit_length"]);
+				$beatPM = $bm["bpm"];
+				//KIRIM KE DISCORD
+				$rankwebhook = $DiscordHook["ranked-map"];
+				$json_data = json_encode(
+				[
+					// "username" => "Ranked Bot",
+					"embeds" => [
+						[
+							"title" => sprintf("%s - %s [%s]", $bm['artist'], $bm['title'], $bm['difficulty_name']),
+							"url" => "https://osu.ppy.sh/s/$beatmapID",
+							"description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\nDownload : https://osu.troke.id/d/$bsid",
+							"color" => hexdec( "3366ff" ),
+							"footer" => [
+								"text" => "Beatmaps ini di $postStatus oleh " . $_SESSION["username"] . "",
+								"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
+							],
+							"thumbnail" => [
+								"url" => "https://b.ppy.sh/thumb/$beatmapID.jpg"
+							]
+						]
+					]
+
+				], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+				$crot = curl_init( $rankwebhook );
+				curl_setopt( $crot, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+				curl_setopt( $crot, CURLOPT_POST, 1);
+				curl_setopt( $crot, CURLOPT_POSTFIELDS, $json_data);
+				curl_setopt( $crot, CURLOPT_FOLLOWLOCATION, 1);
+				curl_setopt( $crot, CURLOPT_HEADER, 0);
+				curl_setopt( $crot, CURLOPT_RETURNTRANSFER, 1);
+
+				$resp = curl_exec( $crot );
+				curl_close( $crot );
+			}
+			// END
+
 			// Place notes "manually" (actually I have no idea on what interface I should do this, fuck this template)
 			$falsyTrucy = array(0,'false','0');
-			if(array_key_exists('mapnotes',$_POST)) {
+			if(array_key_exists('mapnotes',$_POST) && array_key_exists('beatmapNotes',$_POST)) {
 				$noteAction = array();
 				foreach($_POST['beatmapNotes'] as $beatmapID => $beatmapSetNote) {
 					if(in_array($beatmapSetNote, $falsyTrucy)) continue;
@@ -1242,65 +1304,6 @@ class D {
 				], 30);
 			}
 
-			// Send a message to #announce
-			// TODO BENERIN INI
-			// SEMENTARA GA MASOK KE BANCHO MESSAGENYA
-			// NANTI DITAMBAH KALAU MOOD -trok
-			if($momIdoSomething) {
-				if ($status == "rank") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Ranked";
-				} else if ($status == "love") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Loved";
-				} else if ($status == "unrank") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Unranked";
-				} else if ($status == "update") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Reset";
-				} else if ($status == "no") {
-					$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-					$postStatus = "Ga diapain";
-				}
-				//MANUKE
-				$waktuMap = gmdate("H:i:s", $bm["hit_length"]);
-				$beatPM = $bm["bpm"];
-				//KIRIM KE DISCORD
-				$rankwebhook = $DiscordHook["ranked-map"];
-				$json_data = json_encode(
-				[
-					// "username" => "Ranked Bot",
-					"embeds" => [
-						[
-							"title" => sprintf("%s - %s [%s]", $bm['artist'], $bm['title'], $bm['difficulty_name']),
-							"url" => "https://osu.ppy.sh/s/$beatmapID",
-							"description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\nDownload : https://osu.troke.id/d/$bsid",
-							"color" => hexdec( "3366ff" ),
-							"footer" => [
-								"text" => "Beatmaps ini di $postStatus oleh " . $_SESSION["username"] . "",
-								"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
-							],
-							"thumbnail" => [
-								"url" => "https://b.ppy.sh/thumb/$beatmapID.jpg"
-							]
-						]
-					]
-
-				], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-
-				$crot = curl_init( $rankwebhook );
-				curl_setopt( $crot, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
-				curl_setopt( $crot, CURLOPT_POST, 1);
-				curl_setopt( $crot, CURLOPT_POSTFIELDS, $json_data);
-				curl_setopt( $crot, CURLOPT_FOLLOWLOCATION, 1);
-				curl_setopt( $crot, CURLOPT_HEADER, 0);
-				curl_setopt( $crot, CURLOPT_RETURNTRANSFER, 1);
-
-				$resp = curl_exec( $crot );
-				curl_close( $crot );
-			}
-			// Done
 			redirect("index.php?p=117&s=".$result);
 		} catch (Exception $e) {
 			redirect('index.php?p=117&e='.$e->getMessage());
