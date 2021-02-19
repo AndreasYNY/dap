@@ -1175,14 +1175,14 @@ class D {
 					break;
 				}
 				//Discord Start
-			$getBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, beatmap_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? or beatmapset_id = ?", [$bsid]);
+			$getBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ?", [$beatmapID]);
 			$rankwebhook = $DiscordHook["ranked-map"];
 			$json_data = json_encode(
 			[
 				// "username" => "Ranked Bot",
 				"embeds" => [
 					[
-						"title" => sprintf("%s - %s [%s]",$getBM['artist'],$getBM['title'],$getBM['difficulty_name']),
+						"title" => sprintf("%s - %s [%s]", $getBM['artist'], $getBM['title'], $getBM['difficulty_name']),
 						"url" => "https://osu.ppy.sh/s/$bsid",
 						"description" => "Status : $logtodiscord\nDownload : https://osu.troke.id/d/$bsid",
 						"color" => hexdec( "3366ff" ),
