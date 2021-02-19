@@ -82,10 +82,6 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::MarkDone();
 		break;
-		case 'AddBeatmapNotes':
-			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
-			D::AddBmNotes();
-		break;
 		case 'removeBadge':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBadges);
 			D::RemoveBadge();
@@ -118,10 +114,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::WipeAccount();
 		break;
-		/*case 'processRankRequest':
+		case 'processBMnotes':
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
-			D::ProcessRankRequest();
-		break;*/
+			D::BMNotes();
+		break;
 		case 'blacklistRankRequest':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::BlacklistRankRequest();

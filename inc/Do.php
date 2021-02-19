@@ -871,11 +871,50 @@ class D {
 		}
 	}
 
-	//public static function ProcessBmNotes() {
-	//	try {
-	//		if (!isset($_GET["id"]) || empty($_GET["id"]))
-	//			throw new Exception("nice try");
-			
+	public static function BMNotes() {
+		global $DiscordHook;
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"]) || (!isset($_GET["reqID"))
+				throw new Exception("nice try");
+			$infoBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$_GET["id"]);
+			//KIRIM KE DISCORD
+                        $NotesWebhook = $DiscordHook["map-log"];
+                        $datamap_json = json_encode(
+                        [
+                                // "username" => "Ranked Bot",
+                                "embeds" => [
+                                        [
+                                                "title" => sprintf("%s - %s [%s]", $bm['artist'], $bm['title'], $bm['difficulty_name']),
+                                                "url" => "https://osu.ppy.sh/s/$bmSETid",
+                                                "description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\n[Download](https://osu.troke.id/d/$bmSETid)",
+                                                "color" => hexdec( "3366ff" ),
+                                                "footer" => [
+                                                        "text" => "This map was $postStatus by " . $_SESSION["username"] . "",
+                                                        "icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
+                                                ],
+                                                "thumbnail" => [
+                                                        "url" => "https://b.ppy.sh/thumb/$bmSETid.jpg"
+                                                ]
+                                        ]
+                                ]
+                        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+                        $cr = curl_init( $NotesWebhook );
+                        curl_setopt( $cr, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+                        curl_setopt( $cr, CURLOPT_POST, 1);
+                        curl_setopt( $cr, CURLOPT_POSTFIELDS, $datamap_json);
+                        curl_setopt( $cr, CURLOPT_FOLLOWLOCATION, 1);
+                        curl_setopt( $cr, CURLOPT_HEADER, 0);
+                        curl_setopt( $cr, CURLOPT_RETURNTRANSFER, 1);
+
+                        $respon = curl_exec( $cr );
+                        curl_close( $cr );
+                        // END
+		}
+		catch(Exception $e) {
+			redirect('index.php?p=117&e='.$e->getMessage());
+		}
+	}
+
 
 	public static function MarkDone() {
 		try {
