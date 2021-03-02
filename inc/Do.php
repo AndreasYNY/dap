@@ -1206,7 +1206,7 @@ class D {
 					// No changes
 					case "no":
 						$result = "$beatmapID's ranked status has not been edited!. | ";
-						$rap = "nothing to do with";
+						$rap = "ignored";
 					break;
 
 					// osuHOW
@@ -1242,7 +1242,7 @@ class D {
 			} else if ($status == "update") {
 				$postStatus = "reset";
 			} else if ($status == "no") {
-				$postStatus = "nothing to do";
+				$postStatus = "ignored";
 			}
 			//MANUKE
 			$waktuMap = gmdate("i:s", $bm["hit_length"]);
