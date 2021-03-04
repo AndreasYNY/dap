@@ -1049,10 +1049,10 @@ class D {
 			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
 			$DCid = $GLOBALS["db"]->fetch("SELECT discord_tokens.userid, discord_tokens.token, users.username, discord_tokens.discord_id, discord_tokens.role_id FROM discord_tokens INNER JOIN users ON discord_tokens.userid=users.id WHERE discord_tokens.userid = ?
 			", [$_POST["id"]]);
-			if (!DCid) {
-				$namaDonat = sprintf("<@%s>", $DCid['discord_id']);
-			} else {
+			if (!$DCid) {
 				$namaDonat = $uname;
+			} else {
+				$namaDonat = sprintf("<@%s>", $DCid['discord_id']);
 			}
 			$bulannya = $_POST["m"];
 			//KIRIM KE DISCORD
