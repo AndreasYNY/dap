@@ -1045,8 +1045,6 @@ class D {
 			}
 			$uname = current($uname);
 			$months = giveDonor($_POST["id"], $_POST["m"], $_POST["type"] == 0);
-			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $uname), $_SESSION["userid"]);
-			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
 			$DCid = $GLOBALS["db"]->fetch("SELECT discord_tokens.userid, discord_tokens.token, users.username, discord_tokens.discord_id, discord_tokens.role_id FROM discord_tokens INNER JOIN users ON discord_tokens.userid=users.id WHERE discord_tokens.userid = ?
 			", [$_POST["id"]]);
 			if (!$DCid) {
@@ -1073,6 +1071,8 @@ class D {
 			$resp = curl_exec( $crotdonat );
 			curl_close( $crotdonat );
 			// END
+			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $uname), $_SESSION["userid"]);
+			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=102&e='.$e->getMessage());
