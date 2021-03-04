@@ -31,7 +31,8 @@ $ipEnv = 'REMOTE_ADDR';	// HTTP_X_FORWARDED_FOR
 $DiscordHook = [
 	"ranked-map" => "",
 	"admin-log" => "",
-	"name-log" => ""
+	"name-log" => "",
+	"donations-log" => ""
 ];
 
 // Google recaptcha config

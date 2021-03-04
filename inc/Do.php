@@ -1035,6 +1035,7 @@ class D {
 	}
 
 	public static function GiveDonor() {
+		global $DiscordHook;
 		try {
 			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
 				throw new Exception("Invalid user");
@@ -1046,6 +1047,32 @@ class D {
 			$months = giveDonor($_POST["id"], $_POST["m"], $_POST["type"] == 0);
 			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $uname), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
+			$DCid = $GLOBALS["db"]->fetch("SELECT discord_tokens.userid, discord_tokens.token, users.username, discord_tokens.discord_id, discord_tokens.role_id FROM discord_tokens INNER JOIN users ON discord_tokens.userid=users.id WHERE discord_tokens.userid = ?
+			", [$_POST["id"]]);
+			if (!DCid) {
+				$namaDonat = sprintf("<@%s>", $DCid['discord_id']);
+			} else {
+				$namaDonat = $uname;
+			}
+			$bulannya = $_POST["m"];
+			//KIRIM KE DISCORD
+			$kirimdonat = $DiscordHook["donations-log"];
+			$donat_data = json_encode(
+			[
+				// "username" => "Ranked Bot",
+				"content" => "Thank you for $bulannya months donations! $namaDonat"
+			], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+			$crotdonat = curl_init( $kirimdonat );
+			curl_setopt( $crotdonat, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+			curl_setopt( $crotdonat, CURLOPT_POST, 1);
+			curl_setopt( $crotdonat, CURLOPT_POSTFIELDS, $donat_data);
+			curl_setopt( $crotdonat, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt( $crotdonat, CURLOPT_HEADER, 0);
+			curl_setopt( $crotdonat, CURLOPT_RETURNTRANSFER, 1);
+
+			$resp = curl_exec( $crotdonat );
+			curl_close( $crotdonat );
+			// END
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=102&e='.$e->getMessage());
