@@ -26,4 +26,5 @@ class Privileges {
 	const UserTournamentStaff 	= 1 << 21;
 	const AdminCaker			= 1 << 22;
 	const AdminViewTopScores	= 1 << 23;
+	const AdminManageAutoRank	= 1 << 24;
 }

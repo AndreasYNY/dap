@@ -157,6 +157,7 @@ function setTitle($p) {
 			138 => 'Top Scores Results',
 			139 => 'Edit Whitelist IP',
 			140 => 'BAT Give Reason',
+			141 => 'Auto Rank Listing',
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -391,6 +392,11 @@ function printPage($p) {
 				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 				P::BATGiveReason();
 			break;
+			
+			case 141:
+				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+				P::BATViewAutorank();
+				break;
 
 			// 404 page
 			default:
@@ -527,6 +533,9 @@ function printAdminSidebar() {
 						if (hasPrivilege(Privileges::AdminManageBeatmaps)) {
 							echo '<li><a href="index.php?p=117"><i class="fa fa-music"></i>	Rank requests</a></li>';
 							echo '<li><a href="index.php?p=125"><i class="fa fa-level-up-alt"></i>	Rank beatmap manually</a></li>';
+							if (hasPrivilege(Privileges::AdminManageAutoRank)) {
+								echo '<li><a href="index.php?p=141"><i class="fa fa-level-up-alt"></i>	Autorank queue</a></li>';
+							}
 						}
 
 						if (hasPrivilege(Privileges::AdminViewTopScores))

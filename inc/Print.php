@@ -400,7 +400,7 @@ class P {
 	/*
 	 *
 	 * AdminEditIP
-	 * 
+	 *
 	*/
 	public static function AdminWhitelistIP() {
 		try {
@@ -3409,7 +3409,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				echo '<hr>';
 				$scoresCount = 0;
 				$scoresPreview = [];
-				foreach (["scores_removed.id, song_name, play_mode, pp", "COUNT(*) AS c"] as $i => $v) {				
+				foreach (["scores_removed.id, song_name, play_mode, pp", "COUNT(*) AS c"] as $i => $v) {
 					$q = "SELECT $v FROM scores_removed JOIN beatmaps USING(beatmap_md5) WHERE userid = ?";
 					$qp = [$_GET["id"]];
 					if ($_POST["gm"] > -1 && $_POST["gm"] <= 3) {
@@ -3877,6 +3877,98 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '</div>';
 		// Template end
 		echo '</div>';
+	}
+	
+	public static function BATViewAutorank() {
+		function htmlTag($tag, $content, $options=[], $echo=false) {
+			$opt_str = "";
+			$body = "";
+			if(is_array($options))
+				foreach($options as $k=>$v)
+					$opt_str .= sprintf(' %s="%s"', $k, $v);
+			echo sprintf('<%1$s%2$s>', $tag, $opt_str);
+			if(is_callable($content))
+				$body = $content();
+			else if(is_string($content))
+				$body = $content;
+			if((bool)$body)
+				echo $body;
+			echo sprintf('</%1$s>', $tag);
+		}
+		function reAssoc($array, $keyfunc){
+			$keys = array_map($keyfunc, $array);
+			return array_map(null, $keys, $array);
+		};
+		htmlTag('div', function(){
+			printAdminSidebar();
+			htmlTag('div', function(){
+				self::MaintenanceStuff();
+				if (isset($_GET['e']) && !empty($_GET['e']))
+					self::ExceptionMessageStaccah($_GET['e']);
+				htmlTag('p', function(){htmlTag('h2','View Auto Rank Queue');});
+				echo '<br>';
+				
+				$autolinkedUsers  = reAssoc($GLOBALS["db"]->fetchAll('SELECT * FROM autorank_users where active = 1'), function($entry){return $entry['bancho_id'];});
+				$autorankBeatmaps = reAssoc($GLOBALS["db"]->fetchAll('SELECT * FROM autorank_flags'), function($entry){return $entry['beatmap_id'];});
+				$beatmapIDs       = array_keys($autorankBeatmaps);
+				$beatmapSIDs      = [];
+				$beatmapQIDs      = array_map(function($arbm){return "?";}, array_values($autorankBeatmaps));
+				$beatmapQuery     = sprintf("SELECT * FROM beatmaps WHERE id in (%s) ORDER BY bancho_last_touch ASC", implode(",", $beatmapQIDs));
+				$beatmapList      = $GLOBALS["db"]->fetchAll($beatmapQuery, $beatmapIDs);
+				$beatmapGroups    = [];
+				$beatmapSIDs      = array_unique(array_map(function($bm){return $bm['beatmapset_id'];}, $beatmapList))
+				foreach($beatmapSIDs as $beatmapSID)
+					$beatmapGroups[$beatmapSID] = array_map(
+						function($bm){return $bm['beatmap_id'];},
+						array_values(array_filter($beatmapList, function($bm){return $bm['beatmapset_id'] == $beatmapSID;}))
+					);
+				htmlTag('table', function(){
+					htmlTag('thead', function(){
+						htmlTag('tr', function(){
+							htmlTag('th', "ID");
+							htmlTag('th', "Beatmap Name");
+							htmlTag('th', "Last Update");
+							htmlTag('th', "Eligibility", ['colspan'=> 3]);
+							htmlTag('th', "Autorank Time");
+						});
+					});
+					$eliClasses = [
+						['fa', 'fa-times'],
+						['fa', 'fa-check'],
+						['fa', 'fa-check'],
+					];
+					htmlTag('tbody', function(){
+						foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
+							htmlTag('tr', function(){
+								htmlTag('td', (str)$beatmapSID, ['colspan' => 1 + count($beatmapSet)]);
+								htmlTag('td',
+									implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']]))
+								);
+								htmlTag('td', strptime($beatmapSet[0]['bancho_last_touch'],'%Y/%m/%d %H:%M:%S'));
+								htmlTag('td', '', ['colspan' => 3]);
+								htmlTag('td', '');
+							});
+							foreach($beatmapSet as $beatmapData) {
+								htmlTag('tr', function(){
+									// ELIGIBLES FLAG
+									// 0 - USER EXISTENCE
+									// 1 - RANK/LOVE/IGNORE
+									// 2 - FROZEN FLAG (non 0/3)
+									$eligibles = [0, 0, 0];
+									$eligibles[0] = array_key_exists($beatmapData['creator_id'], $autolinkedUsers) ? 1 : 0;
+									$eligibles[1] = 0;
+									$eligibles[2] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
+									htmlTag('td', $beatmapData['difficulty_name']);
+									htmlTag('td', '');
+									foreach($eligibles as $eligibleFlag)
+										htmlTag('i', '', ['class'=>implode(' ', $eliClasses[$eligibleFlag])]);
+								});
+							}
+						}
+					});
+				}, ['class'=>'table table-striped table-hover', 'style'=>'width:94%; margin-left: 3%;']);
+			}, ['id'=>'page-content-wrapper']);
+		}, ['id'=>'wrapper']);
 	}
 }
 
