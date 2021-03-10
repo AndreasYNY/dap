@@ -3922,7 +3922,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				foreach($beatmapSIDs as $beatmapSID)
 					$beatmapGroups[$beatmapSID] = array_map(
 						function($bm){return $bm['beatmap_id'];},
-						array_values(array_filter($beatmapList, function($bm) use ($beatmapSID) {return $bm['beatmapset_id'] == $beatmapSID;}))
+						array_filter($beatmapList, function($bm) use ($beatmapSID) {return $bm['beatmapset_id'] == $beatmapSID;})
 					);
 				htmlTag('table', function() use ($autolinkedUsers, $beatmapGroups){
 					htmlTag('thead', function(){
@@ -3961,7 +3961,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 									$eligibles[0] = array_key_exists($beatmapData['creator_id'], $autolinkedUsers) ? 1 : 0;
 									$eligibles[1] = 0;
 									$eligibles[2] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
-									htmlTag('td', $beatmapData['difficulty_name'] . "<br>" . var_dump($beatmapData));
+									htmlTag('td', $beatmapData['difficulty_name']);
 									foreach($eligibles as $eligibleFlag)
 										htmlTag('td', function() use ($eliClasses, $eligibleFlag) {
 											htmlTag('i', '', ['class'=>implode(' ', $eliClasses[$eligibleFlag])]);
