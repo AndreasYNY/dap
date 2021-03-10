@@ -3894,7 +3894,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			if((bool)$body)
 				echo $body;
 			echo sprintf('</%1$s>', $tag);
-		}
+		};
 		function reAssoc($array, $keyfunc){
 			$keys = array_map($keyfunc, $array);
 			return array_map(null, $keys, $array);
@@ -3916,7 +3916,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$beatmapQuery     = sprintf("SELECT * FROM beatmaps WHERE id in (%s) ORDER BY bancho_last_touch ASC", implode(",", $beatmapQIDs));
 				$beatmapList      = $GLOBALS["db"]->fetchAll($beatmapQuery, $beatmapIDs);
 				$beatmapGroups    = [];
-				$beatmapSIDs      = array_unique(array_map(function($bm){return $bm['beatmapset_id'];}, $beatmapList))
+				$beatmapSIDs      = array_unique(array_map(function($bm){return $bm['beatmapset_id'];}, $beatmapList));
 				foreach($beatmapSIDs as $beatmapSID)
 					$beatmapGroups[$beatmapSID] = array_map(
 						function($bm){return $bm['beatmap_id'];},
