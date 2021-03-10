@@ -755,29 +755,29 @@ class D {
 			// Delete scores
 			if ($_POST["gm"] == -1) {
 				if ($_POST["ppmode"] == 1) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ?', [$_POST['id']]);
-				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_POST['id']]);
+				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_master WHERE userid = ?', [$_POST['id']]);
+				$GLOBALS['db']->execute('DELETE FROM scores_master WHERE userid = ?', [$_POST['id']]);
 				} else if ($_POST["ppmode"] == 2) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_relax WHERE userid = ?', [$_POST['id']]);
-				$GLOBALS['db']->execute('DELETE FROM scores_relax WHERE userid = ?', [$_POST['id']]);
+				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_master WHERE userid = ?', [$_POST['id']]);
+				$GLOBALS['db']->execute('DELETE FROM scores_master WHERE userid = ?', [$_POST['id']]);
 				}
 			} else {
 				if ($_POST["ppmode"] == 1) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
-				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
+				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_master WHERE userid = ? AND play_mode = ? AND special_mode = 0', [$_POST['id'], $_POST["gm"]]);
+				$GLOBALS['db']->execute('DELETE FROM scores_master WHERE userid = ? AND play_mode = ? AND special_mode = 0', [$_POST['id'], $_POST["gm"]]);
 				} else if ($_POST["ppmode"] == 2) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_relax WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
-				$GLOBALS['db']->execute('DELETE FROM scores_relax WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
+				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_master WHERE userid = ? AND play_mode = ? AND special_mode = 1', [$_POST['id'], $_POST["gm"]]);
+				$GLOBALS['db']->execute('DELETE FROM scores_master WHERE userid = ? AND play_mode = ? AND special_mode = 1', [$_POST['id'], $_POST["gm"]]);
 				}
 			}
 			// Reset mode stats
 			if ($_POST["ppmode"] == 1) {
 				foreach ($modes as $k) {
-					$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+					$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
 				}
 			} else if ($_POST["ppmode"] == 2) {
 				foreach ($modes as $k) {
-					$GLOBALS['db']->execute('UPDATE rx_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+					$GLOBALS['db']->execute('UPDATE rx_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
 				}
 			}
 
