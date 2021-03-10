@@ -3936,7 +3936,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					});
 					htmlTag('tbody', function() use ($autolinkedUsers, $beatmapGroups) {
 						foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
-							
 							htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
 								htmlTag('td', strval($beatmapSID), ['rowspan' => 1 + count($beatmapSet)]);
 								htmlTag('td',
@@ -3962,9 +3961,11 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 									$eligibles[0] = array_key_exists($beatmapData['creator_id'], $autolinkedUsers) ? 1 : 0;
 									$eligibles[1] = 0;
 									$eligibles[2] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
-									htmlTag('td', $beatmapData['difficulty_name']);
+									htmlTag('td', $beatmapData['difficulty_name'] . "<br>" . var_dump($beatmapData));
 									foreach($eligibles as $eligibleFlag)
-										htmlTag('i', '', ['class'=>implode(' ', $eliClasses[$eligibleFlag])]);
+										htmlTag('td', function() use ($eliClasses, $eligibleFlag) {
+											htmlTag('i', '', ['class'=>implode(' ', $eliClasses[$eligibleFlag])]);
+										});
 								});
 							}
 						}
