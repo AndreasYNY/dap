@@ -3937,13 +3937,15 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					htmlTag('tbody', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapGroups) {
 						foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
 							htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
+								$lastBancho = (int)$beatmapSet[0]['bancho_last_touch'];
+								$rankTime   = $lastBancho + 28 * 86400;
 								htmlTag('td', strval($beatmapSID), ['rowspan' => 1 + count($beatmapSet)]);
 								htmlTag('td',
 									htmlspecialchars( implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']])) )
 								);
-								htmlTag('td', htmlspecialchars( strptime((int)$beatmapSet[0]['bancho_last_touch'],'%Y/%m/%d %H:%M:%S') ), ['rowspan' => 1 + count($beatmapSet)]);
+								htmlTag('td', htmlspecialchars( strftime('%Y/%m/%d %T', $lastBancho) ), ['rowspan' => 1 + count($beatmapSet)]);
 								htmlTag('td', '', ['colspan' => 3]);
-								htmlTag('td', '', ['rowspan' => 1 + count($beatmapSet)]);
+								htmlTag('td', htmlspecialchars( strftime('%Y/%m/%d %T', $rankTime) ), ['rowspan' => 1 + count($beatmapSet)]);
 							});
 							foreach($beatmapSet as $beatmapData) {
 								htmlTag('tr', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapData){
@@ -3961,8 +3963,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 									$eligibles[0] = array_key_exists($beatmapData['creator_id'], $autolinkedUsers) ? 1 : 0;
 									$eligibles[1] = 0;
 									$autorankData = $autorankBeatmaps[$beatmapData['beatmap_id']];
-									if($autorankData['flag_valid']){
-										if($autorankData['flag_lovable'])
+									if((int)$autorankData['flag_valid']){
+										if((int)$autorankData['flag_lovable'])
 											$eligibles[1] = 2;
 										else
 											$eligibles[1] = 1;
