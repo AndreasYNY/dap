@@ -3940,7 +3940,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					htmlTag('tbody', function(){
 						foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
 							htmlTag('tr', function(){
-								htmlTag('td', (str)$beatmapSID, ['colspan' => 1 + count($beatmapSet)]);
+								htmlTag('td', strval($beatmapSID), ['colspan' => 1 + count($beatmapSet)]);
 								htmlTag('td',
 									implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']]))
 								);
