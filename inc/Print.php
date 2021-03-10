@@ -3921,8 +3921,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$beatmapSIDs      = array_unique(array_map(function($bm){return $bm['beatmapset_id'];}, $beatmapList));
 				foreach($beatmapSIDs as $beatmapSID)
 					$beatmapGroups[$beatmapSID] = array_map(
-						function($bm){return $bm['beatmap_id'];},
-						array_filter($beatmapList, function($bm) use ($beatmapSID) {return $bm['beatmapset_id'] == $beatmapSID;})
+						function($bm){return $bm;},
+						array_values(array_filter($beatmapList, function($bm) use ($beatmapSID) {return $bm['beatmapset_id'] == $beatmapSID;}))
 					);
 				htmlTag('table', function() use ($autolinkedUsers, $beatmapGroups){
 					htmlTag('thead', function(){
@@ -3941,7 +3941,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 								htmlTag('td',
 									implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']]))
 								);
-								htmlTag('td', strptime($beatmapSet[0]['bancho_last_touch'],'%Y/%m/%d %H:%M:%S'), ['rowspan' => 1 + count($beatmapSet)]);
+								htmlTag('td', strptime((int)$beatmapSet[0]['bancho_last_touch'],'%Y/%m/%d %H:%M:%S'), ['rowspan' => 1 + count($beatmapSet)]);
 								htmlTag('td', '', ['colspan' => 3]);
 								htmlTag('td', '', ['rowspan' => 1 + count($beatmapSet)]);
 							});
