@@ -3897,7 +3897,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		};
 		function reAssoc($array, $keyfunc){
 			$keys = array_map($keyfunc, $array);
-			return array_map(null, $keys, $array);
+			$ret = [];
+			foreach(range(0, count($keys)) as $i)
+				$ret[ $keys[$i] ] = $array[$i];
+			return $ret;
 		};
 		htmlTag('div', function(){
 			printAdminSidebar();
@@ -3922,6 +3925,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						function($bm){return $bm['beatmap_id'];},
 						array_values(array_filter($beatmapList, function($bm){return $bm['beatmapset_id'] == $beatmapSID;}))
 					);
+				htmlTag('p', sprintf("%d beatmap group(s)", count($beatmapGroups)));
 				htmlTag('table', function(){
 					htmlTag('thead', function(){
 						htmlTag('tr', function(){
