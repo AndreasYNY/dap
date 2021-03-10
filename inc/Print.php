@@ -3924,7 +3924,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						function($bm){return $bm;},
 						array_values(array_filter($beatmapList, function($bm) use ($beatmapSID) {return $bm['beatmapset_id'] == $beatmapSID;}))
 					);
-				htmlTag('table', function() use ($autolinkedUsers, $beatmapGroups){
+				htmlTag('table', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapGroups){
 					htmlTag('thead', function(){
 						htmlTag('tr', function(){
 							htmlTag('th', "ID");
@@ -3934,7 +3934,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 							htmlTag('th', "Autorank Time");
 						});
 					});
-					htmlTag('tbody', function() use ($autolinkedUsers, $beatmapGroups) {
+					htmlTag('tbody', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapGroups) {
 						foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
 							htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
 								htmlTag('td', strval($beatmapSID), ['rowspan' => 1 + count($beatmapSet)]);
