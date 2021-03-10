@@ -3915,14 +3915,14 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$beatmapIDs       = array_keys($autorankBeatmaps);
 				$beatmapSIDs      = [];
 				$beatmapQIDs      = array_map(function($arbm){return "?";}, array_values($autorankBeatmaps));
-				$beatmapQuery     = sprintf("SELECT * FROM beatmaps WHERE id in (%s) ORDER BY bancho_last_touch ASC", implode(",", $beatmapQIDs));
+				$beatmapQuery     = sprintf("SELECT * FROM beatmaps WHERE beatmap_id in (%s) ORDER BY bancho_last_touch DESC", implode(",", $beatmapQIDs));
 				$beatmapList      = $GLOBALS["db"]->fetchAll($beatmapQuery, $beatmapIDs);
 				$beatmapGroups    = [];
 				$beatmapSIDs      = array_unique(array_map(function($bm){return $bm['beatmapset_id'];}, $beatmapList));
 				foreach($beatmapSIDs as $beatmapSID)
 					$beatmapGroups[$beatmapSID] = array_map(
 						function($bm){return $bm['beatmap_id'];},
-						array_values(array_filter($beatmapList, function($bm){return $bm['beatmapset_id'] == $beatmapSID;}))
+						array_values(array_filter($beatmapList, function($bm) use ($beatmapSID) {return $bm['beatmapset_id'] == $beatmapSID;}))
 					);
 				htmlTag('table', function() use ($autolinkedUsers, $beatmapGroups){
 					htmlTag('thead', function(){
@@ -3936,14 +3936,15 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					});
 					htmlTag('tbody', function() use ($autolinkedUsers, $beatmapGroups) {
 						foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
+							
 							htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
-								htmlTag('td', strval($beatmapSID), ['colspan' => 1 + count($beatmapSet)]);
+								htmlTag('td', strval($beatmapSID), ['rowspan' => 1 + count($beatmapSet)]);
 								htmlTag('td',
 									implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']]))
 								);
-								htmlTag('td', strptime($beatmapSet[0]['bancho_last_touch'],'%Y/%m/%d %H:%M:%S'));
+								htmlTag('td', strptime($beatmapSet[0]['bancho_last_touch'],'%Y/%m/%d %H:%M:%S'), ['rowspan' => 1 + count($beatmapSet)]);
 								htmlTag('td', '', ['colspan' => 3]);
-								htmlTag('td', '');
+								htmlTag('td', '', ['rowspan' => 1 + count($beatmapSet)]);
 							});
 							foreach($beatmapSet as $beatmapData) {
 								htmlTag('tr', function() use ($autolinkedUsers, $beatmapData){
@@ -3962,7 +3963,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 									$eligibles[1] = 0;
 									$eligibles[2] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
 									htmlTag('td', $beatmapData['difficulty_name']);
-									htmlTag('td', '');
 									foreach($eligibles as $eligibleFlag)
 										htmlTag('i', '', ['class'=>implode(' ', $eliClasses[$eligibleFlag])]);
 								});
