@@ -3910,7 +3910,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					self::ExceptionMessageStaccah($_GET['e']);
 				htmlTag('p', function(){htmlTag('h2','View Auto Rank Queue');});
 				echo '<br>';
-				
 				$autolinkedUsers  = reAssoc($GLOBALS["db"]->fetchAll('SELECT * FROM autorank_users where active = 1'), function($entry){return $entry['bancho_id'];});
 				$autorankBeatmaps = reAssoc($GLOBALS["db"]->fetchAll('SELECT * FROM autorank_flags'), function($entry){return $entry['beatmap_id'];});
 				$beatmapIDs       = array_keys($autorankBeatmaps);
@@ -3925,8 +3924,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						function($bm){return $bm['beatmap_id'];},
 						array_values(array_filter($beatmapList, function($bm){return $bm['beatmapset_id'] == $beatmapSID;}))
 					);
-				htmlTag('p', sprintf("%d beatmap group(s)", count($beatmapGroups)));
-				htmlTag('table', function(){
+				htmlTag('table', function() use ($autolinkedUsers, $beatmapGroups){
 					htmlTag('thead', function(){
 						htmlTag('tr', function(){
 							htmlTag('th', "ID");
@@ -3936,14 +3934,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 							htmlTag('th', "Autorank Time");
 						});
 					});
-					$eliClasses = [
-						['fa', 'fa-times'],
-						['fa', 'fa-check'],
-						['fa', 'fa-check'],
-					];
-					htmlTag('tbody', function(){
+					htmlTag('tbody', function() use ($autolinkedUsers, $beatmapGroups) {
 						foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
-							htmlTag('tr', function(){
+							htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
 								htmlTag('td', strval($beatmapSID), ['colspan' => 1 + count($beatmapSet)]);
 								htmlTag('td',
 									implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']]))
@@ -3953,12 +3946,18 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 								htmlTag('td', '');
 							});
 							foreach($beatmapSet as $beatmapData) {
-								htmlTag('tr', function(){
+								htmlTag('tr', function() use ($autolinkedUsers, $beatmapData){
 									// ELIGIBLES FLAG
 									// 0 - USER EXISTENCE
 									// 1 - RANK/LOVE/IGNORE
 									// 2 - FROZEN FLAG (non 0/3)
+									$eliClasses = [
+										['fa', 'fa-times'],
+										['fa', 'fa-check'],
+										['fa', 'fa-check'],
+									];
 									$eligibles = [0, 0, 0];
+									//
 									$eligibles[0] = array_key_exists($beatmapData['creator_id'], $autolinkedUsers) ? 1 : 0;
 									$eligibles[1] = 0;
 									$eligibles[2] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
