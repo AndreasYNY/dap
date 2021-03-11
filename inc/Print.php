@@ -3961,9 +3961,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 											['fa', 'fa-check'],
 										],
 										'style' => [
-											['color=#f00;'],
-											['color=#fc4;'],
-											['color=#0c0;'],
+											['color:#f00;'],
+											['color:#fc4;'],
+											['color:#0c0;'],
 										]
 									];
 									$eligibles = [0, 0, 0];
