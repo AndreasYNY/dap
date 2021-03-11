@@ -3938,7 +3938,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
 							htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
 								$lastBancho = (int)$beatmapSet[0]['bancho_last_touch'];
-								$rankTime   = $lastBancho + 28 * 86400;
+								$lastFetch  = (int)$beatmapSet[0]['latest_update'];
+								$rankTime   = min($lastFetch, $lastBancho + 28 * 86400);
 								htmlTag('td', strval($beatmapSID), ['rowspan' => 1 + count($beatmapSet)]);
 								htmlTag('td',
 									htmlspecialchars( implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']])) )
@@ -3953,10 +3954,17 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 									// 0 - USER EXISTENCE
 									// 1 - RANK/LOVE/IGNORE
 									// 2 - FROZEN FLAG (non 0/3)
-									$eliClasses = [
-										['fa', 'fa-times'],
-										['fa', 'fa-check'],
-										['fa', 'fa-check'],
+									$eliData = [
+										'class' => [
+											['fa', 'fa-times'],
+											['fa', 'fa-check'],
+											['fa', 'fa-check'],
+										],
+										'style' => [
+											['color=#f00;'],
+											['color=#fc4;'],
+											['color=#0c0;'],
+										]
 									];
 									$eligibles = [0, 0, 0];
 									//
@@ -3970,10 +3978,13 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 											$eligibles[1] = 1;
 									}
 									$eligibles[2] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
-									htmlTag('td', htmlspecialchars( $beatmapData['difficulty_name'] ));
+									htmlTag('td', htmlspecialchars( "↪ " . $beatmapData['difficulty_name'] ));
 									foreach($eligibles as $eligibleFlag)
-										htmlTag('td', function() use ($eliClasses, $eligibleFlag) {
-											htmlTag('i', '', ['class'=>implode(' ', $eliClasses[$eligibleFlag])]);
+										htmlTag('td', function() use ($eliData, $eligibleFlag) {
+											htmlTag('i', '', [
+												'class'=>implode(' ', $eliData['class'][$eligibleFlag]),
+												'style'=>implode(';', $eliData['style'][$eligibleFlag]),
+											]);
 										});
 								});
 							}
