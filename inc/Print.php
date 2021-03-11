@@ -3939,7 +3939,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 							htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
 								$lastBancho = (int)$beatmapSet[0]['bancho_last_touch'];
 								$lastFetch  = (int)$beatmapSet[0]['latest_update'];
-								$rankTime   = min($lastFetch, $lastBancho + 28 * 86400);
+								$rankTime   = max($lastFetch, $lastBancho + 28 * 86400);
 								htmlTag('td', strval($beatmapSID), ['rowspan' => 1 + count($beatmapSet)]);
 								htmlTag('td',
 									htmlspecialchars( implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']])) )
@@ -3962,8 +3962,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 										],
 										'style' => [
 											['color:#f00;'],
-											['color:#fc4;'],
 											['color:#0c0;'],
+											['color:#f41;'],
 										]
 									];
 									$eligibles = [0, 0, 0];
