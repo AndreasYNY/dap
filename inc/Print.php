@@ -900,6 +900,7 @@ class P {
 		$wm = current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'website_maintenance'"));
 		$gm = current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'game_maintenance'"));
 		$r = current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'registrations_enabled'"));
+		$rg = current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'regblock'"));
 		$ga = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_global_alert'"));
 		$ha = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_home_alert'"));
 		$fv = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'featuredvideo'"));
@@ -916,6 +917,7 @@ class P {
 		$selected[0] = [1 => '', 2 => ''];
 		$selected[1] = [1 => '', 2 => ''];
 		$selected[2] = [1 => '', 2 => ''];
+		$selected[3] = [1 => '', 2 => ''];
 		// Checked stuff
 		if ($wm == 1) {
 			$selected[0][1] = 'selected';
@@ -931,6 +933,11 @@ class P {
 			$selected[2][1] = 'selected';
 		} else {
 			$selected[2][2] = 'selected';
+		}
+		if ($rg == 1) {
+			$selected[3][1] = 'selected';
+		} else {
+			$selected[3][2] = 'selected';
 		}
 		echo '<p align="center"><font size=5><i class="fa fa-cog"></i>	System settings</font></p>';
 		echo '<table class="table table-striped table-hover table-50-center">';
@@ -961,6 +968,15 @@ class P {
 		<select name="r" class="selectpicker" data-width="100%">
 		<option value="1" '.$selected[2][1].'>On</option>
 		<option value="0" '.$selected[2][2].'>Off</option>
+		</select>
+		</td>
+		</tr>';
+		echo '<tr>
+		<td>Region Block</td>
+		<td>
+		<select name="rg" class="selectpicker" data-width="100%">
+		<option value="1" '.$selected[3][1].'>On</option>
+		<option value="0" '.$selected[3][2].'>Off</option>
 		</select>
 		</td>
 		</tr>';

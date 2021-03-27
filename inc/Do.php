@@ -26,6 +26,11 @@ class D {
 			} else {
 				$r = 0;
 			}
+			if (isset($_POST['rg'])) {
+				$rg = $_POST['rg'];
+			} else {
+				$rg = 0;
+			}
 			if (!empty($_POST['ga'])) {
 				$ga = $_POST['ga'];
 			} else {
@@ -45,6 +50,7 @@ class D {
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'website_maintenance' LIMIT 1", [$wm]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'game_maintenance' LIMIT 1", [$gm]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'registrations_enabled' LIMIT 1", [$r]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'regblock' LIMIT 1", [$rg]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_global_alert' LIMIT 1", [$ga]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_home_alert' LIMIT 1", [$ha]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'featuredvideo' LIMIT 1", [$fv]);
