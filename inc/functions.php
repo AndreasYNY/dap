@@ -158,6 +158,9 @@ function setTitle($p) {
 			139 => 'Edit Whitelist IP',
 			140 => 'BAT Give Reason',
 			141 => 'Auto Rank Listing',
+			142 => 'Challenge Listing',
+			143 => 'Leaderboard Configuration',
+      144 => 'Challenge Configuration'
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -398,6 +401,30 @@ function printPage($p) {
 				P::BATViewAutorank();
 				break;
 
+      // ch. listing/leaderboard config/ch. config
+			case 142:
+				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+				P::BATViewChallenges();
+				break;
+
+			case 143:
+				sessionCheckAdmin(Privileges::AdminManageSettings);
+				P::AdminBeatmapLeaderboardEdit();
+				break;
+
+			case 144:
+        // who can manage beatmap can VIEW
+        // who can manage server can EDIT
+        // who can't pull who tao can't TOUCH
+				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+				P::BATEditChallenge();
+				break;
+      
+      case 145:
+        sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+        P::BATBeatmapLeaderboardView();
+        break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -567,6 +594,28 @@ function printAdminPanel($c, $i, $bt, $st, $tt="") {
 				<div>'.$st.'</div>
 			</div></div></div></div></div>';
 }
+
+function htmlTag($tag, $content, $options=[], $echo=false) {
+  $opt_str = "";
+  $body = "";
+  if(is_array($options))
+    foreach($options as $k=>$v)
+      $opt_str .= sprintf(' %s="%s"', $k, $v);
+  echo sprintf('<%1$s%2$s>', $tag, $opt_str);
+  if(is_callable($content))
+    $body = $content();
+  else if(is_string($content))
+    $body = $content;
+  if((bool)$body)
+    echo $body;
+  echo sprintf('</%1$s>', $tag);
+};
+
+function reAssoc($array, $keyfunc){
+  $keys = array_map($keyfunc, $array);
+  return array_combine($keys, $array);
+};
+
 /*
  * getUserCountry
  * Does a call to ip.zxq.co to get the user's IP address.
@@ -1555,7 +1604,7 @@ function readableRank($rank) {
 		case 2: return "supporter"; break;
 		case 3: return "developer"; break;
 		case 4: return "community manager"; break;
-		default: return "akerino"; break;
+		default: return "bad egg"; break;
 	}
 }
 
@@ -1880,4 +1929,97 @@ function nuke($table, $column, $userID, $limit = false) {
 		$q .= " LIMIT 1";
 	}
 	nukeExt($table, $q, [$userID]);
+}
+
+function getLeaderboardCondition($key, $id){
+  return $GLOBALS['db']->fetchAll('select * from scores_condition where type_id = ? and map_id = ? and active = 1', [$key, $id]);
+}
+
+function loadLimitedLeaderboard($key, $id) {
+  // If you are confused reading this, consult fetch-20210321.py
+  function filterScores($conds) {
+    $modeN = 4;
+    $modeF = array_fill(0, 4, true);
+    $modeT = array_fill(0, 4, false);
+    $modF  = array_fill(0, 3, array_fill(0, $modeN, []));
+    foreach($conds as $c) {
+      // skip ignored mode
+      if(!$modeF[$c['mode_id']]) continue;
+      if($c['category_mode']==0 && $c['mod_bit']<0)
+        $modeF[$c['mode_id']] = false;
+      $modeT[$c['mode_id']] = true;
+      $modV = null;
+      if((int)$c['mod_bit']<0) continue;
+      elseif((int)$c['mod_bit']==0) $modV = 0;
+      elseif((int)$c['mod_bit']>0) $modV = 1 << ((int)$c['mod_bit'] - 1);
+      if(in_array($modV, $modF[ $c['category_mode'] ][ $c['mode_id'] ])) continue;
+      array_push($modF[ $c['category_mode'] ][ $c['mode_id'] ], $modV);
+    }
+    $filterFun = function ($score) use ($modeF, $modeT, $modF) {
+      if(!$modeF[ $score['play_mode'] ]) return false;
+      if(!$modeT[ $score['play_mode'] ]) return false;
+      $modNG = array_filter($modF[0][ $score['play_mode'] ], function($mk, $mi) use ($score){
+        return $mi > 0 && ($score['mods'] & $mi) > 0;
+      },ARRAY_FILTER_USE_BOTH);
+      if(count($modNG)>0) return false;
+      $modOK = array_filter($modF[2][ $score['play_mode'] ], function($mk, $mi) use ($score){
+        return $mi > 0 && ($score['mods'] & $mi) > 0;
+      },ARRAY_FILTER_USE_BOTH);
+      if(count($modOK)<=0) return false;
+      return true;
+    };
+    return $filterFun;
+  }
+  $cData  = null;
+  $cRawQ  = [];
+  switch($key){
+  case 'beatmap_id':
+    $cData['beatmap_id'] = $id;
+    array_push($cRawQ, 'beatmap_md5 in (select beatmap_md5 from beatmaps where beatmap_id = ?)');
+    break;
+  case 'beatmap_md5':
+    $cData['beatmap_md5'] = $id;
+    array_push($cRawQ, 'beatmap_md5 = ?');
+    break;
+  case 'period_id':
+    $cPeriod = $GLOBALS['db']->fetch('select * from score_period where id = ?', [$id]);
+    if(!$cPeriod) return [];
+    $cData['beatmap_id'] = $cPeriod['beatmap_id'];
+    $cData['time_start'] = $cPeriod['start_time'];
+    $cData['time_stop']  = $cPeriod['end_time'];
+    array_push($cRawQ, 'beatmap_md5 in (select beatmap_md5 from beatmaps where beatmap_id = ?)');
+    array_push($cRawQ, '`time` between ? and ?');
+    break;
+  default:
+    return [];
+  }
+  if(count($cRawQ) > 0) {
+    $condQuery = implode(' and ', $cRawQ);
+  } else {
+    $condQuery = "1=1";
+  }
+  $scores = $GLOBALS['db']->fetchAll("select * from scores_master where $condQuery and completed in (2,3) order by score desc, accuracy desc, pp desc, `time` asc", array_values($cData));
+  $conds  = getLeaderboardCondition($key, $id);
+  $scores = array_values(array_filter($scores, filterScores($conds)));
+  $scoreMap = reAssoc($scores,function($e){return $e['id'];});
+  $scoreBO  = [];
+  foreach(array_map(function($s){return (int)$s['user_id'];},$scores) as $userID){
+    foreach(array_filter($scores,function($s)use($userID){return (int)$s['userid'] == $userID;}) as $s){
+      $scoreBest = false;
+      if(array_key_exists($userID,$scoreBO)){
+        $s2 = $scoreMap[$scoreBO[$userID]];
+        $scoreBest = (
+          ((int)$s['score'] > (int)$s2['score']) ||
+          ((float)$s['accuracy'] > (float)$s2['accuracy']) ||
+          ((float)$s['pp'] > (float)$s2['pp']) ||
+          ((int)$s['time'] < (int)$s2['time'])
+        );
+      }else{
+        $scoreBest = true;
+      }
+      if($scoreBest) $scoreBO[$userID]=$s['id'];
+    }
+  }
+  $scores = array_values(array_filter($scores, function($s)use($scoreBO){return in_array((int)$s['id'],array_values($scoreBO));}));
+  return $scores;
 }

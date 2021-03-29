@@ -3895,29 +3895,116 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '</div>';
 	}
 	
+  public static function BATViewChallenges() {
+		htmlTag('div', function(){
+			printAdminSidebar();
+			htmlTag('div', function(){
+				self::MaintenanceStuff();
+				if (isset($_GET['e']) && !empty($_GET['e']))
+					self::ExceptionMessageStaccah($_GET['e']);
+        htmlTag('p', function(){htmlTag('h2','View Challenge List');});
+        echo '<br>';
+        $ctime = time();
+        $g = [];
+        $challenges = reAssoc($GLOBALS['db']->fetchAll('select * from score_period'),function($e){return $e['entry_id'];});
+        $challengePeriods = array_unique(array_map(function($chall){return (int)$chall['start_time'];},array_values($challenges)));
+        $cbid = array_values(array_unique(array_map(function($c){return (int)$c['beatmap_id'];},array_values($challenges))));
+        $cqid = implode(",", array_map(function($c){return "?";},$cbid));
+        $cbq  = sprintf(
+          'select beatmap_id, beatmapset_id, beatmap_md5, artist, title, difficulty_name from beatmaps where beatmap_id in (%s)',
+          $cqid
+        );
+        $g['beatmaps'] = reAssoc($GLOBALS['db']->fetchAll($cbq, $cbid),function($b){return $b['beatmap_id'];});
+        arsort($challengePeriods, SORT_NUMERIC);
+        foreach($challengePeriods as $challengeTime) {
+          htmlTag('hr', '');
+          $challengeInPeriod = array_filter($challenges, function($k,$v)use($challengeTime){
+            return (int)($v/86400) == (int)($challengeTime/86400);
+          }, ARRAY_FILTER_USE_BOTH);
+          htmlTag('h3', strftime('%Y/%m/%d', $challengeTime));
+          htmlTag('table', function() use ($challengeTime, $challengeInPeriod){
+            htmlTag('thead', function(){
+              htmlTag('tr', function(){
+                htmlTag('th', 'ID');
+                htmlTag('th', 'Game Mode');
+                htmlTag('th', 'Beatmap');
+                htmlTag('th', 'End Time');
+                htmlTag('th', "&nbsp;");
+              });
+            });
+            htmlTag('tbody', function() use ($challengeTime, $challengeInPeriod){
+              foreach($challengeInPeriod as $c){
+                htmlTag('tr',function(){
+                  htmlTag('td', $c['id']);
+                  htmlTag('td', (function($c){
+                    return sprintf("%s%s",
+                      explode(' ','STD Taiko CTB Mania')[(int)$c['game_mode']],
+                      ((int)$c['special_mode']>0) ?
+                        sprintf(" (%s)",
+                          explode(' ','Relax V2')[(int)$c['special_mode'] - 1]
+                        ) : ""
+                    );
+                  })($c));
+                  // put beatmap link as well :eh:
+                  htmlTag('td', $c['beatmap_id']);
+                  htmlTag('td', htmlspecialchars( strftime('%Y/%m/%d %T', $c['end_time']) ));
+                  htmlTag('td', function()use($c){
+                    // Challenge Rule Management
+                    $ad = [];
+                    $ad['class'] = 'btn btn-primary';
+                    $ad['content'] = 'View Rule';
+                    if(hasPrivilege(Privileges::AdminManageSettings)){
+                      $ad['class'] = 'btn btn-success';
+                      $ad['content'] = 'View/Edit Rule';
+                    }
+                    htmlTag('a',$ad['content'],[
+                      'class' => $ad['class'],
+                      'href'  => sprintf("index.php?p=144&id=%d", $c['id']),
+                      'target'=> '_blank',
+                      'role'  => 'button',
+                    ]);
+                    // Challenge Scores View
+                    htmlTag('a',"View Scores",[
+                      'class' => 'btn btn-primary',
+                      'href'  => sprintf("index.php?p=145&ci=%d", $c['id']),
+                      'target'=> '_blank',
+                      'role'  => 'button',
+                    ]);
+                  });
+                });
+              }
+            });
+          }, ['class'=>'table table-striped table-hover', 'style'=>'width:94%; margin-left: 3%;']);
+        }
+			}, ['id'=>'page-content-wrapper']);
+		}, ['id'=>'wrapper']);
+  }
+  
+  public static function BATEditChallenge() {
+		htmlTag('div', function(){
+			printAdminSidebar();
+			htmlTag('div', function(){
+				self::MaintenanceStuff();
+				if (isset($_GET['e']) && !empty($_GET['e']))
+					self::ExceptionMessageStaccah($_GET['e']);
+        $g['canEdit'] = hasPrivilege(Privileges::AdminManageSettings);
+        $haveData = false;
+        $g['formDummy'] = 
+        if (isset($_GET['id']) && !empty($_GET['id']) && is_numeric($_GET['id'])) {
+          
+        }
+        
+        htmlTag('h2','Edit Challenge');
+        htmlTag('table',function()use(&$g){
+          htmlTag('tbody',function()use(&$g){
+            
+          });
+        },['class'=>'table table-striped table-hover table-100-center']);
+			}, ['id'=>'page-content-wrapper']);
+		}, ['id'=>'wrapper']);
+  }
+  
 	public static function BATViewAutorank() {
-		function htmlTag($tag, $content, $options=[], $echo=false) {
-			$opt_str = "";
-			$body = "";
-			if(is_array($options))
-				foreach($options as $k=>$v)
-					$opt_str .= sprintf(' %s="%s"', $k, $v);
-			echo sprintf('<%1$s%2$s>', $tag, $opt_str);
-			if(is_callable($content))
-				$body = $content();
-			else if(is_string($content))
-				$body = $content;
-			if((bool)$body)
-				echo $body;
-			echo sprintf('</%1$s>', $tag);
-		};
-		function reAssoc($array, $keyfunc){
-			$keys = array_map($keyfunc, $array);
-			$ret = [];
-			foreach(range(0, count($keys)) as $i)
-				$ret[ $keys[$i] ] = $array[$i];
-			return $ret;
-		};
 		htmlTag('div', function(){
 			printAdminSidebar();
 			htmlTag('div', function(){
@@ -3945,6 +4032,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						htmlTag('tr', function(){
 							htmlTag('th', "ID");
 							htmlTag('th', "Beatmap Name");
+							htmlTag('th', "Creator ID");
+							htmlTag('th', "Autoranker");
 							htmlTag('th', "Last Update");
 							htmlTag('th', "Eligibility", ['colspan'=> 3]);
 							htmlTag('th', "Autorank Time");
