@@ -4018,7 +4018,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
           // Redirect if empty data and can't edit/create.
           htmlTag('h2','Not Allowed.');
           htmlTag('script',
-            '(function(){window.location.replace("index.php?p=141&e=Need Community Manager.");}).call(this);',
+            '(function(){window.location.replace("index.php?p=141&e=Need Community Manager.");}).call(this);'
           );
           return;
         }
