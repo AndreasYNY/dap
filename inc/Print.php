@@ -3988,20 +3988,107 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				if (isset($_GET['e']) && !empty($_GET['e']))
 					self::ExceptionMessageStaccah($_GET['e']);
         $g['canEdit'] = hasPrivilege(Privileges::AdminManageSettings);
+        $g['ctime'] = time();
         $haveData = false;
-        $g['formDummy'] = 
+        $g['formDummy'] = [
+          'id' => NULL,
+          'beatmap_id' => 0,
+          'game_mode' => 0,
+          'special_mode' => 0,
+          'start_date' => $g['ctime'] * 1000,
+          'end_date' => ($g['ctime'] + 7 * 86400) * 1000,
+        ];
+        $g['formData'] = NULL;
         if (isset($_GET['id']) && !empty($_GET['id']) && is_numeric($_GET['id'])) {
-          
+          $g['formData'] = $GLOBALS['db']->fetch('select * from score_period where entry_id = ?',[$_GET['id']]);
+        }
+        if(isset($g['formData'])){
+          $haveData = true;
+        } else {
+          $g['formData'] = $g['formDummy'];
+        }
+        $g['addDisable'] = function($ary)use(&$g){
+          if(!$g['canEdit']){
+            $ary['disabled'] = '';
+            $ary['readonly'] = '';
+          }
+          return $ary;
+        };
+        if(!$haveData && !$g['canEdit']) {
+          // Redirect if empty data and can't edit/create.
+          htmlTag('h2','Not Allowed.');
+          htmlTag('script',
+            '(function(){window.location.replace("index.php?p=141&e=Need Community Manager.");}).call(this);',
+          );
+          return;
         }
         
         htmlTag('h2','Edit Challenge');
         htmlTag('table',function()use(&$g){
           htmlTag('tbody',function()use(&$g){
-            
+            htmlTag('form',function()use(&$g){
+              htmlTag('input','',['type'=>'hidden','name'=>'action','value'=>'challengeEdit']);
+              htmlTag('input','',['type'=>'hidden','name'=>'csrf','value'=>csrfToken()]);
+              htmlTag('tr',function()use(&$g){
+                htmlTag('td','Challenge ID');
+                htmlTag('td',function()use(&$g){htmlTag('input','',['class'=>'form-control','type'=>'number','name'=>'cid','value'=>$g['formData']['id'],'readonly'=>'']);});
+              });
+              htmlTag('tr',function()use(&$g){
+                htmlTag('td','Beatmap ID');
+                htmlTag('td',function()use(&$g){htmlTag('input','',$g['addDisable'](['class'=>'form-control','type'=>'number','name'=>'bid','value'=>$g['formData']['beatmap_id']]));});
+              });
+              htmlTag('tr',function()use(&$g){
+                htmlTag('td','Game Mode');
+                htmlTag('td',function()use(&$g){
+                  htmlTag('select',function()use(&$g){
+                    foreach(explode(' ','STD Taiko CTB Mania') as $gk=>$gv) {
+                      $gc = ['value'=>$gk];
+                      if($gk == $g['formData']['game_mode']) $gc['selected'] = 1;
+                      htmlTag('option',$gv,$g['addDisable']($gc));
+                    }
+                  },$g['addDisable']([
+                    'form'=>'edit-challenge-form',
+                    'name'=>'modeid',
+                  ]));
+                });
+              });
+              htmlTag('tr',function()use(&$g){
+                htmlTag('td','Special Mode');
+                htmlTag('td',function()use(&$g){
+                  htmlTag('select',function()use(&$g){
+                    foreach(explode(' ','Vanilla Relax ScoreV2') as $gk=>$gv) {
+                      $gc = ['value'=>$gk];
+                      if($gk == $g['formData']['special_mode']) $gc['selected'] = 1;
+                      htmlTag('option',$gv,$g['addDisable']($gc));
+                    }
+                  },$g['addDisable']([
+                    'form'=>'edit-challenge-form',
+                    'name'=>'spmodeid',
+                  ]));
+                });
+              });
+              foreach(range(0, 1) as $cv) {
+                htmlTag('tr',function()use(&$g,$cv){
+                  htmlTag('td',sprintf('%s Date', explode(' ','Start Stop')[$cv]));
+                  htmlTag('td',function()use(&$g,$cv){
+                    htmlTag('input','',
+                      $g['addDisable']([
+                        'class'=>'form-control',
+                        'type'=>'datetime-local',
+                        'name'=>sprintf('date%d',$cv),
+                        'value'=>$g['formData'][sprintf('%s_id', explode(' ','start end')[$cv])]
+                      ]));
+                  });
+                });
+              }
+            },['id'=>'edit-challenge-form', 'action'=>'submit.php', 'method'=>'POST']);
           });
         },['class'=>'table table-striped table-hover table-100-center']);
-			}, ['id'=>'page-content-wrapper']);
-		}, ['id'=>'wrapper']);
+        htmlTag('div',function()use(&$g){
+          htmlTag('button','Submit Change',$g['addDisable'](['class'=>'btn btn-primary','type'=>'submit','form'=>'edit-challenge-form']));
+        },['class'=>'text-center']);
+      }, ['id'=>'page-content-wrapper']);
+    }, ['id'=>'wrapper']);
   }
   
 	public static function BATViewAutorank() {
