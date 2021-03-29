@@ -1941,7 +1941,7 @@ function loadLimitedLeaderboard($key, $id) {
   $scores = array_values(array_filter($scores, filterScores($conds)));
   $scoreMap = reAssoc($scores,function($e){return $e['id'];});
   $scoreBO  = [];
-  foreach(array_map(function($s){return (int)$s['user_id'];},$scores) as $userID){
+  foreach(array_map(function($s){return (int)$s['userid'];},$scores) as $userID){
     foreach(array_filter($scores,function($s)use($userID){return (int)$s['userid'] == $userID;}) as $s){
       $scoreBest = false;
       if(array_key_exists($userID,$scoreBO)){
