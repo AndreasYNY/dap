@@ -4076,7 +4076,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                         'class'=>'form-control',
                         'type'=>'datetime-local',
                         'name'=>sprintf('date%d',$cv),
-                        'value'=>$g['formData'][sprintf('%s_date', explode(' ','start end')[$cv])]
+                        'value'=>$g['formData'][sprintf('%s_time', explode(' ','start end')[$cv])]
                       ]));
                   });
                 });
