@@ -3991,7 +3991,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $g['ctime'] = time();
         $haveData = false;
         $g['formDummy'] = [
-          'id' => NULL,
+          'entry_id' => NULL,
           'beatmap_id' => 0,
           'game_mode' => 0,
           'special_mode' => 0,
@@ -4031,7 +4031,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
               htmlTag('input','',['type'=>'hidden','name'=>'csrf','value'=>csrfToken()]);
               htmlTag('tr',function()use(&$g){
                 htmlTag('td','Challenge ID');
-                htmlTag('td',function()use(&$g){htmlTag('input','',['class'=>'form-control','type'=>'number','name'=>'cid','value'=>$g['formData']['id'],'readonly'=>'']);});
+                htmlTag('td',function()use(&$g){htmlTag('input','',['class'=>'form-control','type'=>'number','name'=>'cid','value'=>$g['formData']['entry_id'],'readonly'=>'']);});
               });
               htmlTag('tr',function()use(&$g){
                 htmlTag('td','Beatmap ID');
@@ -4076,7 +4076,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                         'class'=>'form-control',
                         'type'=>'datetime-local',
                         'name'=>sprintf('date%d',$cv),
-                        'value'=>$g['formData'][sprintf('%s_id', explode(' ','start end')[$cv])]
+                        'value'=>$g['formData'][sprintf('%s_date', explode(' ','start end')[$cv])]
                       ]));
                   });
                 });
