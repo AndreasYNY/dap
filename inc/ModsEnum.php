@@ -34,4 +34,6 @@ class ModsEnum {
 	const Key1 = 67108864;
 	const Key3 = 134217728;
 	const Key2 = 268435456;
+  const ScoreV2 = 1 << 29;
+  const Mirror  = 1 << 30;
 }

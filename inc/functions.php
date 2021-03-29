@@ -969,104 +969,42 @@ function getPlaymodeText($playModeInt, $readable = false) {
  * @param (int) ($m) Mod flag
  * @returns (string) Eg: "+ HD, HR"
 */
-function getScoreMods($m) {
+function getScoreMods($m,$f=false) {
 	require_once dirname(__FILE__).'/ModsEnum.php';
-	$r = '';
-	if ($m & ModsEnum::NoFail) {
-		$r .= 'NF, ';
-	}
-	if ($m & ModsEnum::Easy) {
-		$r .= 'EZ, ';
-	}
-	if ($m & ModsEnum::NoVideo) {
-		$r .= 'NV, ';
-	}
-	if ($m & ModsEnum::Hidden) {
-		$r .= 'HD, ';
-	}
-	if ($m & ModsEnum::HardRock) {
-		$r .= 'HR, ';
-	}
-	if ($m & ModsEnum::SuddenDeath) {
-		$r .= 'SD, ';
-	}
-	if ($m & ModsEnum::DoubleTime) {
-		$r .= 'DT, ';
-	}
-	if ($m & ModsEnum::Relax) {
-		$r .= 'RX, ';
-	}
-	if ($m & ModsEnum::HalfTime) {
-		$r .= 'HT, ';
-	}
-	if ($m & ModsEnum::Nightcore) {
-		$r .= 'NC, ';
-		// Remove DT and display only NC
-		$r = str_replace('DT, ', '', $r);
-	}
-	if ($m & ModsEnum::Flashlight) {
-		$r .= 'FL, ';
-	}
-	if ($m & ModsEnum::Autoplay) {
-		$r .= 'AP, ';
-	}
-	if ($m & ModsEnum::SpunOut) {
-		$r .= 'SO, ';
-	}
-	if ($m & ModsEnum::Relax2) {
-		$r .= 'AP, ';
-	}
-	if ($m & ModsEnum::Perfect) {
-		$r .= 'PF, ';
-	}
-	if ($m & ModsEnum::Key4) {
-		$r .= '4K, ';
-	}
-	if ($m & ModsEnum::Key5) {
-		$r .= '5K, ';
-	}
-	if ($m & ModsEnum::Key6) {
-		$r .= '6K, ';
-	}
-	if ($m & ModsEnum::Key7) {
-		$r .= '7K, ';
-	}
-	if ($m & ModsEnum::Key8) {
-		$r .= '8K, ';
-	}
-	if ($m & ModsEnum::keyMod) {
-		$r .= '';
-	}
-	if ($m & ModsEnum::FadeIn) {
-		$r .= 'FD, ';
-	}
-	if ($m & ModsEnum::Random) {
-		$r .= 'RD, ';
-	}
-	if ($m & ModsEnum::LastMod) {
-		$r .= 'CN, ';
-	}
-	if ($m & ModsEnum::Key9) {
-		$r .= '9K, ';
-	}
-	if ($m & ModsEnum::Key10) {
-		$r .= '10K, ';
-	}
-	if ($m & ModsEnum::Key1) {
-		$r .= '1K, ';
-	}
-	if ($m & ModsEnum::Key3) {
-		$r .= '3K, ';
-	}
-	if ($m & ModsEnum::Key2) {
-		$r .= '2K, ';
-	}
-	// Add "+" and remove last ", "
-	if (strlen($r) > 0) {
-		return '+ '.substr($r, 0, -2);
-	} else {
-		return '';
-	}
+  $s = [];
+	if ($m & ModsEnum::NoFail) array_push($s,'NF');
+	if ($m & ModsEnum::Easy) array_push($s,$f ? 'EM' : 'EZ');
+	if ($m & ModsEnum::NoVideo) array_push($s,'TD');
+	if ($m & ModsEnum::Hidden) array_push($s,'HD');
+	if ($m & ModsEnum::HardRock) array_push($s,'HR');
+	if ($m & ModsEnum::Perfect) array_push($s,$f ? 'AP' : 'PF');
+	elseif ($m & ModsEnum::SuddenDeath) array_push($s,'SD');
+	if ($m & ModsEnum::Nightcore) array_push($s,'NC');
+	elseif ($m & ModsEnum::DoubleTime) array_push($s,'DT');
+	if ($m & ModsEnum::Relax) array_push($s,$f ? 'RL' : 'RX');
+	if ($m & ModsEnum::HalfTime) array_push($s,'HT');
+	if ($m & ModsEnum::Flashlight) array_push($s,'FL');
+	if ($m & ModsEnum::Autoplay) array_push($s,'Auto');
+	if ($m & ModsEnum::SpunOut) array_push($s,'SO');
+	if ($m & ModsEnum::Relax2) array_push($s,$f ? 'ATP' : 'AP');
+	if ($m & ModsEnum::Key4) array_push($s,'4K');
+	if ($m & ModsEnum::Key5) array_push($s,'5K');
+	if ($m & ModsEnum::Key6) array_push($s,'6K');
+	if ($m & ModsEnum::Key7) array_push($s,'7K');
+	if ($m & ModsEnum::Key8) array_push($s,'8K');
+	if ($m & ModsEnum::keyMod) {}
+	if ($m & ModsEnum::FadeIn) array_push($s,$f ? 'SUD' : 'FI');
+	if ($m & ModsEnum::Random) array_push($s,$f ? 'RAN' : 'RD');
+	if ($m & ModsEnum::LastMod) array_push($s,'CIN');
+	if ($m & ModsEnum::Key9) array_push($s,'9K');
+	if ($m & ModsEnum::Key10) array_push($s,'10K');
+	if ($m & ModsEnum::Key1) array_push($s,'1K');
+	if ($m & ModsEnum::Key3) array_push($s,'3K');
+	if ($m & ModsEnum::Key2) array_push($s,'2K');
+  if ($m & ModsEnum::Mirror) array_push($s,'MIR');
+  if(count($s) <= 0) array_push($s,'NM');
+  if ($m & ModsEnum::ScoreV2) array_push($s,'V2');
+  return implode(', ', $s);
 }
 /*
  * calculateAccuracy
@@ -1958,13 +1896,13 @@ function loadLimitedLeaderboard($key, $id) {
     $filterFun = function ($score) use ($modeF, $modeT, $modF) {
       if(!$modeF[ $score['play_mode'] ]) return false;
       if(!$modeT[ $score['play_mode'] ]) return false;
-      $modNG = array_filter($modF[0][ $score['play_mode'] ], function($mk, $mi) use ($score){
+      $modNG = array_filter($modF[0][ $score['play_mode'] ], function($mi) use ($score){
         return $mi > 0 && ($score['mods'] & $mi) > 0;
-      },ARRAY_FILTER_USE_BOTH);
+      });
       if(count($modNG)>0) return false;
-      $modOK = array_filter($modF[2][ $score['play_mode'] ], function($mk, $mi) use ($score){
+      $modOK = array_filter($modF[2][ $score['play_mode'] ], function($mi) use ($score){
         return $mi > 0 && ($score['mods'] & $mi) > 0;
-      },ARRAY_FILTER_USE_BOTH);
+      });
       if(count($modOK)<=0) return false;
       return true;
     };

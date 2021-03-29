@@ -3907,7 +3907,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $ctime = time();
         $g = [];
         $challenges = reAssoc($GLOBALS['db']->fetchAll('select * from score_period'),function($e){return $e['entry_id'];});
-        $challengePeriods = array_unique(array_map(function($chall){return (int)$chall['start_time'];},array_values($challenges)));
+        $challengePeriods = array_values(array_unique(array_map(function($chall){return (int)$chall['start_time'];},array_values($challenges))));
         $cbid = array_values(array_unique(array_map(function($c){return (int)$c['beatmap_id'];},array_values($challenges))));
         $cqid = implode(",", array_map(function($c){return "?";},$cbid));
         $cbq  = sprintf(
@@ -3918,11 +3918,11 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         arsort($challengePeriods, SORT_NUMERIC);
         foreach($challengePeriods as $challengeTime) {
           htmlTag('hr', '');
-          $challengeInPeriod = array_filter($challenges, function($k,$v)use($challengeTime){
-            return (int)($v/86400) == (int)($challengeTime/86400);
-          }, ARRAY_FILTER_USE_BOTH);
+          $challengeInPeriod = array_filter($challenges, function($v)use(&$challengeTime){
+            return (int)(((int)$v['start_time'])/86400) == (int)($challengeTime/86400);
+          });
           htmlTag('h3', strftime('%Y/%m/%d', $challengeTime));
-          htmlTag('table', function() use ($challengeTime, $challengeInPeriod){
+          htmlTag('table', function() use (&$challengeTime, &$challengeInPeriod){
             htmlTag('thead', function(){
               htmlTag('tr', function(){
                 htmlTag('th', 'ID');
@@ -3932,10 +3932,11 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                 htmlTag('th', "&nbsp;");
               });
             });
-            htmlTag('tbody', function() use ($challengeTime, $challengeInPeriod){
+            htmlTag('tbody', function() use (&$challengeTime, &$challengeInPeriod){
+              htmlTag('pre',var_export($challengeInPeriod));
               foreach($challengeInPeriod as $c){
                 htmlTag('tr',function(){
-                  htmlTag('td', $c['id']);
+                  htmlTag('td', $c['entry_id']);
                   htmlTag('td', (function($c){
                     return sprintf("%s%s",
                       explode(' ','STD Taiko CTB Mania')[(int)$c['game_mode']],
@@ -3948,7 +3949,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                   // put beatmap link as well :eh:
                   htmlTag('td', $c['beatmap_id']);
                   htmlTag('td', htmlspecialchars( strftime('%Y/%m/%d %T', $c['end_time']) ));
-                  htmlTag('td', function()use($c){
+                  htmlTag('td', function()use(&$c){
                     // Challenge Rule Management
                     $ad = [];
                     $ad['class'] = 'btn btn-primary';
@@ -3959,14 +3960,14 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                     }
                     htmlTag('a',$ad['content'],[
                       'class' => $ad['class'],
-                      'href'  => sprintf("index.php?p=144&id=%d", $c['id']),
+                      'href'  => sprintf("index.php?p=144&id=%d", $c['entry_id']),
                       'target'=> '_blank',
                       'role'  => 'button',
                     ]);
                     // Challenge Scores View
                     htmlTag('a',"View Scores",[
                       'class' => 'btn btn-primary',
-                      'href'  => sprintf("index.php?p=145&ci=%d", $c['id']),
+                      'href'  => sprintf("index.php?p=145&ci=%d", $c['entry_id']),
                       'target'=> '_blank',
                       'role'  => 'button',
                     ]);
@@ -4089,6 +4090,73 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         },['class'=>'text-center']);
       }, ['id'=>'page-content-wrapper']);
     }, ['id'=>'wrapper']);
+  }
+  
+  public static function BATBeatmapLeaderboardView() {
+		htmlTag('div', function(){
+			printAdminSidebar();
+			htmlTag('div', function(){
+				self::MaintenanceStuff();
+				if (isset($_GET['e']) && !empty($_GET['e']))
+					self::ExceptionMessageStaccah($_GET['e']);
+				htmlTag('p', function(){htmlTag('h2','View Beatmap Leaderboard');});
+				echo '<br>';
+        $g = [];
+        if(isset($_GET['bid'])&&!empty($_GET['bid'])&&is_numeric($_GET['bid'])){
+          $g['mode'] = 'bid';
+          $g['scoreArgs'] = ['beatmap_id', $_GET['bid']];
+          $g['beatmap'] = $GLOBALS['db']->fetch('select * from beatmaps where beatmap_id = ?', [$g['scoreArgs'][1]]);
+        }elseif(isset($_GET['bhash'])&&!empty($_GET['bhash'])&&is_numeric($_GET['bhash'])){
+          $g['mode'] = 'bhash';
+          $g['scoreArgs'] = ['beatmap_md5', $_GET['bhash']];
+          $g['beatmap'] = $GLOBALS['db']->fetch('select * from beatmaps where beatmap_md5 = ?', [$g['scoreArgs'][1]]);
+        }elseif(isset($_GET['ci'])&&!empty($_GET['ci'])&&is_numeric($_GET['ci'])){
+          $g['mode'] = 'bhash';
+          $g['scoreArgs'] = ['period_id', $_GET['ci']];
+          $g['beatmap'] = $GLOBALS['db']->fetch('select * from beatmaps where beatmap_id in (select beatmap_id from score_period where id = ?)', [$g['scoreArgs'][1]]);
+        }
+        if(!isset($g['mode'])) {
+          $g['mode'] = 'clist';
+        } else {
+          $g['scores'] = loadLimitedLeaderboard($g['scoreArgs'][0], $g['scoreArgs'][1]);
+          $mapPlayers = array_values(array_filter())
+          $g['users']  = reAssoc($GLOBALS['db']->fetchAll('select id, username from users'),function($e){return $e['id'];});
+        }
+				htmlTag('table', function() use (&$g){
+          switch($g['mode']){
+          case 'clist':
+          break;
+          default:
+            htmlTag('pre',var_export($_SESSION));
+            htmlTag('thead',function(){
+              htmlTag('tr',function(){
+                htmlTag('th','Name');
+                htmlTag('th','Score');
+                htmlTag('th','Max Combo');
+                htmlTag('th','Accuracy');
+                htmlTag('th','Mods');
+                htmlTag('th','PP');
+                htmlTag('th','Time');
+              });
+            });
+            htmlTag('tbody',function()use(&$g){
+              foreach($g['scores'] => $s){
+                htmlTag('tr',function()use(&$g,&$s){
+                  htmlTag('td',htmlspecialchars($g['users'][$s['userid']]['username']));
+                  htmlTag('td',htmlspecialchars(number_format($s['score'])));
+                  htmlTag('td',htmlspecialchars(number_format($s['max_combo'])));
+                  htmlTag('td',sprintf("%s%%",htmlspecialchars(number_format($s['accuracy'],4))));
+                  htmlTag('td',htmlspecialchars(getScoreMods($s['mods'])));
+                  htmlTag('td',sprintf("%spp",htmlspecialchars(number_format($s['pp'],3))));
+                  htmlTag('td',htmlspecialchars( strftime('%Y/%m/%d %T', $s['time']) ));
+                });
+              }
+            });
+          break;
+          }
+				}, ['class'=>'table table-striped table-hover', 'style'=>'width:94%; margin-left: 3%;']);
+			}, ['id'=>'page-content-wrapper']);
+		}, ['id'=>'wrapper']);
   }
   
 	public static function BATViewAutorank() {
