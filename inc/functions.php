@@ -1903,7 +1903,7 @@ function loadLimitedLeaderboard($key, $id) {
       $modOK = array_filter($modF[2][ $score['play_mode'] ], function($mi) use ($score){
         return $mi > 0 && ($score['mods'] & $mi) > 0;
       });
-      if(count($modOK)<=0) return false;
+      if(count($modOK)<=0 && count($modF[2][ $score['play_mode'] ])>0) return false;
       return true;
     };
     return $filterFun;
