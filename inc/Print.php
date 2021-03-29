@@ -4139,7 +4139,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
               });
             });
             htmlTag('tbody',function()use(&$g){
-              foreach($g['scores'] => $s){
+              foreach($g['scores'] as $s){
                 htmlTag('tr',function()use(&$g,&$s){
                   htmlTag('td',htmlspecialchars($g['users'][$s['userid']]['username']));
                   htmlTag('td',htmlspecialchars(number_format($s['score'])));
