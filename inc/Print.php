@@ -4126,7 +4126,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
           case 'clist':
           break;
           default:
-            htmlTag('pre',var_export($_SESSION));
             htmlTag('thead',function(){
               htmlTag('tr',function(){
                 htmlTag('th','Name');
@@ -4145,7 +4144,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                   htmlTag('td',htmlspecialchars(number_format($s['score'])));
                   htmlTag('td',htmlspecialchars(number_format($s['max_combo'])));
                   htmlTag('td',sprintf("%s%%",htmlspecialchars(number_format($s['accuracy'],4))));
-                  htmlTag('td',htmlspecialchars(getScoreMods($s['mods'])));
+                  htmlTag('td',htmlspecialchars(getScoreMods($s['mods'],$_SESSION['userid'] == '3')));
                   htmlTag('td',sprintf("%spp",htmlspecialchars(number_format($s['pp'],3))));
                   htmlTag('td',htmlspecialchars( strftime('%Y/%m/%d %T', $s['time']) ));
                 });

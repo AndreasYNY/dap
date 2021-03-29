@@ -602,10 +602,10 @@ function htmlTag($tag, $content, $options=[], $echo=false) {
     foreach($options as $k=>$v)
       $opt_str .= sprintf(' %s="%s"', $k, $v);
   echo sprintf('<%1$s%2$s>', $tag, $opt_str);
-  if(is_callable($content))
-    $body = $content();
-  else if(is_string($content))
+  if(is_string($content))
     $body = $content;
+  elseif(is_callable($content))
+    $body = $content();
   if((bool)$body)
     echo $body;
   echo sprintf('</%1$s>', $tag);
