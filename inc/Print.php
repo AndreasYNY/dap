@@ -4119,7 +4119,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
           $g['mode'] = 'clist';
         } else {
           $g['scores'] = loadLimitedLeaderboard($g['scoreArgs'][0], $g['scoreArgs'][1]);
-          $mapPlayers = array_values(array_filter())
           $g['users']  = reAssoc($GLOBALS['db']->fetchAll('select id, username from users'),function($e){return $e['id'];});
         }
 				htmlTag('table', function() use (&$g){
