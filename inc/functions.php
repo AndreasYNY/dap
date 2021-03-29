@@ -1920,7 +1920,7 @@ function loadLimitedLeaderboard($key, $id) {
     array_push($cRawQ, 'beatmap_md5 = ?');
     break;
   case 'period_id':
-    $cPeriod = $GLOBALS['db']->fetch('select * from score_period where id = ?', [$id]);
+    $cPeriod = $GLOBALS['db']->fetch('select * from score_period where entry_id = ?', [$id]);
     if(!$cPeriod) return [];
     $cData['beatmap_id'] = $cPeriod['beatmap_id'];
     $cData['time_start'] = $cPeriod['start_time'];
