@@ -4118,32 +4118,35 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         if(!isset($g['mode'])) {
           $g['mode'] = 'clist';
         } else {
+          $g['rules']  = getLeaderboardCondition($g['scoreArgs'][0], $g['scoreArgs'][1]);
           $g['scores'] = loadLimitedLeaderboard($g['scoreArgs'][0], $g['scoreArgs'][1]);
           $g['users']  = reAssoc($GLOBALS['db']->fetchAll('select id, username from users'),function($e){return $e['id'];});
+          $bmText = htmlTag('a', sprintf("%s - %s [%s]",
+              $g['beatmap']['artist'],
+              $g['beatmap']['title'],
+              $g['beatmap']['difficulty_name']
+            ), ['href'=>'#'], false);
+
+          if($g['mode'] == 'challid') {
+            htmlTag('h3', sprintf("Challenge #%d: %s",
+              $g['scoreArgs'][1],
+              $bmText
+            ));
+            htmlTag('p', sprintf("Period %s - %s",
+              strftime('%Y/%m/%d %T', $g['period']['start_time']),
+              strftime('%Y/%m/%d %T', $g['period']['end_time'])
+            ));
+          } else {
+            htmlTag('h3', sprintf("Showing scores of %s",
+              $bmText
+            ));
+          }
         }
 				htmlTag('table', function() use (&$g){
           switch($g['mode']){
           case 'clist':
           break;
           default:
-            if($g['mode'] == 'challid') {
-              htmlTag('h3', sprintf("Challenge #%d: %s - %s [%s]",
-                $g['scoreArgs'][1],
-                $g['beatmap']['artist'],
-                $g['beatmap']['title'],
-                $g['beatmap']['difficulty_name']
-              ));
-              htmlTag('p', sprintf("Period %s - %s",
-                strftime('%Y/%m/%d %T', $g['period']['start_time']),
-                strftime('%Y/%m/%d %T', $g['period']['end_time'])
-              ));
-            } else {
-              htmlTag('h3', sprintf("Showing scores of %s - %s [%s]",
-                $g['beatmap']['artist'],
-                $g['beatmap']['title'],
-                $g['beatmap']['difficulty_name']
-              ));
-            }
             htmlTag('thead',function(){
               htmlTag('tr',function(){
                 htmlTag('th','Name');
@@ -4158,13 +4161,16 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
             htmlTag('tbody',function()use(&$g){
               foreach($g['scores'] as $s){
                 htmlTag('tr',function()use(&$g,&$s){
-                  htmlTag('td',htmlspecialchars($g['users'][$s['userid']]['username']));
-                  htmlTag('td',htmlspecialchars(number_format($s['score'])));
-                  htmlTag('td',htmlspecialchars(number_format($s['max_combo'])));
-                  htmlTag('td',sprintf("%s%%",htmlspecialchars(number_format($s['accuracy'],4))));
+                  htmlTag('td',htmlTag('a',
+                    htmlspecialchars($g['users'][$s['userid']]['username']),
+                    ['href'=>sprintf('osu.troke.id/u/%d',$s['userid'])],false)
+                  );
+                  htmlTag('td',htmlspecialchars(number_format($s['score'])),['style'=>'text-align:right;']);
+                  htmlTag('td',htmlspecialchars(number_format($s['max_combo'])),['style'=>'text-align:right;']);
+                  htmlTag('td',sprintf("%s%%",htmlspecialchars(number_format($s['accuracy'],4))),['style'=>'text-align:right;']);
                   htmlTag('td',htmlspecialchars(getScoreMods($s['mods'],$_SESSION['userid'] == '3')));
-                  htmlTag('td',$s['pp'] > 0 ? sprintf("%spp",htmlspecialchars(number_format($s['pp'],3))) : '---.---pp');
-                  htmlTag('td',htmlspecialchars( strftime('%Y/%m/%d %T', $s['time']) ));
+                  htmlTag('td',$s['pp'] > 0 ? sprintf("%spp",htmlspecialchars(number_format($s['pp'],3))) : '---.---pp',['style'=>'text-align:right;']);
+                  htmlTag('td',htmlspecialchars( strftime('%Y/%m/%d %T', $s['time']) ),['style'=>'text-align:right;']);
                 });
               }
             });
