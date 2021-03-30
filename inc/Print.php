@@ -4165,8 +4165,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                     htmlTag('a',
                       htmlspecialchars($g['users'][$s['userid']]['username']),
                       ['href'=>sprintf('https://osu.troke.id/u/%d',$s['userid'])]
-                    )
-                  );
+                    );
+                  });
                   htmlTag('td',htmlspecialchars(number_format($s['score'])),['style'=>'text-align:right;']);
                   htmlTag('td',htmlspecialchars(number_format($s['max_combo'])),['style'=>'text-align:right;']);
                   htmlTag('td',sprintf("%s%%",htmlspecialchars(number_format($s['accuracy'],4))),['style'=>'text-align:right;']);
