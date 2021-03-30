@@ -3935,7 +3935,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
             htmlTag('tbody', function() use (&$challengeTime, &$challengeInPeriod){
               htmlTag('pre',var_export($challengeInPeriod));
               foreach($challengeInPeriod as $c){
-                htmlTag('tr',function(){
+                htmlTag('tr',function()use(&$c){
                   htmlTag('td', $c['entry_id']);
                   htmlTag('td', (function($c){
                     return sprintf("%s%s",
