@@ -4112,7 +4112,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         }elseif(isset($_GET['ci'])&&!empty($_GET['ci'])&&is_numeric($_GET['ci'])){
           $g['mode'] = 'challid';
           $g['scoreArgs'] = ['period_id', $_GET['ci']];
-          $g['beatmap'] = $GLOBALS['db']->fetch('select * from beatmaps where beatmap_id in (select beatmap_id from score_period where id = ?)', [$g['scoreArgs'][1]]);
+          $g['beatmap'] = $GLOBALS['db']->fetch('select * from beatmaps where beatmap_id in (select beatmap_id from score_period where entry_id = ?)', [$g['scoreArgs'][1]]);
           $g['period']  = $GLOBALS['db']->fetch('select * from score_period where entry_id = ?', [$g['scoreArgs'][1]]);
         }
         if(!isset($g['mode'])) {
