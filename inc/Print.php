@@ -4111,9 +4111,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
           $g['scoreArgs'] = ['beatmap_md5', $_GET['bhash']];
           $g['beatmap'] = $GLOBALS['db']->fetch('select * from beatmaps where beatmap_md5 = ?', [$g['scoreArgs'][1]]);
         }elseif(isset($_GET['ci'])&&!empty($_GET['ci'])&&is_numeric($_GET['ci'])){
-          $g['mode'] = 'bhash';
+          $g['mode'] = 'challid';
           $g['scoreArgs'] = ['period_id', $_GET['ci']];
           $g['beatmap'] = $GLOBALS['db']->fetch('select * from beatmaps where beatmap_id in (select beatmap_id from score_period where id = ?)', [$g['scoreArgs'][1]]);
+          $g['period']  = $GLOBALS['db']->fetch('select * from score_period where entry_id = ?', [$g['scoreArgs'][1]]);
         }
         if(!isset($g['mode'])) {
           $g['mode'] = 'clist';
@@ -4126,6 +4127,24 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
           case 'clist':
           break;
           default:
+            if($g['mode'] == 'challid') {
+              htmlTag('h3', sprintf("Challenge #%d: %s - %s [%s]",
+                $g['scoreArgs'][1],
+                $g['beatmap']['artist'],
+                $g['beatmap']['title'],
+                $g['beatmap']['difficulty_name']
+              ));
+              htmlTag('p', sprintf("Period %s - %s",
+                strftime('%Y/%m/%d %T', $g['period']['start_time']),
+                strftime('%Y/%m/%d %T', $g['period']['end_time'])
+              ));
+            } else {
+              htmlTag('h3', sprintf("Showing scores of %s - %s [%s]",
+                $g['beatmap']['artist'],
+                $g['beatmap']['title'],
+                $g['beatmap']['difficulty_name']
+              ));
+            }
             htmlTag('thead',function(){
               htmlTag('tr',function(){
                 htmlTag('th','Name');
@@ -4145,7 +4164,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                   htmlTag('td',htmlspecialchars(number_format($s['max_combo'])));
                   htmlTag('td',sprintf("%s%%",htmlspecialchars(number_format($s['accuracy'],4))));
                   htmlTag('td',htmlspecialchars(getScoreMods($s['mods'],$_SESSION['userid'] == '3')));
-                  htmlTag('td',sprintf("%spp",htmlspecialchars(number_format($s['pp'],3))));
+                  htmlTag('td',$s['pp'] > 0 ? sprintf("%spp",htmlspecialchars(number_format($s['pp'],3))) : '---.---pp');
                   htmlTag('td',htmlspecialchars( strftime('%Y/%m/%d %T', $s['time']) ));
                 });
               }
@@ -4185,8 +4204,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						htmlTag('tr', function(){
 							htmlTag('th', "ID");
 							htmlTag('th', "Beatmap Name");
-							htmlTag('th', "Creator ID");
-							htmlTag('th', "Autoranker");
+							//htmlTag('th', "Creator ID");
+							//htmlTag('th', "Autoranker");
 							htmlTag('th', "Last Update");
 							htmlTag('th', "Eligibility", ['colspan'=> 3]);
 							htmlTag('th', "Autorank Time");
