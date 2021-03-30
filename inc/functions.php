@@ -596,20 +596,29 @@ function printAdminPanel($c, $i, $bt, $st, $tt="") {
 			</div></div></div></div></div>';
 }
 
-function htmlTag($tag, $content, $options=[], $echo=false) {
+function htmlTag($tag, $content, $options=[], $echo=true) {
   $opt_str = "";
   $body = "";
   if(is_array($options))
     foreach($options as $k=>$v)
       $opt_str .= sprintf(' %s="%s"', $k, $v);
-  echo sprintf('<%1$s%2$s>', $tag, $opt_str);
   if(is_string($content))
     $body = $content;
   elseif(is_callable($content))
     $body = $content();
-  if((bool)$body)
-    echo $body;
-  echo sprintf('</%1$s>', $tag);
+  if($echo) {
+    echo sprintf('<%1$s%2$s>', $tag, $opt_str);
+    if((bool)$body)
+      echo $body;
+    echo sprintf('</%1$s>', $tag);
+  } else {
+    $ret = '';
+    $ret .= sprintf('<%1$s%2$s>', $tag, $opt_str);
+    if((bool)$body)
+      $ret .= $body;
+    $ret .= sprintf('</%1$s>', $tag);
+    return $ret;
+  }
 };
 
 function reAssoc($array, $keyfunc){
