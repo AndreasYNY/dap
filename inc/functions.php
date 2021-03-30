@@ -160,7 +160,8 @@ function setTitle($p) {
 			141 => 'Auto Rank Listing',
 			142 => 'Challenge Listing',
 			143 => 'Leaderboard Configuration',
-      144 => 'Challenge Configuration'
+      144 => 'Challenge Configuration',
+      145 => 'Leaderboard View'
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);

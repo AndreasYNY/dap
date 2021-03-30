@@ -4120,7 +4120,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         } else {
           $g['rules']  = getLeaderboardCondition($g['scoreArgs'][0], $g['scoreArgs'][1]);
           $g['scores'] = loadLimitedLeaderboard($g['scoreArgs'][0], $g['scoreArgs'][1]);
-          $g['users']  = reAssoc($GLOBALS['db']->fetchAll('select id, username from users'),function($e){return $e['id'];});
+          $g['users']  = reAssoc($GLOBALS['db']->fetchAll('select id, username, privileges from users'),function($e){return $e['id'];});
           $bmText = htmlTag('a', sprintf("%s - %s [%s]",
               $g['beatmap']['artist'],
               $g['beatmap']['title'],
@@ -4160,10 +4160,13 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
             });
             htmlTag('tbody',function()use(&$g){
               foreach($g['scores'] as $s){
-                htmlTag('tr',function()use(&$g,&$s){
-                  htmlTag('td',function()use(&$g,&$s){
+                $u = $g['users'][$s['userid']];
+                $clsList = [];
+                if(($u['privileges']&(~7))>0) array_push($clsList, 'text-danger');
+                htmlTag('tr',function()use(&$g,&$s,&$u){
+                  htmlTag('td',function()use(&$g,&$s,&$u){
                     htmlTag('a',
-                      htmlspecialchars($g['users'][$s['userid']]['username']),
+                      htmlspecialchars($u['username']),
                       ['href'=>sprintf('https://osu.troke.id/u/%d',$s['userid'])]
                     );
                   });
@@ -4173,7 +4176,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                   htmlTag('td',htmlspecialchars(getScoreMods($s['mods'],$_SESSION['userid'] == '3')));
                   htmlTag('td',$s['pp'] > 0 ? sprintf("%spp",htmlspecialchars(number_format($s['pp'],3))) : '---.---pp',['style'=>'text-align:right;']);
                   htmlTag('td',htmlspecialchars( strftime('%Y/%m/%d %T', $s['time']) ),['style'=>'text-align:right;']);
-                });
+                },['class'=>implode(' ',$clsList)]);
               }
             });
           break;
