@@ -1961,12 +1961,13 @@ function loadLimitedLeaderboard($key, $id) {
       $scoreBest = false;
       if(array_key_exists($userID,$scoreBO)){
         $s2 = $scoreMap[$scoreBO[$userID]];
-        $scoreBest = (
-          ((int)$s['score'] > (int)$s2['score']) ||
-          ((float)$s['accuracy'] > (float)$s2['accuracy']) ||
-          ((float)$s['pp'] > (float)$s2['pp']) ||
-          ((int)$s['time'] < (int)$s2['time'])
-        );
+        if ((int)$s['score'] > (int)$s2['score']) $scoreBest = true;
+        elseif ((int)$s['score'] < (int)$s2['score']) $scoreBest = false;
+        elseif ((float)$s['accuracy'] > (float)$s2['accuracy']) $scoreBest = true;
+        elseif ((float)$s['accuracy'] < (float)$s2['accuracy']) $scoreBest = false;
+        elseif ((float)$s['pp'] > (float)$s2['pp']) $scoreBest = true;
+        elseif ((float)$s['pp'] < (float)$s2['pp']) $scoreBest = false;
+        else $scoreBest = ((int)$s['time'] < (int)$s2['time']);
       }else{
         $scoreBest = true;
       }

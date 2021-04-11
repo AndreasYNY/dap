@@ -4162,7 +4162,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
               foreach($g['scores'] as $s){
                 $u = $g['users'][$s['userid']];
                 $clsList = [];
-                if(($u['privileges']&(~7))>0) array_push($clsList, 'danger text-danger');
+                if($u['privileges']&(~3)==0) continue;
+                if($g['mode']=='challid'&&($u['privileges']&(~7))>0) array_push($clsList, 'danger text-danger');
                 htmlTag('tr',function()use(&$g,&$s,&$u){
                   htmlTag('td',function()use(&$g,&$s,&$u){
                     htmlTag('a',
