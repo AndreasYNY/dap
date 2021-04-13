@@ -58,6 +58,50 @@ function redirect($url) {
 	session_commit();
 	exit();
 }
+
+/*
+ * compareArrayMulti
+ * compares two array's keys with specific formatting
+ *
+ * @param (array) ($a1) left  hand side
+ * @param (array) ($a2) right hand side
+ * @param (array) ($keys) array keys to compare on
+ * @param (string) ($fmt) i/d/f representing type of respective array element
+ * @param (string) ($cmp) </> representing comparison operator to check
+ *
+ * the value will keep going when there's an equality between two values
+ */
+function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
+  function tc(&$v, $k){
+    switch($k) {
+    case 'i':
+    case 'd':
+      settype($v, 'int'); break;
+    case 'f':
+      settype($v, 'float'); break;
+  }
+  $r = false;
+  $c = true;
+  $i = 0;
+  while($c && ((!$r) || ($i < strlen($fmt)))) {
+    $v1 = $a1[ $keys[$i] ];
+    $v2 = $a2[ $keys[$i] ];
+    tc($v1, $fmt[$i]);
+    tc($v2, $fmt[$i]);
+    $c = $c && ( $v1 == $v2 );
+    switch($cmp[$i]):
+    case '<':
+      $r = $r || ( $v1 < $v2 );
+      break;
+    case '>':
+      $r = $r || ( $v1 > $v2 );
+      break;
+    }
+    $i += 1;
+  }
+  return $r;
+}
+
 /*
  * outputVariable
  * Output $v variable to $fn file
@@ -1961,6 +2005,12 @@ function loadLimitedLeaderboard($key, $id) {
       $scoreBest = false;
       if(array_key_exists($userID,$scoreBO)){
         $s2 = $scoreMap[$scoreBO[$userID]];
+        $scoreBest = compareArrayMulti(
+          $s, $s2,
+          ['score', 'accuracy', 'pp', 'time'],
+          'iffi', '>>><'
+        );
+        /*
         if ((int)$s['score'] > (int)$s2['score']) $scoreBest = true;
         elseif ((int)$s['score'] < (int)$s2['score']) $scoreBest = false;
         elseif ((float)$s['accuracy'] > (float)$s2['accuracy']) $scoreBest = true;
@@ -1968,6 +2018,7 @@ function loadLimitedLeaderboard($key, $id) {
         elseif ((float)$s['pp'] > (float)$s2['pp']) $scoreBest = true;
         elseif ((float)$s['pp'] < (float)$s2['pp']) $scoreBest = false;
         else $scoreBest = ((int)$s['time'] < (int)$s2['time']);
+        */
       }else{
         $scoreBest = true;
       }
