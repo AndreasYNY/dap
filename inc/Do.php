@@ -11,49 +11,21 @@ class D {
 	public static function SaveSystemSettings() {
 		try {
 			// Get values
-			if (isset($_POST['wm'])) {
-				$wm = $_POST['wm'];
-			} else {
-				$wm = 0;
-			}
-			if (isset($_POST['gm'])) {
-				$gm = $_POST['gm'];
-			} else {
-				$gm = 0;
-			}
-			if (isset($_POST['r'])) {
-				$r = $_POST['r'];
-			} else {
-				$r = 0;
-			}
-			if (isset($_POST['rg'])) {
-				$rg = $_POST['rg'];
-			} else {
-				$rg = 0;
-			}
-			if (!empty($_POST['ga'])) {
-				$ga = $_POST['ga'];
-			} else {
-				$ga = '';
-			}
-			if (!empty($_POST['ha'])) {
-				$ha = $_POST['ha'];
-			} else {
-				$ha = '';
-			}
-			if (!empty($_POST['fv'])) {
-				$fv = $_POST['fv'];
-			} else {
-				$fv = '';
-			}
+      $s_mt_web     = isset($_POST['wm']) ? $_POST['wm'] : 0;
+      $s_mt_score   = isset($_POST['gm']) ? $_POST['gm'] : 0;
+      $s_reg_ok     = isset($_POST['r'] ) ? $_POST['r']  : 0;
+			$s_reg_lock   = isset($_POST['rg']) ? $_POST['rg'] : 0;
+			$s_alert_all  = (!empty($_POST['ga'])) ? $_POST['ga'] : '';
+			$s_alert_home = (!empty($_POST['ha'])) ? $_POST['ha'] : '';
+			$s_feat_video = (!empty($_POST['fv'])) ? $_POST['fv'] : '';
 			// Save new values
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'website_maintenance' LIMIT 1", [$wm]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'game_maintenance' LIMIT 1", [$gm]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'registrations_enabled' LIMIT 1", [$r]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'regblock' LIMIT 1", [$rg]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_global_alert' LIMIT 1", [$ga]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_home_alert' LIMIT 1", [$ha]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'featuredvideo' LIMIT 1", [$fv]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'website_maintenance' LIMIT 1", [$s_mt_web]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'game_maintenance' LIMIT 1", [$s_mt_score]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'registrations_enabled' LIMIT 1", [$s_reg_ok]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'regblock' LIMIT 1", [$s_reg_lock]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_global_alert' LIMIT 1", [$s_alert_all]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_home_alert' LIMIT 1", [$s_alert_home]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'featuredvideo' LIMIT 1", [$s_feat_video]);
 			foreach (["std" , "taiko", "ctb", "mania"] as $key) {
 				if (!isset($_POST["aql_$key"]) || !is_numeric($_POST["aql_$key"])) {
 					continue;
