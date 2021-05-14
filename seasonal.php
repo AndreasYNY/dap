@@ -1,9 +1,7 @@
 [
-    "https:\/\/cdn.troke.id\/seasonal\/1.jpg",
-    "https:\/\/cdn.troke.id\/seasonal\/2.jpg",
-    "https:\/\/cdn.troke.id\/seasonal\/3.jpg",
-    "https:\/\/cdn.troke.id\/seasonal\/4.jpg",
-    "https:\/\/cdn.troke.id\/seasonal\/5.jpg",
-    "https:\/\/cdn.troke.id\/seasonal\/6.jpg",
-    "https:\/\/cdn.troke.id\/seasonal\/7.jpg"
+    "https:\/\/cdn.troke.id\/static\/seasonal\/barbara.jpg",
+    "https:\/\/cdn.troke.id\/static\/seasonal\/barbara2.png",
+    "https:\/\/assets.troke.id\/seasonal\/default\/300457-mmk.png",
+    "https:\/\/assets.troke.id\/seasonal\/default\/rankomanko.png",
+    "https:\/\/assets.troke.id\/seasonal\/default\/eriri.jpg"
 ]
