@@ -546,8 +546,9 @@ switch ($p) {
       document.querySelectorAll(`td[data-smode="${sm}"][data-gmode="${gm}"]`).forEach(function(elm){
         let b = parseInt(elm.dataset.bit,10);
         let v = val & (1 << b);
-        elm.dataset.value = v;
-        elm.innerText = v;
+        let t = v >> b;
+        elm.dataset.value = t;
+        elm.innerText = t;
       });
     }
     document.querySelectorAll('input[name^="flag"]').forEach(function(elm){
@@ -562,8 +563,8 @@ switch ($p) {
         var mode = [elm.dataset.smode, elm.dataset.gmode];
         let curVal = getBit(mode[0], mode[1]);
         let b = parseInt(elm.dataset.bit,10);
-        let t = !parseInt(elm.dataset.value,10);
-        let v = t << b;
+        let t = (!parseInt(elm.dataset.value,10)) ? 1 : 0;
+        let v = 1 << b;
         if(t) curVal |= v;
         else curVal &= ~v;
         let vElm = document.querySelector(`input[name^="flag"][data-smode="${mode[0]}"][data-gmode="${mode[1]}"]`);
