@@ -585,7 +585,7 @@ if (isset($_GET["u"]) && !isset($_GET["p"])) {
   <?php
   if(getGitBranch() != 'master') {
   ?>
-    <p style="text-align:center;"><?php sprintf("running on %s (%s)", htmlspecialchars(getGitBranch()), getGitCommit()); ?></p>
+    <p style="text-align:center;"><?php echo sprintf("running on %s (%s)", htmlspecialchars(getGitBranch()), getGitCommit()); ?></p>
   <?php
   }
   ?>

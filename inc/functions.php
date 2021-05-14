@@ -2039,7 +2039,10 @@ function loadLimitedLeaderboard($key, $id) {
 function getGitBranch(){
   $content = file_get_contents(".git/HEAD");
   if(!$content) { return "?????"; }
-  return str_ireplace("ref: refs/heads/","",$content);
+  return str_ireplace([
+    "ref: refs/heads/",
+    "\n",
+  ],"",$content);
 }
 function getGitCommit(){
   $branch = getGitBranch();
