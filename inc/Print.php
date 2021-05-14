@@ -861,10 +861,7 @@ class P {
               });
             }
           });
-        }, [
-          'method' => 'POST',
-          'action' => 'submit.php',
-        ]);
+        });
         // Manual toggle section
         foreach($g['bitok'] as $bitIndex => $bit) {
           htmlTag('h3', $g['bitname'][$bitIndex]);
@@ -893,7 +890,10 @@ class P {
         htmlTag('input','',[
           'type'=>'submit'
         ]);
-      });
+      }, [
+        'method' => 'POST',
+        'action' => 'submit.php',
+      ]);
       echo "</div></div>";
     } catch(Exception $e) {
       // Redirect to exception page
