@@ -4360,7 +4360,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                 $lastBancho = (int)$beatmapSet[0]['bancho_last_touch'];
                 $lastFetch  = (int)$beatmapSet[0]['latest_update'];
                 $rankTime   = max($lastFetch, $lastBancho + 28 * 86400);
-                htmlTag('td', strval($beatmapSID), ['rowspan' => 1 + count($beatmapSet)]);
+                htmlTag('td',
+                  htmlTag('a', strval($beatmapSID), [
+                    'href' => sprintf('https://osu.ppy.sh/beatmapsets/%d', $beatmapSID)
+                  ], false), ['rowspan' => 1 + count($beatmapSet)]);
                 htmlTag('td',
                   htmlspecialchars( implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']])) )
                 );
@@ -4396,7 +4399,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                       $eligibles[0] = 1;
                   }
                   $eligibles[1] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
-                  htmlTag('td', htmlspecialchars( "↪ " . $beatmapData['difficulty_name'] ));
+                  htmlTag('td', htmlTag('a', htmlspecialchars( "↪ " . $beatmapData['difficulty_name'] ), [
+                    'href' => sprintf('https://osu.ppy.sh/beatmaps/%d', $beatmapData['beatmap_id'])
+                  ], false));
                   htmlTag('td',
                     htmlTag('a',
                       htmlspecialchars( $userIDs[$autorankData['user_id']]['username'] ),
