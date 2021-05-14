@@ -833,7 +833,7 @@ class P {
         htmlTag('table',function()use(&$g,&$bit){
           htmlTag('tbody',function()use(&$g,&$bit){
             printTableHHeader();
-            pritnTableVHeader();
+            printTableVHeader();
             foreach($g['modrow'] as $si=>$smode) {
               htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
                 htmlTag('td', $smode);
