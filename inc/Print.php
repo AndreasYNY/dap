@@ -798,13 +798,13 @@ class P {
       $g['modcol']  = ['S', 'T', 'C', 'M'];
       $g['modrow']  = ['NM', 'RL', 'V2'];
       $g['bitok']   = [0, 1];
-      function printTableHHeader(){
+      $g['printTableHHeader'] = function()use(&$g){
         htmlTag('tr',function()use(&$g){
           htmlTag('td','');
           foreach($g['modcol'] as $mode)
             htmlTag('td', $mode);
         });
-      }
+      };
       htmlTag('form',function()use(&$g){
         // Manual field section
         htmlTag('input','',[
@@ -825,10 +825,10 @@ class P {
         htmlTag('h3', "PP Unrestrict Values");
         htmlTag('table',function()use(&$g,&$bit){
           htmlTag('tbody',function()use(&$g,&$bit){
-            printTableHHeader();
+            $g['printTableHHeader']();
             foreach($g['modrow'] as $si=>$smode) {
               htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
-                htmlTag('td', $smode);
+                htmlTag('td', $smode, ['width' => 50]);
                 foreach($g['modcol'] as $mi=>$mode) {
                   htmlTag('td',function()use(&$g, &$bit, &$si, &$mi){
                     $value = $g['stat'][$si][$mi]['unrestricted_play'];
@@ -849,24 +849,25 @@ class P {
           });
         }, [
           'method' => 'POST',
-          'action' => '?',
+          'action' => 'submit.php',
         ]);
         // Manual toggle section
         foreach($g['bitok'] as $bitIndex => $bit) {
           htmlTag('h3', $g['bitname'][$bitIndex]);
           htmlTag('table',function()use(&$g,&$bit){
             htmlTag('tbody',function()use(&$g,&$bit){
-              printTableHHeader();
+              $g['printTableHHeader']();
               foreach($g['modrow'] as $si=>$smode) {
                 htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
-                  htmlTag('td', $smode);
+                  htmlTag('td', $smode, ['width' => 50]);
                   foreach($g['modcol'] as $mi=>$mode) {
                     $value = ((int)($g['stat'][$si][$mi]['unrestricted_play']) & (1 << $bit)) >> $bit;
-                    htmlTag('td',$value,[
+                    htmlTag('td',sprintf("%d",$value),[
+                      'width' => 50,
                       'data-bit'   => $bit,
                       'data-smode' => $si,
                       'data-gmode' => $mi,
-                      'data-value' => $value
+                      'data-value' => $value,
                     ]);
                   }
                 });
