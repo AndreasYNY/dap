@@ -79,6 +79,7 @@ function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
       settype($v, 'int'); break;
     case 'f':
       settype($v, 'float'); break;
+    }
   }
   $r = false;
   $c = true;
