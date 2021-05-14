@@ -562,7 +562,7 @@ switch ($p) {
         var mode = [elm.dataset.smode, elm.dataset.gmode];
         let curVal = getBit(mode[0], mode[1]);
         let b = parseInt(elm.dataset.bit,10);
-        let t = parseInt(elm.dataset.value,10);
+        let t = !parseInt(elm.dataset.value,10);
         let v = t << b;
         if(t) curVal |= v;
         else curVal &= ~v;
