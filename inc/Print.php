@@ -805,13 +805,6 @@ class P {
             htmlTag('td', $mode);
         });
       }
-      function printTableVHeader(){
-        htmlTag('tr',function()use(&$g){
-          htmlTag('td','');
-          foreach($g['modcol'] as $mode)
-            htmlTag('td', $mode);
-        });
-      }
       htmlTag('form',function()use(&$g){
         // Manual field section
         htmlTag('input','',[
@@ -833,7 +826,6 @@ class P {
         htmlTag('table',function()use(&$g,&$bit){
           htmlTag('tbody',function()use(&$g,&$bit){
             printTableHHeader();
-            printTableVHeader();
             foreach($g['modrow'] as $si=>$smode) {
               htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
                 htmlTag('td', $smode);
@@ -865,7 +857,6 @@ class P {
           htmlTag('table',function()use(&$g,&$bit){
             htmlTag('tbody',function()use(&$g,&$bit){
               printTableHHeader();
-              printTableVHeader();
               foreach($g['modrow'] as $si=>$smode) {
                 htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
                   htmlTag('td', $smode);
