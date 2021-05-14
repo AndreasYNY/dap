@@ -876,7 +876,7 @@ class P {
                   htmlTag('td', $smode, ['width' => 50]);
                   foreach($g['modcol'] as $mi=>$mode) {
                     $value = ((int)($g['stat'][$si][$mi]['unrestricted_play']) >> $bit) & 1;
-                    htmlTag('td',$value,[
+                    htmlTag('td',(string)$value,[
                       'width' => 50,
                       'data-bit'   => $bit,
                       'data-smode' => $si,
