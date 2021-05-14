@@ -784,7 +784,7 @@ class P {
         throw new Exception('Invalid user ID!');
       }
       // Get user data
-      $g = []
+      $g = [];
       $g['user'] = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
       
       $g['stat'] = array_fill(0, 3, array_fill(0, 4, NULL));
