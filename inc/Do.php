@@ -204,8 +204,8 @@ class D {
           if ($sm == 2) continue;
           $flag = sprintf("flag%02d%02d", $sm, $gm);
           if(isset($_GET[$flag]) && !empty($_GET[$flag])) {
-            $GLOBALS['db']->execute('update master_stats set unrestricted_play = ? where user_id = ? and special_mode = ? and game_mode = ?',[
-              $_GET[$flag], $_POST['id'], $sm, $gm
+            $GLOBALS['db']->execute('update master_stats set unrestricted_play = ? where user_id = ? and special_mode = ? and game_mode = ? and unrestricted_play != ?',[
+              $_GET[$flag], $_POST['id'], $sm, $gm, $_GET[$flag]
             ]);
           }
         }
