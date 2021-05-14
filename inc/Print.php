@@ -4399,7 +4399,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                   htmlTag('td', htmlspecialchars( "↪ " . $beatmapData['difficulty_name'] ));
                   htmlTag('td',
                     htmlTag('a',
-                      htmlspecialchars( $userIDs[$autorankData['user_id']] ),
+                      htmlspecialchars( $userIDs[$autorankData['user_id']]['username'] ),
                       [
                         'href'=>sprintf("https://osu.troke.id/u/%d",$autorankData['user_id'])
                       ], false
