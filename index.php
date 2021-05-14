@@ -551,13 +551,6 @@ switch ($p) {
         elm.innerText = t;
       });
     }
-    document.querySelectorAll('input[name^="flag"]').forEach(function(elm){
-      elm.addEventListener('input', function(){
-        var mode = /(\d{2})(\d{2})/.exec(elm.name).slice(1,3).map(function(x){return parseInt(x,10);});
-        
-        enforceBit(mode[0],mode[1],elm.value);
-      });
-    });
     document.querySelectorAll(`td[data-smode][data-gmode]`).forEach(function(elm){
       elm.addEventListener('click', function(){
         var mode = [elm.dataset.smode, elm.dataset.gmode];
@@ -572,6 +565,14 @@ switch ($p) {
         elm.dataset.value = t;
         elm.innerText = t;
       });
+    });
+    document.querySelectorAll('input[name^="flag"]').forEach(function(elm){
+      elm.addEventListener('input', function(){
+        var mode = /(\d{2})(\d{2})/.exec(elm.name).slice(1,3).map(function(x){return parseInt(x,10);});
+        
+        enforceBit(mode[0],mode[1],elm.value);
+      });
+      elm.dispatchEvent(new Event('input', {bubbles: true,cancelable: true}));
     });
   });
   </script>
