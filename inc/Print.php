@@ -777,7 +777,7 @@ class P {
     }
   }
   
-  public static function AdminEditPPWhtielist() {
+  public static function AdminEditPPWhitelist() {
     try {
       // Check if id is set
       if (!isset($_GET['id']) || empty($_GET['id'])) {
