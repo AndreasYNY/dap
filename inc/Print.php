@@ -776,7 +776,124 @@ class P {
       redirect('index.php?p=102&e='.$e->getMessage());
     }
   }
-
+  
+  public static function AdminEditPPWhtielist() {
+    try {
+      // Check if id is set
+      if (!isset($_GET['id']) || empty($_GET['id'])) {
+        throw new Exception('Invalid user ID!');
+      }
+      // Get user data
+      $g = []
+      $g['user'] = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
+      
+      $g['stat'] = array_fill(0, 3, array_fill(0, 4, NULL));
+      foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
+        $smode = $stat['special_mode'];
+        $gmode = $stat['game_mode'];
+        $g['stat'][$smode][$gmode] = $stat;
+      }
+      htmlTag('h2', sprintf("PP Limit Configuration for %s", $g['user']['username']));
+      $g['bitname'] = ['Individual Scores', 'Total PP'];
+      $g['modcol']  = ['S', 'T', 'C', 'M'];
+      $g['modrow']  = ['NM', 'RL', 'V2'];
+      $g['bitok']   = [0, 1];
+      function printTableHHeader()use(&$g){
+        htmlTag('tr',function()use(&$g){
+          htmlTag('td','');
+          foreach($g['modcol'] as $mode)
+            htmlTag('td', $mode);
+        });
+      }
+      function printTableVHeader()use(&$g){
+        htmlTag('tr',function()use(&$g){
+          htmlTag('td','');
+          foreach($g['modcol'] as $mode)
+            htmlTag('td', $mode);
+        });
+      }
+      htmlTag('form',function()use(&$g){
+        // Manual field section
+        htmlTag('input','',[
+          'type' => 'hidden',
+          'name' => 'csrf',
+          'value' => csrfToken(),
+        ]);
+        htmlTag('input','',[
+          'type' => 'hidden',
+          'name' => 'action',
+          'value' => 'saveEditUserWhitelist',
+        ]);
+        htmlTag('input','',[
+          'type' => 'hidden',
+          'name' => 'id',
+          'value' => $_GET['id'],
+        ]);
+        htmlTag('h3', "PP Unrestrict Values");
+        htmlTag('table',function()use(&$g,&$bit){
+          htmlTag('tbody',function()use(&$g,&$bit){
+            printTableHHeader();
+            pritnTableVHeader();
+            foreach($g['modrow'] as $si=>$smode) {
+              htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
+                htmlTag('td', $smode);
+                foreach($g['modcol'] as $mi=>$mode) {
+                  $value = $g['stat'][$si][$mi]['unrestricted_play'];
+                  htmlTag('td',function()use(&$g, &$bit, &$si, &$mi){
+                    htmlTag('input','',[
+                      'name' => sprintf("flag%02d%02d",$si, $mi),
+                      'type' => 'number',
+                      'value' => $value,
+                      'min' => -1,
+                      'max' => 255,
+                      'step' => 1,
+                      'data-smode' => $si,
+                      'data-gmode' => $mi,
+                    ]);
+                  });
+                }
+              });
+            }
+          });
+        }, [
+          'method' => 'POST',
+          'action' => '?',
+        ]);
+        // Manual toggle section
+        foreach($g['bitok'] as $bitIndex => $bit) {
+          htmlTag('h3', $g['bitname'][$bitIndex]);
+          htmlTag('table',function()use(&$g,&$bit){
+            htmlTag('tbody',function()use(&$g,&$bit){
+              printTableHHeader();
+              pritnTableVHeader();
+              foreach($g['modrow'] as $si=>$smode) {
+                htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
+                  htmlTag('td', $smode);
+                  foreach($g['modcol'] as $mi=>$mode) {
+                    $value = $g['stat'][$si][$mi]['unrestricted_play'] & (1 << $bit);
+                    htmlTag('td',$value,[
+                      'data-bit'   => $bit,
+                      'data-smode' => $si,
+                      'data-gmode' => $gi,
+                      'data-value' => $value
+                    ]);
+                  }
+                });
+              }
+            });
+          });
+        }
+        // Submit
+        htmlTag('input','',[
+          'type'=>'submit'
+        ]);
+      });
+    } catch(Exception $e) {
+      // Redirect to exception page
+      redirect('index.php?p=102&e='.$e->getMessage());
+    }
+  }
+  
   /*
    * AdminChangeIdentity
    * Prints the admin panel change identity page

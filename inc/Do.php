@@ -193,6 +193,31 @@ class D {
 			redirect('index.php?p=102&e='.$e->getMessage());
 		}
 	}
+  
+  public static function saveEditUserWhitelist() {
+    try {
+      // Check if everything is set (username color, username style, rank, allowed and notes can be empty)
+      if (!isset($_POST['id']) || empty($_POST['id']))
+        throw new Exception("eh");
+      foreach([0,1,2,3] as $gm) {
+        foreach([0,1,2] as $sm) {
+          if ($sm == 2) continue;
+          $flag = sprintf("flag%02d%02d", $sm, $gm);
+          if(isset($_GET[$flag]) && !empty($_GET[$flag])) {
+            $GLOBALS['db']->execute('update master_stats set unrestricted_play = ? where user_id = ? and special_mode = ? and game_mode = ?',[
+              $_GET[$flag], $_POST['id'], $sm, $gm
+            ]);
+          }
+        }
+      }
+      rapLog(sprintf("has edited user ID %s PP whitelist", $_POST["id"]));
+      redirect('index.php?p=102&s=User edited!');
+    }
+    catch(Exception $e) {
+      // Redirect to Exception page
+      redirect('index.php?p=102&e='.$e->getMessage());
+    }
+  }
 
 	/*
 	 * BanUnbanUser

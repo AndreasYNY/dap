@@ -54,6 +54,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::SaveEditUser();
 		break;
+    case 'saveEditUserWhitelist':
+			sessionCheckAdmin(Privileges::AdminManageUsers);
+			D::SaveEditUserWhitelist();
+		break;
 		case 'banUnbanUser': // TODO
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::BanUnbanUser();
@@ -186,6 +190,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageServers);
 			D::DeleteUser();
 		break;
+    case 'challengeEdit':
+      sessionCheckAdmin(Privileges::AdminManageSettings);
+      D::AdminChallengeEdit();
+    break;
 		default:
 			throw new Exception('Invalid action value');
 	}
