@@ -538,7 +538,15 @@ if (isset($_GET["u"]) && !isset($_GET["p"])) {
 	echo '<script src="/js/user.js"></script>';
 }
 ?>
-
+<footer>
+  <?php
+  if(getGitBranch() != 'master') {
+  ?>
+    <p style="text-align:center;"><?php sprintf("running on %s (%s)", htmlspecialchars(getGitBranch())); ?></p>
+  <?php
+  }
+  ?>
+</footer>
 </body>
 
 </html>

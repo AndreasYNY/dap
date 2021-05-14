@@ -2028,3 +2028,16 @@ function loadLimitedLeaderboard($key, $id) {
   $scores = array_values(array_filter($scores, function($s)use($scoreBO){return in_array((int)$s['id'],array_values($scoreBO));}));
   return $scores;
 }
+
+function getGitBranch(){
+  $content = file_get_contents(".git/HEAD");
+  if(!$content) { return "?????"; }
+  return str_ireplace("ref: refs/heads/","",$content);
+}
+function getGitCommit(){
+  $branch = getGitBranch();
+  if($branch == '?????') { return '?????'; }
+  $refs = file_get_contents(sprintf(".git/refs/heads/%s", $branch));
+  if(!$refs) { return "????????"; }
+  return substr($refs, 0, 8);
+}
