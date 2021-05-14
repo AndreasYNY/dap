@@ -870,11 +870,11 @@ class P {
                 htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
                   htmlTag('td', $smode);
                   foreach($g['modcol'] as $mi=>$mode) {
-                    $value = $g['stat'][$si][$mi]['unrestricted_play'] & (1 << $bit);
+                    $value = ((int)($g['stat'][$si][$mi]['unrestricted_play']) & (1 << $bit)) >> $bit;
                     htmlTag('td',$value,[
                       'data-bit'   => $bit,
                       'data-smode' => $si,
-                      'data-gmode' => $gi,
+                      'data-gmode' => $mi,
                       'data-value' => $value
                     ]);
                   }
