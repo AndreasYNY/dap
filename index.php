@@ -552,7 +552,8 @@ switch ($p) {
     }
     document.querySelectorAll('input[name^="flag"]').forEach(function(elm){
       elm.addEventListener('input', function(){
-        var mode = /(\d{2})(\d{2})/.exec(elm.name).slice(1,2).map(function(x){return parseInt(x,10);});
+        var mode = /(\d{2})(\d{2})/.exec(elm.name).slice(1,3).map(function(x){return parseInt(x,10);});
+        
         enforceBit(mode[0],mode[1],elm.value);
       });
     });
