@@ -798,14 +798,14 @@ class P {
       $g['modcol']  = ['S', 'T', 'C', 'M'];
       $g['modrow']  = ['NM', 'RL', 'V2'];
       $g['bitok']   = [0, 1];
-      function printTableHHeader()use(&$g){
+      function printTableHHeader(){
         htmlTag('tr',function()use(&$g){
           htmlTag('td','');
           foreach($g['modcol'] as $mode)
             htmlTag('td', $mode);
         });
       }
-      function printTableVHeader()use(&$g){
+      function printTableVHeader(){
         htmlTag('tr',function()use(&$g){
           htmlTag('td','');
           foreach($g['modcol'] as $mode)
