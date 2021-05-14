@@ -4196,7 +4196,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
           self::ExceptionMessageStaccah($_GET['e']);
         htmlTag('p', function(){htmlTag('h2','View Auto Rank Queue');});
         echo '<br>';
-        $autolinkedUsers  = reAssoc($GLOBALS["db"]->fetchAll('SELECT * FROM autorank_users where active = 1'), function($entry){return $entry['bancho_id'];});
         $autorankBeatmaps = reAssoc($GLOBALS["db"]->fetchAll('SELECT * FROM autorank_flags'), function($entry){return $entry['beatmap_id'];});
         $beatmapIDs       = array_keys($autorankBeatmaps);
         $beatmapSIDs      = [];
@@ -4205,12 +4204,13 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $beatmapList      = $GLOBALS["db"]->fetchAll($beatmapQuery, $beatmapIDs);
         $beatmapGroups    = [];
         $beatmapSIDs      = array_unique(array_map(function($bm){return $bm['beatmapset_id'];}, $beatmapList));
+        $userIDs          = reAssoc($GLOBALS['db']->fetchAll('select id, username from users'));
         foreach($beatmapSIDs as $beatmapSID)
           $beatmapGroups[$beatmapSID] = array_map(
             function($bm){return $bm;},
             array_values(array_filter($beatmapList, function($bm) use ($beatmapSID) {return $bm['beatmapset_id'] == $beatmapSID;}))
           );
-        htmlTag('table', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapGroups){
+        htmlTag('table', function() use ($userIDs, $autorankBeatmaps, $beatmapGroups){
           htmlTag('thead', function(){
             htmlTag('tr', function(){
               htmlTag('th', "ID");
@@ -4218,11 +4218,12 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
               //htmlTag('th', "Creator ID");
               //htmlTag('th', "Autoranker");
               htmlTag('th', "Last Update");
-              htmlTag('th', "Eligibility", ['colspan'=> 3]);
+              htmlTag('th', "Auto-Ranker");
+              htmlTag('th', "Eligibility", ['colspan'=> 2]);
               htmlTag('th', "Autorank Time");
             });
           });
-          htmlTag('tbody', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapGroups) {
+          htmlTag('tbody', function() use ($userIDs, $autorankBeatmaps, $beatmapGroups) {
             foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
               htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
                 $lastBancho = (int)$beatmapSet[0]['bancho_last_touch'];
@@ -4237,7 +4238,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                 htmlTag('td', htmlspecialchars( strftime('%Y/%m/%d %T', $rankTime) ), ['rowspan' => 1 + count($beatmapSet)]);
               });
               foreach($beatmapSet as $beatmapData) {
-                htmlTag('tr', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapData){
+                htmlTag('tr', function() use ($userIDs, $autorankBeatmaps, $beatmapData){
                   // ELIGIBLES FLAG
                   // 0 - USER EXISTENCE
                   // 1 - RANK/LOVE/IGNORE
@@ -4254,19 +4255,26 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                       ['color:#f41;'],
                     ]
                   ];
-                  $eligibles = [0, 0, 0];
+                  $eligibles = [0, 0];
                   //
-                  $eligibles[0] = array_key_exists($beatmapData['creator_id'], $autolinkedUsers) ? 1 : 0;
-                  $eligibles[1] = 0;
+                  $eligibles[0] = 0;
                   $autorankData = $autorankBeatmaps[$beatmapData['beatmap_id']];
                   if((int)$autorankData['flag_valid']){
                     if((int)$autorankData['flag_lovable'])
-                      $eligibles[1] = 2;
+                      $eligibles[0] = 2;
                     else
-                      $eligibles[1] = 1;
+                      $eligibles[0] = 1;
                   }
-                  $eligibles[2] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
+                  $eligibles[1] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
                   htmlTag('td', htmlspecialchars( "↪ " . $beatmapData['difficulty_name'] ));
+                  htmlTag('td',
+                    htmlTag('a',
+                      htmlspecialchars( $userIDs[$autorankData['user_id']] ),
+                      [
+                        'href'=>sprintf("https://osu.troke.id/u/%d",$autorankData['user_id'])
+                      ], false
+                    )
+                  );
                   foreach($eligibles as $eligibleFlag)
                     htmlTag('td', function() use ($eliData, $eligibleFlag) {
                       htmlTag('i', '', [
