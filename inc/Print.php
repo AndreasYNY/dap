@@ -909,7 +909,7 @@ class P {
     try {
       // Get user data
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ?', $_GET['id']);
-      $userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ?', $_GET['id']);
+      $userStatsData = $GLOBALS['db']->fetch('SELECT * FROM user_config WHERE id = ?', $_GET['id']);
       // Check if this user exists
       if (!$userData || !$userStatsData) {
         throw new Exception("That user doesn't exist");
@@ -1522,11 +1522,12 @@ class P {
       // Check banned status
       $userData = $GLOBALS['db']->fetch("
 SELECT
-  users_stats.*, users.privileges, users.id as usersuid, users.latest_activity,
+  user_config.*, users.privileges, users.id as usersuid, users.latest_activity,
   users.silence_end, users.silence_reason, users.register_datetime
-FROM users_stats
-LEFT JOIN users ON users.id=users_stats.id
+FROM user_config
+LEFT JOIN users ON users.id=user_config.id
 WHERE users.$kind = ? LIMIT 1", [$u]);
+      
 
       if (!$userData) {
         // LISCIAMI LE MELE SUDICIO
@@ -1567,17 +1568,18 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       // Set default modes texts, selected is bolded below
       $modesText = [0 => 'osu!standard', 1 => 'Taiko', 2 => 'Catch the Beat', 3 => 'osu!mania'];
       // Get stats for selected mode
-      $m = ($m < 0 || $m > 3 ? $userData['favourite_mode'] : $m);
+      $m = ($m < 0 || $m > 3 ? $userData['favorite_mode'] : $m);
+      $userStat = $GLOBALS['db']->fetch('select * from master_stats where user_id = ? and special_mode = ? and game_mode = ?',$userID,0,$m);
       $modeForDB = getPlaymodeText($m);
       $modeReadable = getPlaymodeText($m, true);
       // Standard stats
-      $rankedScore = $userData['ranked_score_'.$modeForDB];
-      $totalScore = $userData['total_score_'.$modeForDB];
-      $playCount = $userData['playcount_'.$modeForDB];
-      $totalHits = $userData['total_hits_'.$modeForDB];
-      $accuracy = $userData['avg_accuracy_'.$modeForDB];
-      $replaysWatchedByOthers = $userData['replays_watched_'.$modeForDB];
-      $pp = $userData['pp_'.$modeForDB];
+      $rankedScore = $userStat['ranked_score'];
+      $totalScore = $userStat['total_score'];
+      $playCount = $userStat['playcount'];
+      $totalHits = $userStat['total_hits'];
+      $accuracy = $userStat['average_accuracy'];
+      $replaysWatchedByOthers = $userStat['replays_watched'];
+      $pp = $userStat['pp'];
       $country = $userData['country'];
       $usernameAka = $userData['username_aka'];
       $level = $userData['level_'.$modeForDB];
@@ -2087,7 +2089,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
     // Global alert
     self::GlobalAlert();
     // Get user settings data
-    $data = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_SESSION['userid']);
+    $data = $GLOBALS['db']->fetch('SELECT * FROM user_config WHERE id = ? LIMIT 1', $_SESSION['userid']);
     // Title
     echo '<div class="narrow-content"><h1><i class="fa fa-cog"></i>	User settings</h1>';
     // Print Exception if set
@@ -2264,7 +2266,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
     // Global alert
     self::GlobalAlert();
     // Get userpage content from db
-    $content = $GLOBALS['db']->fetch('SELECT userpage_content FROM users_stats WHERE username = ?', $_SESSION['username']);
+    $content = $GLOBALS['db']->fetch('SELECT userpage_content FROM user_config WHERE username = ?', $_SESSION['username']);
     $userpageContent = htmlspecialchars(current(($content === false ? ['t' => ''] : $content)));
     // Title
     echo '<h1><i class="fa fa-pencil"></i>	Userpage</h1>';

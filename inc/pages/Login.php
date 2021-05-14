@@ -53,9 +53,9 @@ class Login {
 			$us = $GLOBALS['db']->fetch('
 			SELECT
 				users.id, users.password_md5,
-				users.username, users_stats.country
+				users.username, user_config.country
 			FROM users
-			LEFT JOIN users_stats ON users_stats.id = users.id
+			LEFT JOIN user_config ON user_config.id = users.id
 			WHERE users.username_safe = ?', [safeUsername($_POST['u'])]);
 			// Set multiacc identity token
 			setYCookie($us["id"]);

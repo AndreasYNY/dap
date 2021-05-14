@@ -705,7 +705,7 @@ function updateUserCountry($u, $field = 'username') {
 	$c = getUserCountry();
 	if ($c == 'XX')
 		return;
-	$GLOBALS['db']->execute("UPDATE users_stats SET country = ? WHERE $field = ?", [$c, $u]);
+	$GLOBALS['db']->execute("UPDATE user_config SET country = ? WHERE $field = ?", [$c, $u]);
 }
 function countryCodeToReadable($cc) {
 	require_once dirname(__FILE__).'/countryCodesReadable.php';
@@ -831,7 +831,7 @@ function updateLatestActivity($u) {
  * we are browsing Ainu
 */
 function updateSafeTitle() {
-	$safeTitle = $GLOBALS['db']->fetch('SELECT safe_title FROM users_stats WHERE username = ?', $_SESSION['username']);
+	$safeTitle = $GLOBALS['db']->fetch('SELECT safe_title FROM user_config WHERE username = ?', $_SESSION['username']);
 	setcookie('st', current($safeTitle));
 }
 /*
@@ -1774,7 +1774,7 @@ function appendNotes($userID, $notes, $addNl=true, $addTimestamp=true) {
 
 function removeFromLeaderboard($userID) {
 	redisConnect();
-	$country = strtolower($GLOBALS["db"]->fetch("SELECT country FROM users_stats WHERE id = ? LIMIT 1", [$userID])["country"]);
+	$country = strtolower($GLOBALS["db"]->fetch("SELECT country FROM user_config WHERE id = ? LIMIT 1", [$userID])["country"]);
 	foreach (["std", "taiko", "ctb", "mania"] as $key => $value) {
 		$GLOBALS["redis"]->zrem("ripple:leaderboard:".$value, $userID);
 		$GLOBALS["redis"]->zrem("ripple:leaderboard_relax:".$value, $userID);
@@ -1838,7 +1838,7 @@ function giveDonor($userID, $months, $add=true) {
 	$monthsExpire = round(($unixExpire-time())/(30*86400));
 	$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixExpire, $userID]);
 	//can custom badge
-	$GLOBALS["db"]->execute("UPDATE users_stats SET can_custom_badge = 1 WHERE id = ?", [$userID]);
+	$GLOBALS["db"]->execute("UPDATE user_config SET can_custom_badge = 1 WHERE id = ?", [$userID]);
 	
 	$donorBadge = $GLOBALS["db"]->fetch("SELECT id FROM badges WHERE name = 'Donat' OR name = 'Donor' LIMIT 1");
 	if (!$donorBadge) {
