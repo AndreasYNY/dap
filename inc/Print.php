@@ -783,6 +783,20 @@ class P {
       if (!isset($_GET['id']) || empty($_GET['id'])) {
         throw new Exception('Invalid user ID!');
       }
+      // Print edit user stuff
+      echo '<div id="wrapper">';
+      printAdminSidebar();
+      echo '<div id="page-content-wrapper">';
+      // Maintenance check
+      self::MaintenanceStuff();
+      // Print Success if set
+      if (isset($_GET['s']) && !empty($_GET['s'])) {
+        self::SuccessMessageStaccah($_GET['s']);
+      }
+      // Print Exception if set
+      if (isset($_GET['e']) && !empty($_GET['e'])) {
+        self::ExceptionMessageStaccah($_GET['e']);
+      }
       // Get user data
       $g = [];
       $g['user'] = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
@@ -861,8 +875,8 @@ class P {
                 htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
                   htmlTag('td', $smode, ['width' => 50]);
                   foreach($g['modcol'] as $mi=>$mode) {
-                    $value = ((int)($g['stat'][$si][$mi]['unrestricted_play']) & (1 << $bit)) >> $bit;
-                    htmlTag('td',sprintf("%d",$value),[
+                    $value = ((int)($g['stat'][$si][$mi]['unrestricted_play']) >> $bit) & 1;
+                    htmlTag('td',$value,[
                       'width' => 50,
                       'data-bit'   => $bit,
                       'data-smode' => $si,
@@ -880,6 +894,7 @@ class P {
           'type'=>'submit'
         ]);
       });
+      echo "</div></div>";
     } catch(Exception $e) {
       // Redirect to exception page
       redirect('index.php?p=102&e='.$e->getMessage());

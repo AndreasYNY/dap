@@ -660,7 +660,7 @@ function htmlTag($tag, $content, $options=[], $echo=true) {
       $body = $content;
     elseif(is_callable($content))
       $body = $content();
-    if((bool)$body)
+    if($body !== NULL)
       echo $body;
     echo sprintf('</%1$s>', $tag);
   } else {
