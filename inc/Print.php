@@ -13,13 +13,13 @@ class P {
       $submittedScoresFull = 0;
     }
     $submittedScores = number_format($submittedScoresFull / 1000000, 2) . "m";
-    $totalScoresFull = $GLOBALS["redis"]->get("ripple:total_plays"); // current($GLOBALS['db']->fetch('SELECT SUM(playcount_std) + SUM(playcount_taiko) + SUM(playcount_ctb) + SUM(playcount_mania) FROM users_stats WHERE 1'));
+    $totalScoresFull = $GLOBALS["redis"]->get("ripple:total_plays");
     if (!$totalScoresFull) {
       $totalScoresFull = 0;
     }
     $totalScores = number_format($totalScoresFull  / 1000000, 2) . "m";
     // $betaKeysLeft = "∞";
-    $totalPP = $GLOBALS["redis"]->get("ripple:total_pp"); // $GLOBALS['db']->fetch("SELECT SUM(pp_std) + SUM(pp_taiko) + SUM(pp_ctb) + SUM(pp_mania) AS s FROM users_stats WHERE 1 LIMIT 1")["s"];
+    $totalPP = $GLOBALS["redis"]->get("ripple:total_pp");
     if (!$totalPP) {
       $totalPP = 0;
     }
@@ -456,8 +456,14 @@ class P {
       }
       // Get user data
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
-      $userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_GET['id']);
-      $userStatsDataRX = $GLOBALS['db']->fetch('SELECT * FROM rx_stats WHERE id = ? LIMIT 1', $_GET['id']);
+      
+      $userStatsData = array_fill(0, 3, array_fill(0, 4, NULL));
+      foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
+        $smode = $stat['special_mode'];
+        $gmode = $stat['game_mode'];
+        $userStatsData[$smode][$gmode] = $stat;
+      }
+      $userConfigData = $GLOBALS['db']->fetch('SELECT * FROM user_config WHERE id = ?', $_GET['id']);
       $ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE userid = ?', $_GET['id']);
       $discordData = getDiscordData($userData["id"]);
       // Check if this user exists
@@ -473,7 +479,7 @@ class P {
         $haxCol = "success";
       }*/
       // Cb check
-      if ($userStatsData["can_custom_badge"] == 1) {
+      if ($userConfigData["can_custom_badge"] == 1) {
         $cbText = "Yes";
         $cbCol = "success";
       } else {
@@ -551,7 +557,7 @@ class P {
       reset($c);
       foreach ($c as $k => $v) {
         $sd = "";
-        if ($userStatsData['country'] == $k)
+        if ($userConfigData['country'] == $k)
           $sd = "selected";
         $ks = strtolower($k);
         if (!file_exists(dirname(__FILE__) . "/../images/flags/$ks.png"))
@@ -677,9 +683,9 @@ class P {
         <td>Custom badge</td>
         <td>
           <p align="center">
-            <i class="fa '.htmlspecialchars($userStatsData["custom_badge_icon"]).' fa-2x"></i>
+            <i class="fa '.htmlspecialchars($userConfigData["custom_badge_icon"]).' fa-2x"></i>
             <br>
-            <b>'.htmlspecialchars($userStatsData["custom_badge_name"]).'</b>
+            <b>'.htmlspecialchars($userConfigData["custom_badge_name"]).'</b>
           </p>
         </td>
         </tr>';
@@ -4240,9 +4246,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
               foreach($beatmapSet as $beatmapData) {
                 htmlTag('tr', function() use ($userIDs, $autorankBeatmaps, $beatmapData){
                   // ELIGIBLES FLAG
-                  // 0 - USER EXISTENCE
-                  // 1 - RANK/LOVE/IGNORE
-                  // 2 - FROZEN FLAG (non 0/3)
+                  // 0 - RANK/LOVE/IGNORE
+                  // 1 - FROZEN FLAG (non 0/3)
                   $eliData = [
                     'class' => [
                       ['fa', 'fa-times'],
