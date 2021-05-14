@@ -154,7 +154,7 @@ class D {
 				updateBanBancho($_POST["id"]);
 			}
 			// Save new userpage
-			$GLOBALS['db']->execute('UPDATE users_stats SET userpage_content = ? WHERE id = ? LIMIT 1', [$_POST['up'], $_POST['id']]);
+			$GLOBALS['db']->execute('UPDATE user_config SET userpage_content = ? WHERE id = ? LIMIT 1', [$_POST['up'], $_POST['id']]);
 			/* Save new data if set (rank, allowed, UP and silence)
 			if (isset($_POST['r']) && !empty($_POST['r']) && $oldData["rank"] != $_POST["r"]) {
 				$GLOBALS['db']->execute('UPDATE users SET rank = ? WHERE id = ?', [$_POST['r'], $_POST['id']]);
@@ -178,12 +178,11 @@ class D {
 			}
 			// Update country flag if set
 			if (isset($_POST['country']) && countryCodeToReadable($_POST['country']) != 'unknown country' && $oldData["country"] != $_POST['country']) {
-				$GLOBALS['db']->execute('UPDATE users_stats SET country = ? WHERE id = ? LIMIT 1', [$_POST['country'], $_POST['id']]);
+				$GLOBALS['db']->execute('UPDATE user_config SET country = ? WHERE id = ? LIMIT 1', [$_POST['country'], $_POST['id']]);
 				rapLog(sprintf("has changed %s's flag to %s", $_POST["u"], $_POST['country']));
 			}
 			// Set username style/color/aka
-			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, user_style = ?, username_aka = ?, unrestricted_pp = ? WHERE id = ? LIMIT 1', [$c, $bg, $_POST['aka'], $_POST['ppvanilla'], $_POST['id']]);
-			$GLOBALS['db']->execute('UPDATE rx_stats SET unrestricted_pp = ? WHERE id = ? LIMIT 1', [$_POST['pprelax'], $_POST['id']]);
+			$GLOBALS['db']->execute('UPDATE user_config SET user_color = ?, user_style = ?, username_aka = ? WHERE id = ? LIMIT 1', [$c, $bg, $_POST['aka'], $_POST['id']]);
 			// RAP log
 			rapLog(sprintf("has edited user %s", $_POST["u"]));
 			// Done, redirect to success page

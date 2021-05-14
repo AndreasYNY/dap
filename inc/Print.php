@@ -604,27 +604,28 @@ class P {
       }
       echo '<tr>
       <td>Username color<br><i class="no-mobile">(HTML or HEX color)</i></td>
-      <td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userStatsData['user_color'].'" '.$readonly[1].'></td>
+      <td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userConfigData['user_color'].'" '.$readonly[1].'></td>
       </tr>';
       echo '<tr>
       <td>Username CSS<br><i class="no-mobile">(like fancy gifs as background)</i></td>
-      <td><p class="text-center"><input type="text" name="bg" class="form-control" value="'.$userStatsData['user_style'].'" '.$readonly[1].'></td>
+      <td><p class="text-center"><input type="text" name="bg" class="form-control" value="'.$userConfigData['user_style'].'" '.$readonly[1].'></td>
       </tr>';
       echo '<tr>
       <td>A.K.A</td>
-      <td><p class="text-center"><input type="text" name="aka" class="form-control" value="'.htmlspecialchars($userStatsData['username_aka']).'"></td>
+      <td><p class="text-center"><input type="text" name="aka" class="form-control" value="'.htmlspecialchars($userConfigData['username_aka']).'"></td>
       </tr>';
-      echo '<tr>
-      <td>PP-Limit Vanilla</td>
-      <td><p class="text-center"><input type="text" name="ppvanilla" class="form-control" value="'.htmlspecialchars($userStatsData['unrestricted_pp']).'"></td>
-      </tr>';
-      echo '<tr>
-      <td>PP-Limit Relax</td>
-      <td><p class="text-center"><input type="text" name="pprelax" class="form-control" value="'.htmlspecialchars($userStatsDataRX['unrestricted_pp']).'"></td>
-      </tr>';
+      htmlTag('tr', function()use(&$userData){
+        htmlTag('td', "PP-Limit Configuration");
+        htmlTag('td', function()use(&$userData){
+          htmlTag('a', "Configure", [
+            'href'=>sprintf('index.php?p=146&id=%d',$_GET['id']),
+            'class'=>'btn btn-primary'
+          ]);
+        });
+      });
       echo '<tr>
       <td>Userpage<br><a onclick="censorUserpage();">(reset userpage)</a></td>
-      <td><p class="text-center"><textarea name="up" class="form-control" style="overflow:auto;resize:vertical;height:200px">'.$userStatsData['userpage_content'].'</textarea></td>
+      <td><p class="text-center"><textarea name="up" class="form-control" style="overflow:auto;resize:vertical;height:200px">'.$userConfigData['userpage_content'].'</textarea></td>
       </tr>';
       if (hasPrivilege(Privileges::AdminSilenceUsers)) {
         echo '<tr>
