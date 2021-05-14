@@ -89,7 +89,7 @@ function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
     tc($v1, $fmt[$i]);
     tc($v2, $fmt[$i]);
     $c = $c && ( $v1 == $v2 );
-    switch($cmp[$i]):
+    switch($cmp[$i]){
     case '<':
       $r = $r || ( $v1 < $v2 );
       break;
@@ -205,7 +205,8 @@ function setTitle($p) {
 			142 => 'Challenge Listing',
 			143 => 'Leaderboard Configuration',
       144 => 'Challenge Configuration',
-      145 => 'Leaderboard View'
+      145 => 'Leaderboard View',
+      146 => 'PP Limit Configuration',
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -468,6 +469,11 @@ function printPage($p) {
       case 145:
         sessionCheckAdmin();
         P::BATBeatmapLeaderboardView();
+        break;
+
+      case 146:
+        sessionCheckAdmin(Privileges::AdminManageUsers);
+        P::AdminEditPPWhitelist();
         break;
 
 			// 404 page
