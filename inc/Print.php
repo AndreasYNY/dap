@@ -838,8 +838,8 @@ class P {
               htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
                 htmlTag('td', $smode);
                 foreach($g['modcol'] as $mi=>$mode) {
-                  $value = $g['stat'][$si][$mi]['unrestricted_play'];
                   htmlTag('td',function()use(&$g, &$bit, &$si, &$mi){
+                    $value = $g['stat'][$si][$mi]['unrestricted_play'];
                     htmlTag('input','',[
                       'name' => sprintf("flag%02d%02d",$si, $mi),
                       'type' => 'number',
@@ -865,7 +865,7 @@ class P {
           htmlTag('table',function()use(&$g,&$bit){
             htmlTag('tbody',function()use(&$g,&$bit){
               printTableHHeader();
-              pritnTableVHeader();
+              printTableVHeader();
               foreach($g['modrow'] as $si=>$smode) {
                 htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
                   htmlTag('td', $smode);
