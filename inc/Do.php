@@ -1236,7 +1236,7 @@ class D {
 			// TODO BENERIN INI
 			// SEMENTARA GA MASOK KE BANCHO MESSAGENYA
 			// NANTI DITAMBAH KALAU MOOD -trok
-			$bm = $GLOBALS["db"]->fetch("SELECT b.beatmapset_id, b.artist, b.title, b.difficulty_name, b.bpm, bs.length_drain, bs.length_total FROM beatmaps b LEFT JOIN beatmaps_statistics bs ON b.beatmap_id = bs.beatmap_id AND b.game_mode = bs.game_mode and bs.mods = 0 WHERE b.beatmap_id = ? LIMIT 1", [$beatmapID]);
+			$bm = $GLOBALS["db"]->fetch("SELECT b.beatmapset_id, b.artist, b.title, b.difficulty_name, b.bpm, bs.length_drain, bs.length_total FROM beatmaps b LEFT JOIN beatmaps_statistics bs ON b.beatmap_id = bs.beatmap_id AND b.mode = bs.game_mode and bs.mods = 0 WHERE b.beatmap_id = ? LIMIT 1", [$beatmapID]);
 			if ($status == "rank") {
 				$postStatus = "ranked";
 			} else if ($status == "love") {
