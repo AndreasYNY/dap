@@ -186,11 +186,11 @@ class D {
 			// RAP log
 			rapLog(sprintf("has edited user %s", $_POST["u"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User edited!');
+			redirect('index.php?p=103&id='.$_POST["id"].'&s=User edited!');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
 		}
 	}
   
@@ -338,7 +338,7 @@ class D {
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=108&e='.$e->getMessage());
+			redirect('index.php?p=110&id='.$id.'&e='.$e->getMessage());
 		}
 	}
 
@@ -409,11 +409,11 @@ class D {
 			// rap log
 			rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User identity changed! It might take a while to change the username if the user is online on Bancho.');
+			redirect('index.php?p=103&id='.$_POST["id"].'&s=User identity changed! It might take a while to change the username if the user is online on Bancho.');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
 		}
 	}
 
@@ -470,11 +470,11 @@ class D {
 			// RAP log
 			rapLog(sprintf("has edited %s's badges", $_POST["u"]));
 			// Done, redirect to success page
-			redirect('index.php?p=108&s=Badge edited!');
+			redirect('index.php?p=110&id='.$user["id"].'&s=Badge edited!');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=108&e='.$e->getMessage());
+			redirect('index.php?p=110&id='.$user["id"].'&e='.$e->getMessage());
 		}
 	}
 
