@@ -1220,7 +1220,7 @@ class D {
 				}
 				// DAP Log
 				if ($logToRap)
-					rapLog(sprintf("has %s beatmap set %s", $rap, $bsid), $_SESSION["userid"]);
+					rapLog(sprintf("has %s beatmap id %s", $rap, $bsid), $_SESSION["userid"]);
 			}
 
 			global $URL;

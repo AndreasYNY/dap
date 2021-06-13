@@ -1571,11 +1571,8 @@ function rapLog($message, $userID = -1, $through = "Datenshi Admin Panel") {
 						"color" => hexdec( "3366ff" ),
 
 						"footer" => [
-							"text" => "via $through"
-						],
-
-						"thumbnail" => [
-							"url" => "https://a.troke.id/$userID"
+							"text" => "via $through",
+							"icon_url" => "https://a.troke.id/$userID"
 						]
 
 					]
