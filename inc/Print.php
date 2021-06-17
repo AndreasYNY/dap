@@ -458,8 +458,9 @@ class P {
       // Get user data
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
       //Discord  Data
-      $DiscordID = $GLOBALS['db']->fetch('SELECT discord_id FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
-      $DisCURL = curl_init('https://discord.com/api/v9/users/'.$DiscordID.'');
+      $DiscordID = $GLOBALS['db']->fetch('SELECT * FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
+      $DCID = $DiscordID['discord_id'];
+      $DisCURL = curl_init('https://discord.com/api/v9/users/'.$DCID.'');
       curl_setopt_array($DisCURL,[
           CURLOPT_RETURNTRANSFER => 1,CURLOPT_HEADER => 0,
           CURLOPT_HTTPHEADER => ['Authorization: Bot ' .$DiscordHook['bot-token']]
