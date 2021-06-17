@@ -461,16 +461,15 @@ class P {
       $DiscordID = $GLOBALS['db']->fetch('SELECT discord_id FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
       if (empty($DiscordID)) {
         $DiscordResults = "Sepertinya user tidak memiliki ID atau link account!";
-      } else {
-        $DisCURL = curl_init('https://discord.com/api/v9/users/'.$DiscordID.'');
-        curl_setopt_array($DisCURL,[
-            CURLOPT_RETURNTRANSFER => 1,CURLOPT_HEADER => 0,
-            CURLOPT_HTTPHEADER => ['Authorization: Bot ' .$DiscordHook['bot-token']. '']
-        ]);
-        $DiscordData = curl_exec($DisCURL);
-        curl_close($DisCURL);
-        $DiscordResults = json_decode($DiscordData, true);
       }
+      $DisCURL = curl_init('https://discord.com/api/v9/users/'.$DiscordID.'');
+      curl_setopt_array($DisCURL,[
+          CURLOPT_RETURNTRANSFER => 1,CURLOPT_HEADER => 0,
+          CURLOPT_HTTPHEADER => ['Authorization: Bot ' .$DiscordHook['bot-token']. '']
+      ]);
+      $DiscordData = curl_exec($DisCURL);
+      curl_close($DisCURL);
+      $DiscordResults = json_decode($DiscordData, true);
       $userStatsData = array_fill(0, 3, array_fill(0, 4, NULL));
       foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
         $smode = $stat['special_mode'];
