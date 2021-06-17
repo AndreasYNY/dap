@@ -459,13 +459,10 @@ class P {
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
       //Discord  Data
       $DiscordID = $GLOBALS['db']->fetch('SELECT discord_id FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
-      if (empty($DiscordID)) {
-        $DiscordResults = "Sepertinya user tidak memiliki ID atau link account!";
-      }
       $DisCURL = curl_init('https://discord.com/api/v9/users/'.$DiscordID.'');
       curl_setopt_array($DisCURL,[
           CURLOPT_RETURNTRANSFER => 1,CURLOPT_HEADER => 0,
-          CURLOPT_HTTPHEADER => ['Authorization: Bot ' .$DiscordHook['bot-token']. '']
+          CURLOPT_HTTPHEADER => ['Authorization: Bot ' .$DiscordHook['bot-token']]
       ]);
       $DiscordData = curl_exec($DisCURL);
       curl_close($DisCURL);
@@ -557,11 +554,11 @@ class P {
       <td>Email</td>
       <td><p class="text-center"><input type="text" name="e" class="form-control" value="'.$userData['email'].'" '.$readonly[0].'></td>
       </tr>';
-      echo 'tr>
+      echo '<tr>
       <td>Discord ID</td>
       <td><p class="text-center"><input type="number" name="dcid" class="form-control" value="'.$DiscordResults['id'].'" readonly></td>
       </tr>';
-      echo 'tr>
+      echo '<tr>
       <td>Discord Username</td>
       <td><p class="text-center"><input type="text" name="dcname" class="form-control" value="'.$DiscordResults['username'].'"#"' .$DiscordResults['discriminator']. '" readonly></td>
       </tr>';
