@@ -449,6 +449,7 @@ class P {
    * Prints the admin panel edit user page
   */
   public static function AdminEditUser() {
+    global $DiscordHook;
     try {
       // Check if id is set
       if (!isset($_GET['id']) || empty($_GET['id'])) {
@@ -456,7 +457,20 @@ class P {
       }
       // Get user data
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
-      
+      //Discord  Data
+      $DiscordID = $GLOBALS['db']->fech('SELECT discord_id FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
+      if (empty($DiscordID)) {
+        $DiscordResults = "Sepertinya user tidak memiliki ID atau link account!";
+      } else {
+        $DisCURL = curl_init('https://discord.com/api/v6/users/{$DiscordID}');
+        curl_setopt_array($DisCURL,[
+            CURLOPT_RETURNTRANSFER => 1,CURLOPT_HEADER => 0,
+            CURLOPT_HTTPHEADER => ['Authorization: Bot ' . $DiscordHook['bot-token']]
+        ]);
+        $DiscordData = curl_exec($DisCURL);
+        curl_close($DisCURL);
+        $DiscordResults = json_decode($DiscordData, true);
+      }
       $userStatsData = array_fill(0, 3, array_fill(0, 4, NULL));
       foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
         $smode = $stat['special_mode'];
@@ -465,7 +479,6 @@ class P {
       }
       $userConfigData = $GLOBALS['db']->fetch('SELECT * FROM user_config WHERE id = ?', $_GET['id']);
       $ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE userid = ?', $_GET['id']);
-      $discordData = getDiscordData($userData["id"]);
       // Check if this user exists
       if (!$userData || !$userStatsData) {
         throw new Exception("That user doesn't exist");
@@ -544,6 +557,14 @@ class P {
       echo '<tr>
       <td>Email</td>
       <td><p class="text-center"><input type="text" name="e" class="form-control" value="'.$userData['email'].'" '.$readonly[0].'></td>
+      </tr>';
+      echo 'tr>
+      <td>Discord ID</td>
+      <td><p class="text-center"><input type="number" name="dcid" class="form-control" value="'.$DiscordResults['id'].'" readonly></td>
+      </tr>';
+      echo 'tr>
+      <td>Discord Username</td>
+      <td><p class="text-center"><input type="text" name="dcname" class="form-control" value="'.$DiscordResults['username'].'"#"' .$DecodedData['discriminator']. '" readonly></td>
       </tr>';
       echo '<tr>
       <td>Country</td>
