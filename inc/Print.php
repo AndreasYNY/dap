@@ -468,6 +468,9 @@ class P {
       $DiscordData = curl_exec($DisCURL);
       curl_close($DisCURL);
       $DiscordResults = json_decode($DiscordData, true);
+      if($DiscordResults['username'] && $DiscordResults['id'] == NULL) {
+        return "kosong";
+      }
       $userStatsData = array_fill(0, 3, array_fill(0, 4, NULL));
       foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
         $smode = $stat['special_mode'];
@@ -561,7 +564,7 @@ class P {
       </tr>';
       echo '<tr>
       <td>Discord Username</td>
-      <td><p class="text-center"><input type="text" name="dcname" class="form-control" value="'.$DiscordResults['username'].'"#"' .$DiscordResults['discriminator']. '" readonly></td>
+      <td><p class="text-center"><input type="text" name="dcname" class="form-control" value="'.$DiscordResults['username']. '#' .$DiscordResults['discriminator']. '" readonly></td>
       </tr>';
       echo '<tr>
       <td>Country</td>
