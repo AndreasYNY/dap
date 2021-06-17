@@ -458,7 +458,7 @@ class P {
       // Get user data
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
       //Discord  Data
-      $DiscordID = $GLOBALS['db']->fech('SELECT discord_id FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
+      $DiscordID = $GLOBALS['db']->fetch('SELECT discord_id FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
       if (empty($DiscordID)) {
         $DiscordResults = "Sepertinya user tidak memiliki ID atau link account!";
       } else {
