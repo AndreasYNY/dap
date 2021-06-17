@@ -462,10 +462,10 @@ class P {
       if (empty($DiscordID)) {
         $DiscordResults = "Sepertinya user tidak memiliki ID atau link account!";
       } else {
-        $DisCURL = curl_init('https://discord.com/api/v6/users/{$DiscordID}');
+        $DisCURL = curl_init('https://discord.com/api/v9/users/'.$DiscordID.'');
         curl_setopt_array($DisCURL,[
             CURLOPT_RETURNTRANSFER => 1,CURLOPT_HEADER => 0,
-            CURLOPT_HTTPHEADER => ['Authorization: Bot ' . $DiscordHook['bot-token']]
+            CURLOPT_HTTPHEADER => ['Authorization: Bot ' .$DiscordHook['bot-token']. '']
         ]);
         $DiscordData = curl_exec($DisCURL);
         curl_close($DisCURL);
@@ -564,7 +564,7 @@ class P {
       </tr>';
       echo 'tr>
       <td>Discord Username</td>
-      <td><p class="text-center"><input type="text" name="dcname" class="form-control" value="'.$DiscordResults['username'].'"#"' .$DecodedData['discriminator']. '" readonly></td>
+      <td><p class="text-center"><input type="text" name="dcname" class="form-control" value="'.$DiscordResults['username'].'"#"' .$DiscordResults['discriminator']. '" readonly></td>
       </tr>';
       echo '<tr>
       <td>Country</td>
