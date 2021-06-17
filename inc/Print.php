@@ -468,8 +468,11 @@ class P {
       $DiscordData = curl_exec($DisCURL);
       curl_close($DisCURL);
       $DiscordResults = json_decode($DiscordData, true);
-      if($DiscordResults['username'] && $DiscordResults['id'] == NULL) {
-        return "kosong";
+      if(empty($DiscordResults['username'])) {
+        $DiscordResults['username'] = "User tidak dapat ditemukan, kemungkinan ngewe";
+      }
+      if(empty($DiscordResults['id'])) {
+        $DiscordResults['id'] = 0;
       }
       $userStatsData = array_fill(0, 3, array_fill(0, 4, NULL));
       foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
