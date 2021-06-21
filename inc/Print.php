@@ -861,7 +861,9 @@ class P {
               });
             }
           });
-        });
+        },[
+          'class' => 'table table-bordered table-hover'
+        ]);
         // Manual toggle section
         foreach($g['bitok'] as $bitIndex => $bit) {
           htmlTag('h3', $g['bitname'][$bitIndex]);
@@ -884,7 +886,9 @@ class P {
                 });
               }
             });
-          });
+          },[
+            'class' => 'table table-bordered table-hover'
+          ]);
         }
         // Submit
         htmlTag('input','',[
@@ -1347,6 +1351,7 @@ class P {
     if (isset($_GET['e']) && !empty($_GET['e'])) {
       self::ExceptionMessageStaccah($_GET['e']);
     }
+    $prefix = 'default'
     // Get values
     $bm = current($GLOBALS['db']->fetch("SELECT value_int FROM bancho_settings WHERE name = 'bancho_maintenance'"));
     $ln = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'"));
