@@ -1063,7 +1063,7 @@ class P {
     $ga = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_global_alert'"));
     $ha = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_home_alert'"));
     $fv = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'featuredvideo'"));
-    $aqlTmp = $GLOBALS['db']->fetchAll("SELECT `name`, value_string FROM system_settings WHERE `name` LIKE 'aql\_threshold\_%'");
+    $aqlTmp = $GLOBALS['db']->fetchAll("SELECT `name`, value_string FROM system_settings WHERE `name` LIKE \"aql\_threshold\_%\"");
     $aql = [];
     foreach ($aqlTmp as $row) {
       $mode = explode("aql_threshold_", $row["name"]);
@@ -1375,7 +1375,7 @@ class P {
     if (isset($_GET['e']) && !empty($_GET['e'])) {
       self::ExceptionMessageStaccah($_GET['e']);
     }
-    $prefix = 'default'
+    $prefix = 'default';
     // Get values
     $bm = current($GLOBALS['db']->fetch("SELECT value_int FROM bancho_settings WHERE name = 'bancho_maintenance'"));
     $ln = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'"));
