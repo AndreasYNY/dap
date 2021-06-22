@@ -84,7 +84,7 @@ function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
   $r = false;
   $c = true;
   $i = 0;
-  while($c && ((!$r) || ($i < strlen($fmt)))) {
+  while($c && ((!$r) && ($i < strlen($fmt)))) {
     $v1 = $a1[ $keys[$i] ];
     $v2 = $a2[ $keys[$i] ];
     $tc($v1, $fmt[$i]);
