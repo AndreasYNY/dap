@@ -832,6 +832,7 @@ function updateLatestActivity($u) {
 */
 function updateSafeTitle() {
 	$safeTitle = $GLOBALS['db']->fetch('SELECT safe_title FROM user_config WHERE username = ?', $_SESSION['username']);
+	if(!$safeTitle) return;
 	setcookie('st', current($safeTitle));
 }
 /*
