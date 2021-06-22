@@ -186,11 +186,11 @@ class D {
 			// RAP log
 			rapLog(sprintf("has edited user %s", $_POST["u"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User edited!');
+			redirect('index.php?p=103&id='.$_POST["id"].'&s=User edited!');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
 		}
 	}
   
@@ -199,6 +199,11 @@ class D {
       // Check if everything is set (username color, username style, rank, allowed and notes can be empty)
       if (!isset($_POST['id']) || empty($_POST['id']))
         throw new Exception("eh");
+	  // Get user's username
+	  $userData = $GLOBALS['db']->fetch('SELECT username FROM users WHERE id = ? LIMIT 1', $_POST['id']);
+	  if (!$userData) {
+		  throw new Exception("User doesn't exist");
+	  }
       foreach([0,1,2,3] as $gm) {
         foreach([0,1,2] as $sm) {
           if ($sm == 2) continue;
@@ -210,12 +215,12 @@ class D {
           }
         }
       }
-      rapLog(sprintf("has edited user ID %s PP whitelist", $_POST["id"]));
-      redirect('index.php?p=102&s=User edited!');
+      rapLog(sprintf("has edited username %s (ID: %s) PP whitelist", $userData["username"], $_POST["id"]));
+      redirect('index.php?p=103&id='.$_POST["id"].'&s=User edited!');
     }
     catch(Exception $e) {
-      // Redirect to Exception page
-      redirect('index.php?p=102&e='.$e->getMessage());
+      // Redirect to users
+      redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
     }
   }
 
@@ -333,7 +338,7 @@ class D {
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=108&e='.$e->getMessage());
+			redirect('index.php?p=110&id='.$id.'&e='.$e->getMessage());
 		}
 	}
 
@@ -404,11 +409,11 @@ class D {
 			// rap log
 			rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User identity changed! It might take a while to change the username if the user is online on Bancho.');
+			redirect('index.php?p=103&id='.$_POST["id"].'&s=User identity changed! It might take a while to change the username if the user is online on Bancho.');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
 		}
 	}
 
@@ -465,11 +470,11 @@ class D {
 			// RAP log
 			rapLog(sprintf("has edited %s's badges", $_POST["u"]));
 			// Done, redirect to success page
-			redirect('index.php?p=108&s=Badge edited!');
+			redirect('index.php?p=110&id='.$user["id"].'&s=Badge edited!');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=108&e='.$e->getMessage());
+			redirect('index.php?p=110&id='.$user["id"].'&e='.$e->getMessage());
 		}
 	}
 
@@ -1220,7 +1225,7 @@ class D {
 				}
 				// DAP Log
 				if ($logToRap)
-					rapLog(sprintf("has %s beatmap set %s", $rap, $bsid), $_SESSION["userid"]);
+					rapLog(sprintf("has %s beatmap id %s", $rap, $bsid), $_SESSION["userid"]);
 			}
 
 			global $URL;

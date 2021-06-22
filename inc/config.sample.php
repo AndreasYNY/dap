@@ -32,7 +32,8 @@ $DiscordHook = [
 	"ranked-map" => "",
 	"admin-log" => "",
 	"name-log" => "",
-	"donations-log" => ""
+	"donations-log" => "",
+	"bot-token" => ""
 ];
 
 // Google recaptcha config
