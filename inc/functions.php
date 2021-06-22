@@ -72,7 +72,7 @@ function redirect($url) {
  * the value will keep going when there's an equality between two values
  */
 function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
-  function tc(&$v, $k){
+  $tc = function(&$v, $k){
     switch($k) {
     case 'i':
     case 'd':
@@ -80,15 +80,15 @@ function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
     case 'f':
       settype($v, 'float'); break;
     }
-  }
+  };
   $r = false;
   $c = true;
   $i = 0;
   while($c && ((!$r) || ($i < strlen($fmt)))) {
     $v1 = $a1[ $keys[$i] ];
     $v2 = $a2[ $keys[$i] ];
-    tc($v1, $fmt[$i]);
-    tc($v2, $fmt[$i]);
+    $tc($v1, $fmt[$i]);
+    $tc($v2, $fmt[$i]);
     $c = $c && ( $v1 == $v2 );
     switch($cmp[$i]){
     case '<':
