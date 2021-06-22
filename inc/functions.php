@@ -1563,19 +1563,16 @@ function rapLog($message, $userID = -1, $through = "Datenshi Admin Panel") {
 			$json_data = json_encode(
 			[
 				"username" => "Log Bot",
-				"embeds" =>
-				[
+				"embeds" =>	[
 					[
-
 						"description" => "($userID) " . $_SESSION["username"] ." $message",
-
 						"color" => hexdec( "3366ff" ),
-
 						"footer" => [
-							"text" => "via $through",
-							"icon_url" => "https://a.troke.id/$userID"
+							"text" => "via $through"
+						],
+						"thumbnail" => [
+							"url" => "https://a.troke.id/$userID"
 						]
-
 					]
 				]
 
