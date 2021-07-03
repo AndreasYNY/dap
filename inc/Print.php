@@ -13,13 +13,13 @@ class P {
       $submittedScoresFull = 0;
     }
     $submittedScores = number_format($submittedScoresFull / 1000000, 2) . "m";
-    $totalScoresFull = $GLOBALS["redis"]->get("ripple:total_plays"); // current($GLOBALS['db']->fetch('SELECT SUM(playcount_std) + SUM(playcount_taiko) + SUM(playcount_ctb) + SUM(playcount_mania) FROM users_stats WHERE 1'));
+    $totalScoresFull = $GLOBALS["redis"]->get("ripple:total_plays");
     if (!$totalScoresFull) {
       $totalScoresFull = 0;
     }
     $totalScores = number_format($totalScoresFull  / 1000000, 2) . "m";
     // $betaKeysLeft = "∞";
-    $totalPP = $GLOBALS["redis"]->get("ripple:total_pp"); // $GLOBALS['db']->fetch("SELECT SUM(pp_std) + SUM(pp_taiko) + SUM(pp_ctb) + SUM(pp_mania) AS s FROM users_stats WHERE 1 LIMIT 1")["s"];
+    $totalPP = $GLOBALS["redis"]->get("ripple:total_pp");
     if (!$totalPP) {
       $totalPP = 0;
     }
@@ -449,6 +449,7 @@ class P {
    * Prints the admin panel edit user page
   */
   public static function AdminEditUser() {
+    global $DiscordHook;
     try {
       // Check if id is set
       if (!isset($_GET['id']) || empty($_GET['id'])) {
@@ -456,10 +457,31 @@ class P {
       }
       // Get user data
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
-      $userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_GET['id']);
-      $userStatsDataRX = $GLOBALS['db']->fetch('SELECT * FROM rx_stats WHERE id = ? LIMIT 1', $_GET['id']);
+      //Discord  Data
+      $DiscordID = $GLOBALS['db']->fetch('SELECT * FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
+      $DCID = $DiscordID['discord_id'];
+      $DisCURL = curl_init('https://discord.com/api/v9/users/'.$DCID.'');
+      curl_setopt_array($DisCURL,[
+          CURLOPT_RETURNTRANSFER => 1,CURLOPT_HEADER => 0,
+          CURLOPT_HTTPHEADER => ['Authorization: Bot ' .$DiscordHook['bot-token']]
+      ]);
+      $DiscordData = curl_exec($DisCURL);
+      curl_close($DisCURL);
+      $DiscordResults = json_decode($DiscordData, true);
+      if(empty($DiscordResults['username'])) {
+        $DiscordResults['username'] = "User tidak dapat ditemukan, kemungkinan ngewe";
+      }
+      if(empty($DiscordResults['id'])) {
+        $DiscordResults['id'] = 0;
+      }
+      $userStatsData = array_fill(0, 3, array_fill(0, 4, NULL));
+      foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
+        $smode = $stat['special_mode'];
+        $gmode = $stat['game_mode'];
+        $userStatsData[$smode][$gmode] = $stat;
+      }
+      $userConfigData = $GLOBALS['db']->fetch('SELECT * FROM user_config WHERE id = ?', $_GET['id']);
       $ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE userid = ?', $_GET['id']);
-      $discordData = getDiscordData($userData["id"]);
       // Check if this user exists
       if (!$userData || !$userStatsData) {
         throw new Exception("That user doesn't exist");
@@ -473,7 +495,7 @@ class P {
         $haxCol = "success";
       }*/
       // Cb check
-      if ($userStatsData["can_custom_badge"] == 1) {
+      if ($userConfigData["can_custom_badge"] == 1) {
         $cbText = "Yes";
         $cbCol = "success";
       } else {
@@ -540,6 +562,14 @@ class P {
       <td><p class="text-center"><input type="text" name="e" class="form-control" value="'.$userData['email'].'" '.$readonly[0].'></td>
       </tr>';
       echo '<tr>
+      <td>Discord ID</td>
+      <td><p class="text-center"><input type="number" name="dcid" class="form-control" value="'.$DiscordResults['id'].'" readonly></td>
+      </tr>';
+      echo '<tr>
+      <td>Discord Username</td>
+      <td><p class="text-center"><input type="text" name="dcname" class="form-control" value="'.$DiscordResults['username']. '#' .$DiscordResults['discriminator']. '" readonly></td>
+      </tr>';
+      echo '<tr>
       <td>Country</td>
       <td>
       <select name="country" class="selectpicker" data-width="100%">
@@ -551,7 +581,7 @@ class P {
       reset($c);
       foreach ($c as $k => $v) {
         $sd = "";
-        if ($userStatsData['country'] == $k)
+        if ($userConfigData['country'] == $k)
           $sd = "selected";
         $ks = strtolower($k);
         if (!file_exists(dirname(__FILE__) . "/../images/flags/$ks.png"))
@@ -598,27 +628,28 @@ class P {
       }
       echo '<tr>
       <td>Username color<br><i class="no-mobile">(HTML or HEX color)</i></td>
-      <td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userStatsData['user_color'].'" '.$readonly[1].'></td>
+      <td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userConfigData['user_color'].'" '.$readonly[1].'></td>
       </tr>';
       echo '<tr>
       <td>Username CSS<br><i class="no-mobile">(like fancy gifs as background)</i></td>
-      <td><p class="text-center"><input type="text" name="bg" class="form-control" value="'.$userStatsData['user_style'].'" '.$readonly[1].'></td>
+      <td><p class="text-center"><input type="text" name="bg" class="form-control" value="'.$userConfigData['user_style'].'" '.$readonly[1].'></td>
       </tr>';
       echo '<tr>
       <td>A.K.A</td>
-      <td><p class="text-center"><input type="text" name="aka" class="form-control" value="'.htmlspecialchars($userStatsData['username_aka']).'"></td>
+      <td><p class="text-center"><input type="text" name="aka" class="form-control" value="'.htmlspecialchars($userConfigData['username_aka']).'"></td>
       </tr>';
-      echo '<tr>
-      <td>PP-Limit Vanilla</td>
-      <td><p class="text-center"><input type="text" name="ppvanilla" class="form-control" value="'.htmlspecialchars($userStatsData['unrestricted_pp']).'"></td>
-      </tr>';
-      echo '<tr>
-      <td>PP-Limit Relax</td>
-      <td><p class="text-center"><input type="text" name="pprelax" class="form-control" value="'.htmlspecialchars($userStatsDataRX['unrestricted_pp']).'"></td>
-      </tr>';
+      htmlTag('tr', function()use(&$userData){
+        htmlTag('td', "PP-Limit Configuration");
+        htmlTag('td', function()use(&$userData){
+          htmlTag('a', "Configure", [
+            'href'=>sprintf('index.php?p=146&id=%d',$_GET['id']),
+            'class'=>'btn btn-primary'
+          ]);
+        });
+      });
       echo '<tr>
       <td>Userpage<br><a onclick="censorUserpage();">(reset userpage)</a></td>
-      <td><p class="text-center"><textarea name="up" class="form-control" style="overflow:auto;resize:vertical;height:200px">'.$userStatsData['userpage_content'].'</textarea></td>
+      <td><p class="text-center"><textarea name="up" class="form-control" style="overflow:auto;resize:vertical;height:200px">'.$userConfigData['userpage_content'].'</textarea></td>
       </tr>';
       if (hasPrivilege(Privileges::AdminSilenceUsers)) {
         echo '<tr>
@@ -677,9 +708,9 @@ class P {
         <td>Custom badge</td>
         <td>
           <p align="center">
-            <i class="fa '.htmlspecialchars($userStatsData["custom_badge_icon"]).' fa-2x"></i>
+            <i class="fa '.htmlspecialchars($userConfigData["custom_badge_icon"]).' fa-2x"></i>
             <br>
-            <b>'.htmlspecialchars($userStatsData["custom_badge_name"]).'</b>
+            <b>'.htmlspecialchars($userConfigData["custom_badge_name"]).'</b>
           </p>
         </td>
         </tr>';
@@ -769,7 +800,135 @@ class P {
       redirect('index.php?p=102&e='.$e->getMessage());
     }
   }
-
+  
+  public static function AdminEditPPWhitelist() {
+    try {
+      // Check if id is set
+      if (!isset($_GET['id']) || empty($_GET['id'])) {
+        throw new Exception('Invalid user ID!');
+      }
+      // Print edit user stuff
+      echo '<div id="wrapper">';
+      printAdminSidebar();
+      echo '<div id="page-content-wrapper">';
+      // Maintenance check
+      self::MaintenanceStuff();
+      // Print Success if set
+      if (isset($_GET['s']) && !empty($_GET['s'])) {
+        self::SuccessMessageStaccah($_GET['s']);
+      }
+      // Print Exception if set
+      if (isset($_GET['e']) && !empty($_GET['e'])) {
+        self::ExceptionMessageStaccah($_GET['e']);
+      }
+      // Get user data
+      $g = [];
+      $g['user'] = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
+      
+      $g['stat'] = array_fill(0, 3, array_fill(0, 4, NULL));
+      foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
+        $smode = $stat['special_mode'];
+        $gmode = $stat['game_mode'];
+        $g['stat'][$smode][$gmode] = $stat;
+      }
+      htmlTag('h2', sprintf("PP Limit Configuration for %s", $g['user']['username']));
+      $g['bitname'] = ['Individual Scores', 'Total PP'];
+      $g['modcol']  = ['S', 'T', 'C', 'M'];
+      $g['modrow']  = ['NM', 'RL', 'V2'];
+      $g['bitok']   = [0, 1];
+      $g['printTableHHeader'] = function()use(&$g){
+        htmlTag('tr',function()use(&$g){
+          htmlTag('td','');
+          foreach($g['modcol'] as $mode)
+            htmlTag('td', $mode);
+        });
+      };
+      htmlTag('form',function()use(&$g){
+        // Manual field section
+        htmlTag('input','',[
+          'type' => 'hidden',
+          'name' => 'csrf',
+          'value' => csrfToken(),
+        ]);
+        htmlTag('input','',[
+          'type' => 'hidden',
+          'name' => 'action',
+          'value' => 'saveEditUserWhitelist',
+        ]);
+        htmlTag('input','',[
+          'type' => 'hidden',
+          'name' => 'id',
+          'value' => $_GET['id'],
+        ]);
+        htmlTag('h3', "PP Unrestrict Values");
+        htmlTag('table',function()use(&$g,&$bit){
+          htmlTag('tbody',function()use(&$g,&$bit){
+            $g['printTableHHeader']();
+            foreach($g['modrow'] as $si=>$smode) {
+              htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
+                htmlTag('td', $smode, ['width' => 50]);
+                foreach($g['modcol'] as $mi=>$mode) {
+                  htmlTag('td',function()use(&$g, &$bit, &$si, &$mi){
+                    $value = $g['stat'][$si][$mi]['unrestricted_play'];
+                    htmlTag('input','',[
+                      'name' => sprintf("flag%02d%02d",$si, $mi),
+                      'type' => 'number',
+                      'value' => $value,
+                      'min' => -1,
+                      'max' => 255,
+                      'step' => 1,
+                      'data-smode' => $si,
+                      'data-gmode' => $mi,
+                    ]);
+                  });
+                }
+              });
+            }
+          });
+        },[
+          'class' => 'table table-bordered table-hover'
+        ]);
+        // Manual toggle section
+        foreach($g['bitok'] as $bitIndex => $bit) {
+          htmlTag('h3', $g['bitname'][$bitIndex]);
+          htmlTag('table',function()use(&$g,&$bit){
+            htmlTag('tbody',function()use(&$g,&$bit){
+              $g['printTableHHeader']();
+              foreach($g['modrow'] as $si=>$smode) {
+                htmlTag('tr',function()use(&$g, &$bit, &$smode, &$si){
+                  htmlTag('td', $smode, ['width' => 50]);
+                  foreach($g['modcol'] as $mi=>$mode) {
+                    $value = ((int)($g['stat'][$si][$mi]['unrestricted_play']) >> $bit) & 1;
+                    htmlTag('td',(string)$value,[
+                      'width' => 50,
+                      'data-bit'   => $bit,
+                      'data-smode' => $si,
+                      'data-gmode' => $mi,
+                      'data-value' => $value,
+                    ]);
+                  }
+                });
+              }
+            });
+          },[
+            'class' => 'table table-bordered table-hover'
+          ]);
+        }
+        // Submit
+        htmlTag('input','',[
+          'type'=>'submit'
+        ]);
+      }, [
+        'method' => 'POST',
+        'action' => 'submit.php',
+      ]);
+      echo "</div></div>";
+    } catch(Exception $e) {
+      // Redirect to exception page
+      redirect('index.php?p=102&e='.$e->getMessage());
+    }
+  }
+  
   /*
    * AdminChangeIdentity
    * Prints the admin panel change identity page
@@ -778,7 +937,7 @@ class P {
     try {
       // Get user data
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ?', $_GET['id']);
-      $userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ?', $_GET['id']);
+      $userStatsData = $GLOBALS['db']->fetch('SELECT * FROM user_config WHERE id = ?', $_GET['id']);
       // Check if this user exists
       if (!$userData || !$userStatsData) {
         throw new Exception("That user doesn't exist");
@@ -904,7 +1063,7 @@ class P {
     $ga = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_global_alert'"));
     $ha = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_home_alert'"));
     $fv = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'featuredvideo'"));
-    $aqlTmp = $GLOBALS['db']->fetchAll("SELECT `name`, value_string FROM system_settings WHERE `name` LIKE 'aql\_threshold\_%'");
+    $aqlTmp = $GLOBALS['db']->fetchAll("SELECT `name`, value_string FROM system_settings WHERE `name` LIKE \"aql\_threshold\_%\"");
     $aql = [];
     foreach ($aqlTmp as $row) {
       $mode = explode("aql_threshold_", $row["name"]);
@@ -1216,6 +1375,7 @@ class P {
     if (isset($_GET['e']) && !empty($_GET['e'])) {
       self::ExceptionMessageStaccah($_GET['e']);
     }
+    $prefix = 'default';
     // Get values
     $bm = current($GLOBALS['db']->fetch("SELECT value_int FROM bancho_settings WHERE name = 'bancho_maintenance'"));
     $ln = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'"));
@@ -1391,11 +1551,12 @@ class P {
       // Check banned status
       $userData = $GLOBALS['db']->fetch("
 SELECT
-  users_stats.*, users.privileges, users.id as usersuid, users.latest_activity,
+  user_config.*, users.privileges, users.id as usersuid, users.latest_activity,
   users.silence_end, users.silence_reason, users.register_datetime
-FROM users_stats
-LEFT JOIN users ON users.id=users_stats.id
+FROM user_config
+LEFT JOIN users ON users.id=user_config.id
 WHERE users.$kind = ? LIMIT 1", [$u]);
+      
 
       if (!$userData) {
         // LISCIAMI LE MELE SUDICIO
@@ -1436,17 +1597,18 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       // Set default modes texts, selected is bolded below
       $modesText = [0 => 'osu!standard', 1 => 'Taiko', 2 => 'Catch the Beat', 3 => 'osu!mania'];
       // Get stats for selected mode
-      $m = ($m < 0 || $m > 3 ? $userData['favourite_mode'] : $m);
+      $m = ($m < 0 || $m > 3 ? $userData['favorite_mode'] : $m);
+      $userStat = $GLOBALS['db']->fetch('select * from master_stats where user_id = ? and special_mode = ? and game_mode = ?',$userID,0,$m);
       $modeForDB = getPlaymodeText($m);
       $modeReadable = getPlaymodeText($m, true);
       // Standard stats
-      $rankedScore = $userData['ranked_score_'.$modeForDB];
-      $totalScore = $userData['total_score_'.$modeForDB];
-      $playCount = $userData['playcount_'.$modeForDB];
-      $totalHits = $userData['total_hits_'.$modeForDB];
-      $accuracy = $userData['avg_accuracy_'.$modeForDB];
-      $replaysWatchedByOthers = $userData['replays_watched_'.$modeForDB];
-      $pp = $userData['pp_'.$modeForDB];
+      $rankedScore = $userStat['ranked_score'];
+      $totalScore = $userStat['total_score'];
+      $playCount = $userStat['playcount'];
+      $totalHits = $userStat['total_hits'];
+      $accuracy = $userStat['average_accuracy'];
+      $replaysWatchedByOthers = $userStat['replays_watched'];
+      $pp = $userStat['pp'];
       $country = $userData['country'];
       $usernameAka = $userData['username_aka'];
       $level = $userData['level_'.$modeForDB];
@@ -1956,7 +2118,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
     // Global alert
     self::GlobalAlert();
     // Get user settings data
-    $data = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_SESSION['userid']);
+    $data = $GLOBALS['db']->fetch('SELECT * FROM user_config WHERE id = ? LIMIT 1', $_SESSION['userid']);
     // Title
     echo '<div class="narrow-content"><h1><i class="fa fa-cog"></i>	User settings</h1>';
     // Print Exception if set
@@ -2133,7 +2295,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
     // Global alert
     self::GlobalAlert();
     // Get userpage content from db
-    $content = $GLOBALS['db']->fetch('SELECT userpage_content FROM users_stats WHERE username = ?', $_SESSION['username']);
+    $content = $GLOBALS['db']->fetch('SELECT userpage_content FROM user_config WHERE username = ?', $_SESSION['username']);
     $userpageContent = htmlspecialchars(current(($content === false ? ['t' => ''] : $content)));
     // Title
     echo '<h1><i class="fa fa-pencil"></i>	Userpage</h1>';
@@ -3788,9 +3950,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
     $orderBy = $_GET["sort"] === "start" ? ("beatmaps.difficulty_" . getPlaymodeText($gm)) : "pp";
     if ($_GET["modevnrx"] == 1) {
-      $results = $GLOBALS["db"]->fetchAll("SELECT scores.userid, scores.time, scores.id, scores.mods, users.username, scores.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores JOIN users ON scores.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores.id = anticheat_reports.score_id WHERE completed = 3 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+      $results = $GLOBALS["db"]->fetchAll("SELECT scores_master.userid, scores_master.time, scores_master.id, scores_master.mods, users.username, scores_master.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores_master.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores_master JOIN users ON scores_master.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores_master.id = anticheat_reports.score_id WHERE completed = 3 AND scores_master.special_mode = 0 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
     } else if ($_GET["modevnrx"] == 2) {
-      $results = $GLOBALS["db"]->fetchAll("SELECT scores_relax.userid, scores_relax.time, scores_relax.id, scores_relax.mods, users.username, scores_relax.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores_relax.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores_relax JOIN users ON scores_relax.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores_relax.id = anticheat_reports.score_id WHERE completed = 3 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+      $results = $GLOBALS["db"]->fetchAll("SELECT scores_master.userid, scores_master.time, scores_master.id, scores_master.mods, users.username, scores_master.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores_master.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores_master JOIN users ON scores_master.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores_master.id = anticheat_reports.score_id WHERE completed = 3 AND scores_master.special_mode = 1 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
     }
 
     echo '<p align="center"><h2><i class="fa fa-fighter-jet"></i>	Top Scores (max ' . $limit . ' results)</h2></p>';
@@ -3821,8 +3983,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         if ($_GET["modevnrx"] == 1) {
           $replaysurl = "replays";
         } else if ($_GET["modevnrx"] == 2) {
-          $replaysurl = "replays_relax";
-        }
+	  $replaysurl = "replays_relax";
+	}
         $cheated = isset($score["anticheat_report_id"]);
         $severityColor = !$cheated ? '' : ($score["severity"] >= 0.75 ? 'danger' : ($score["severity"] <= 0.25 ? 'primary' : 'warning'));
         $anticheatIcon = $cheated ? '<a href="index.php?p=133&id=' . $score["anticheat_report_id"] . '"><i class="fa fa-exclamation-triangle"></i></a>' : '<i class="fa fa-check-circle"></i>';
@@ -4120,7 +4282,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         } else {
           $g['rules']  = getLeaderboardCondition($g['scoreArgs'][0], $g['scoreArgs'][1]);
           $g['scores'] = loadLimitedLeaderboard($g['scoreArgs'][0], $g['scoreArgs'][1]);
-          $g['users']  = reAssoc($GLOBALS['db']->fetchAll('select id, username from users'),function($e){return $e['id'];});
+          $g['users']  = reAssoc($GLOBALS['db']->fetchAll('select id, username, privileges from users'),function($e){return $e['id'];});
           $bmText = htmlTag('a', sprintf("%s - %s [%s]",
               $g['beatmap']['artist'],
               $g['beatmap']['title'],
@@ -4160,10 +4322,14 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
             });
             htmlTag('tbody',function()use(&$g){
               foreach($g['scores'] as $s){
-                htmlTag('tr',function()use(&$g,&$s){
-                  htmlTag('td',function()use(&$g,&$s){
+                $u = $g['users'][$s['userid']];
+                $clsList = [];
+                if($u['privileges']&(~3)==0) continue;
+                if($g['mode']=='challid'&&($u['privileges']&(~7))>0) array_push($clsList, 'danger text-danger');
+                htmlTag('tr',function()use(&$g,&$s,&$u){
+                  htmlTag('td',function()use(&$g,&$s,&$u){
                     htmlTag('a',
-                      htmlspecialchars($g['users'][$s['userid']]['username']),
+                      htmlspecialchars($u['username']),
                       ['href'=>sprintf('https://osu.troke.id/u/%d',$s['userid'])]
                     );
                   });
@@ -4173,7 +4339,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                   htmlTag('td',htmlspecialchars(getScoreMods($s['mods'],$_SESSION['userid'] == '3')));
                   htmlTag('td',$s['pp'] > 0 ? sprintf("%spp",htmlspecialchars(number_format($s['pp'],3))) : '---.---pp',['style'=>'text-align:right;']);
                   htmlTag('td',htmlspecialchars( strftime('%Y/%m/%d %T', $s['time']) ),['style'=>'text-align:right;']);
-                });
+                },['class'=>implode(' ',$clsList)]);
               }
             });
           break;
@@ -4192,7 +4358,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
           self::ExceptionMessageStaccah($_GET['e']);
         htmlTag('p', function(){htmlTag('h2','View Auto Rank Queue');});
         echo '<br>';
-        $autolinkedUsers  = reAssoc($GLOBALS["db"]->fetchAll('SELECT * FROM autorank_users where active = 1'), function($entry){return $entry['bancho_id'];});
         $autorankBeatmaps = reAssoc($GLOBALS["db"]->fetchAll('SELECT * FROM autorank_flags'), function($entry){return $entry['beatmap_id'];});
         $beatmapIDs       = array_keys($autorankBeatmaps);
         $beatmapSIDs      = [];
@@ -4201,12 +4366,13 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $beatmapList      = $GLOBALS["db"]->fetchAll($beatmapQuery, $beatmapIDs);
         $beatmapGroups    = [];
         $beatmapSIDs      = array_unique(array_map(function($bm){return $bm['beatmapset_id'];}, $beatmapList));
+        $userIDs          = reAssoc($GLOBALS['db']->fetchAll('select id, username from users'), function($entry){return $entry['id'];});
         foreach($beatmapSIDs as $beatmapSID)
           $beatmapGroups[$beatmapSID] = array_map(
             function($bm){return $bm;},
             array_values(array_filter($beatmapList, function($bm) use ($beatmapSID) {return $bm['beatmapset_id'] == $beatmapSID;}))
           );
-        htmlTag('table', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapGroups){
+        htmlTag('table', function() use ($userIDs, $autorankBeatmaps, $beatmapGroups){
           htmlTag('thead', function(){
             htmlTag('tr', function(){
               htmlTag('th', "ID");
@@ -4214,17 +4380,21 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
               //htmlTag('th', "Creator ID");
               //htmlTag('th', "Autoranker");
               htmlTag('th', "Last Update");
-              htmlTag('th', "Eligibility", ['colspan'=> 3]);
+              htmlTag('th', "Auto-Ranker");
+              htmlTag('th', "Eligibility", ['colspan'=> 2]);
               htmlTag('th', "Autorank Time");
             });
           });
-          htmlTag('tbody', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapGroups) {
+          htmlTag('tbody', function() use ($userIDs, $autorankBeatmaps, $beatmapGroups) {
             foreach($beatmapGroups as $beatmapSID => $beatmapSet) {
               htmlTag('tr', function() use ($beatmapSID, $beatmapSet){
                 $lastBancho = (int)$beatmapSet[0]['bancho_last_touch'];
                 $lastFetch  = (int)$beatmapSet[0]['latest_update'];
                 $rankTime   = max($lastFetch, $lastBancho + 28 * 86400);
-                htmlTag('td', strval($beatmapSID), ['rowspan' => 1 + count($beatmapSet)]);
+                htmlTag('td',
+                  htmlTag('a', strval($beatmapSID), [
+                    'href' => sprintf('https://osu.ppy.sh/beatmapsets/%d', $beatmapSID)
+                  ], false), ['rowspan' => 1 + count($beatmapSet)]);
                 htmlTag('td',
                   htmlspecialchars( implode(' - ', array_filter([$beatmapSet[0]['artist'], $beatmapSet[0]['title']])) )
                 );
@@ -4233,11 +4403,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                 htmlTag('td', htmlspecialchars( strftime('%Y/%m/%d %T', $rankTime) ), ['rowspan' => 1 + count($beatmapSet)]);
               });
               foreach($beatmapSet as $beatmapData) {
-                htmlTag('tr', function() use ($autolinkedUsers, $autorankBeatmaps, $beatmapData){
+                htmlTag('tr', function() use ($userIDs, $autorankBeatmaps, $beatmapData){
                   // ELIGIBLES FLAG
-                  // 0 - USER EXISTENCE
-                  // 1 - RANK/LOVE/IGNORE
-                  // 2 - FROZEN FLAG (non 0/3)
+                  // 0 - RANK/LOVE/IGNORE
+                  // 1 - FROZEN FLAG (non 0/3)
                   $eliData = [
                     'class' => [
                       ['fa', 'fa-times'],
@@ -4250,19 +4419,28 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                       ['color:#f41;'],
                     ]
                   ];
-                  $eligibles = [0, 0, 0];
+                  $eligibles = [0, 0];
                   //
-                  $eligibles[0] = array_key_exists($beatmapData['creator_id'], $autolinkedUsers) ? 1 : 0;
-                  $eligibles[1] = 0;
+                  $eligibles[0] = 0;
                   $autorankData = $autorankBeatmaps[$beatmapData['beatmap_id']];
                   if((int)$autorankData['flag_valid']){
                     if((int)$autorankData['flag_lovable'])
-                      $eligibles[1] = 2;
+                      $eligibles[0] = 2;
                     else
-                      $eligibles[1] = 1;
+                      $eligibles[0] = 1;
                   }
-                  $eligibles[2] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
-                  htmlTag('td', htmlspecialchars( "↪ " . $beatmapData['difficulty_name'] ));
+                  $eligibles[1] = (($beatmapData['ranked_status_freezed'] == 0) || ($beatmapData['ranked_status_freezed'] == 3)) ? 1 : 0;
+                  htmlTag('td', htmlTag('a', htmlspecialchars( "↪ " . $beatmapData['difficulty_name'] ), [
+                    'href' => sprintf('https://osu.ppy.sh/beatmaps/%d', $beatmapData['beatmap_id'])
+                  ], false));
+                  htmlTag('td',
+                    htmlTag('a',
+                      htmlspecialchars( $userIDs[$autorankData['user_id']]['username'] ),
+                      [
+                        'href'=>sprintf("https://osu.troke.id/u/%d",$autorankData['user_id'])
+                      ], false
+                    )
+                  );
                   foreach($eligibles as $eligibleFlag)
                     htmlTag('td', function() use ($eliData, $eligibleFlag) {
                       htmlTag('i', '', [

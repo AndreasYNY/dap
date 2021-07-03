@@ -96,99 +96,43 @@ function timeSince(date) {
     return Math.floor(seconds) + " seconds";
 }
 
-function getScoreMods(m) {
-	var r = '';
-	var hasNightcore = false;
-	if (m & NoFail) {
-		r += 'NF, ';
+function getScoreMods(m,f) {
+	var r = [];
+	if (m & NoFail) r.push('NF');
+	if (m & Easy) r.push(f ? 'EM' : 'EZ');
+	if (m & NoVideo) r.push('NV');
+	if (m & Hidden) r.push('HD');
+	if (m & HardRock) r.push('HR');
+	if (m & Perfect) r.push('PF');
+	else if (m & SuddenDeath) r.push('SD');
+	if (m & Nightcore) r.push('NC');
+	else if (m & DoubleTime) r.push('DT');
+	if (m & Relax) r.push(f ? 'RL' : 'RX');
+	else if (m & Relax2) r.push('ATP');
+	if (m & HalfTime) r.push('HT');
+	if (m & Flashlight) r.push('FL');
+	if (m & Autoplay) r.push('Auto');
+	if (m & SpunOut) r.push('SO');
+	let nK = 0;
+	if (m & (Key1 | Key2 | Key3 | Key4 | Key5 | Key6 | Key7 | Key8 | Key9 | Key10)) {
+		if (m & Key1) nK = 1;
+		else if (m & Key2) nK = 2;
+		else if (m & Key3) nK = 3;
+		else if (m & Key4) nK = 4;
+		else if (m & Key5) nK = 5;
+		else if (m & Key6) nK = 6;
+		else if (m & Key7) nK = 7;
+		else if (m & Key8) nK = 8;
+		else if (m & Key9) nK = 9;
+		if (m & Key10) nK *= 2;
 	}
-	if (m & Easy) {
-		r += 'EZ, ';
-	}
-	if (m & NoVideo) {
-		r += 'NV, ';
-	}
-	if (m & Hidden) {
-		r += 'HD, ';
-	}
-	if (m & HardRock) {
-		r += 'HR, ';
-	}
-	if (m & SuddenDeath) {
-		r += 'SD, ';
-	}
-	if (m & Nightcore) {
-		r += 'NC, ';
-		hasNightcore = true;
-	}
-	if (!hasNightcore && (m & DoubleTime)) {
-		r += 'DT, ';
-	}
-	if (m & Relax) {
-		r += 'RX, ';
-	}
-	if (m & HalfTime) {
-		r += 'HT, ';
-	}
-	if (m & Flashlight) {
-		r += 'FL, ';
-	}
-	if (m & Autoplay) {
-		r += 'AP, ';
-	}
-	if (m & SpunOut) {
-		r += 'SO, ';
-	}
-	if (m & Relax2) {
-		r += 'AP, ';
-	}
-	if (m & Perfect) {
-		r += 'PF, ';
-	}
-	if (m & Key4) {
-		r += '4K, ';
-	}
-	if (m & Key5) {
-		r += '5K, ';
-	}
-	if (m & Key6) {
-		r += '6K, ';
-	}
-	if (m & Key7) {
-		r += '7K, ';
-	}
-	if (m & Key8) {
-		r += '8K, ';
-	}
-	if (m & keyMod) {
-		r += '';
-	}
-	if (m & FadeIn) {
-		r += 'FD, ';
-	}
-	if (m & Random) {
-		r += 'RD, ';
-	}
-	if (m & LastMod) {
-		r += 'CN, ';
-	}
-	if (m & Key9) {
-		r += '9K, ';
-	}
-	if (m & Key10) {
-		r += '10K, ';
-	}
-	if (m & Key1) {
-		r += '1K, ';
-	}
-	if (m & Key3) {
-		r += '3K, ';
-	}
-	if (m & Key2) {
-		r += '2K, ';
-	}
+	if (nK) r.push(`${nK}K`);
+	else if (m & KeyCoop) r.push('DP');
+	if (m & FadeIn) r.push('FI');
+	if (m & Random) r.push('RAN');
+	if (m & LastMod) r.push('CIN');
 	if (r.length > 0) {
-		return "+ " + r.slice(0, -2);
+		return "+ " + r.join(', ');
 	} else {
 		return '';
 	}

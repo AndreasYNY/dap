@@ -531,6 +531,52 @@ switch ($p) {
 			</script>";
 		}
 	break;
+  case 146: ?>
+  <script>
+  document.addEventListener('DOMContentLoaded',function(){
+    function getBit(sm, gm){
+      let val = 0;
+      document.querySelectorAll(`td[data-smode="${sm}"][data-gmode="${gm}"]`).forEach(function(elm){
+        let b = parseInt(elm.dataset.bit,10);
+        val |= parseInt(elm.dataset.value,10) << b;
+      });
+      return val;
+    }
+    function enforceBit(sm, gm, val){
+      document.querySelectorAll(`td[data-smode="${sm}"][data-gmode="${gm}"]`).forEach(function(elm){
+        let b = parseInt(elm.dataset.bit,10);
+        let v = val & (1 << b);
+        let t = v >> b;
+        elm.dataset.value = t;
+        elm.innerText = t;
+      });
+    }
+    document.querySelectorAll(`td[data-smode][data-gmode]`).forEach(function(elm){
+      elm.addEventListener('click', function(){
+        var mode = [elm.dataset.smode, elm.dataset.gmode];
+        let curVal = getBit(mode[0], mode[1]);
+        let b = parseInt(elm.dataset.bit,10);
+        let t = (!parseInt(elm.dataset.value,10)) ? 1 : 0;
+        let v = 1 << b;
+        if(t) curVal |= v;
+        else curVal &= ~v;
+        let vElm = document.querySelector(`input[name^="flag"][data-smode="${mode[0]}"][data-gmode="${mode[1]}"]`);
+        vElm.value = curVal;
+        elm.dataset.value = t;
+        elm.innerText = t;
+      });
+    });
+    document.querySelectorAll('input[name^="flag"]').forEach(function(elm){
+      elm.addEventListener('input', function(){
+        var mode = /(\d{2})(\d{2})/.exec(elm.name).slice(1,3).map(function(x){return parseInt(x,10);});
+        
+        enforceBit(mode[0],mode[1],elm.value);
+      });
+      elm.dispatchEvent(new Event('input', {bubbles: true,cancelable: true}));
+    });
+  });
+  </script>
+  <?php break;
 }
 
 // Userpage JS
@@ -538,7 +584,15 @@ if (isset($_GET["u"]) && !isset($_GET["p"])) {
 	echo '<script src="/js/user.js"></script>';
 }
 ?>
-
+<footer>
+  <?php
+  if(getGitBranch() != 'master') {
+  ?>
+    <p style="text-align:center;"><?php echo sprintf("running on %s (%s)", htmlspecialchars(getGitBranch()), getGitCommit()); ?></p>
+  <?php
+  }
+  ?>
+</footer>
 </body>
 
 </html>

@@ -11,49 +11,21 @@ class D {
 	public static function SaveSystemSettings() {
 		try {
 			// Get values
-			if (isset($_POST['wm'])) {
-				$wm = $_POST['wm'];
-			} else {
-				$wm = 0;
-			}
-			if (isset($_POST['gm'])) {
-				$gm = $_POST['gm'];
-			} else {
-				$gm = 0;
-			}
-			if (isset($_POST['r'])) {
-				$r = $_POST['r'];
-			} else {
-				$r = 0;
-			}
-			if (isset($_POST['rg'])) {
-				$rg = $_POST['rg'];
-			} else {
-				$rg = 0;
-			}
-			if (!empty($_POST['ga'])) {
-				$ga = $_POST['ga'];
-			} else {
-				$ga = '';
-			}
-			if (!empty($_POST['ha'])) {
-				$ha = $_POST['ha'];
-			} else {
-				$ha = '';
-			}
-			if (!empty($_POST['fv'])) {
-				$fv = $_POST['fv'];
-			} else {
-				$fv = '';
-			}
+      $s_mt_web     = isset($_POST['wm']) ? $_POST['wm'] : 0;
+      $s_mt_score   = isset($_POST['gm']) ? $_POST['gm'] : 0;
+      $s_reg_ok     = isset($_POST['r'] ) ? $_POST['r']  : 0;
+			$s_reg_lock   = isset($_POST['rg']) ? $_POST['rg'] : 0;
+			$s_alert_all  = (!empty($_POST['ga'])) ? $_POST['ga'] : '';
+			$s_alert_home = (!empty($_POST['ha'])) ? $_POST['ha'] : '';
+			$s_feat_video = (!empty($_POST['fv'])) ? $_POST['fv'] : '';
 			// Save new values
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'website_maintenance' LIMIT 1", [$wm]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'game_maintenance' LIMIT 1", [$gm]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'registrations_enabled' LIMIT 1", [$r]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'regblock' LIMIT 1", [$rg]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_global_alert' LIMIT 1", [$ga]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_home_alert' LIMIT 1", [$ha]);
-			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'featuredvideo' LIMIT 1", [$fv]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'website_maintenance' LIMIT 1", [$s_mt_web]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'game_maintenance' LIMIT 1", [$s_mt_score]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'registrations_enabled' LIMIT 1", [$s_reg_ok]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'regblock' LIMIT 1", [$s_reg_lock]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_global_alert' LIMIT 1", [$s_alert_all]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_home_alert' LIMIT 1", [$s_alert_home]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'featuredvideo' LIMIT 1", [$s_feat_video]);
 			foreach (["std" , "taiko", "ctb", "mania"] as $key) {
 				if (!isset($_POST["aql_$key"]) || !is_numeric($_POST["aql_$key"])) {
 					continue;
@@ -152,7 +124,7 @@ class D {
 				throw new Exception('Nice troll');
 			}
 			// Check if this user exists and get old data
-			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN users_stats ON users.id = users_stats.id WHERE users.id = ? LIMIT 1", [$_POST["id"]]);
+			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN user_config ON users.id = user_config.id WHERE users.id = ? LIMIT 1", [$_POST["id"]]);
 			if (!$oldData) {
 				throw new Exception("That user doesn\'t exist");
 			}
@@ -182,7 +154,7 @@ class D {
 				updateBanBancho($_POST["id"]);
 			}
 			// Save new userpage
-			$GLOBALS['db']->execute('UPDATE users_stats SET userpage_content = ? WHERE id = ? LIMIT 1', [$_POST['up'], $_POST['id']]);
+			$GLOBALS['db']->execute('UPDATE user_config SET userpage_content = ? WHERE id = ? LIMIT 1', [$_POST['up'], $_POST['id']]);
 			/* Save new data if set (rank, allowed, UP and silence)
 			if (isset($_POST['r']) && !empty($_POST['r']) && $oldData["rank"] != $_POST["r"]) {
 				$GLOBALS['db']->execute('UPDATE users SET rank = ? WHERE id = ?', [$_POST['r'], $_POST['id']]);
@@ -206,22 +178,51 @@ class D {
 			}
 			// Update country flag if set
 			if (isset($_POST['country']) && countryCodeToReadable($_POST['country']) != 'unknown country' && $oldData["country"] != $_POST['country']) {
-				$GLOBALS['db']->execute('UPDATE users_stats SET country = ? WHERE id = ? LIMIT 1', [$_POST['country'], $_POST['id']]);
+				$GLOBALS['db']->execute('UPDATE user_config SET country = ? WHERE id = ? LIMIT 1', [$_POST['country'], $_POST['id']]);
 				rapLog(sprintf("has changed %s's flag to %s", $_POST["u"], $_POST['country']));
 			}
 			// Set username style/color/aka
-			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, user_style = ?, username_aka = ?, unrestricted_pp = ? WHERE id = ? LIMIT 1', [$c, $bg, $_POST['aka'], $_POST['ppvanilla'], $_POST['id']]);
-			$GLOBALS['db']->execute('UPDATE rx_stats SET unrestricted_pp = ? WHERE id = ? LIMIT 1', [$_POST['pprelax'], $_POST['id']]);
+			$GLOBALS['db']->execute('UPDATE user_config SET user_color = ?, user_style = ?, username_aka = ? WHERE id = ? LIMIT 1', [$c, $bg, $_POST['aka'], $_POST['id']]);
 			// RAP log
 			rapLog(sprintf("has edited user %s", $_POST["u"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User edited!');
+			redirect('index.php?p=103&id='.$_POST["id"].'&s=User edited!');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
 		}
 	}
+  
+  public static function saveEditUserWhitelist() {
+    try {
+      // Check if everything is set (username color, username style, rank, allowed and notes can be empty)
+      if (!isset($_POST['id']) || empty($_POST['id']))
+        throw new Exception("eh");
+	  // Get user's username
+	  $userData = $GLOBALS['db']->fetch('SELECT username FROM users WHERE id = ? LIMIT 1', $_POST['id']);
+	  if (!$userData) {
+		  throw new Exception("User doesn't exist");
+	  }
+      foreach([0,1,2,3] as $gm) {
+        foreach([0,1,2] as $sm) {
+          if ($sm == 2) continue;
+          $flag = sprintf("flag%02d%02d", $sm, $gm);
+          if(isset($_POST[$flag]) && !empty($_POST[$flag])) {
+            $GLOBALS['db']->execute('update master_stats set unrestricted_play = ? where user_id = ? and special_mode = ? and game_mode = ? and unrestricted_play <> ?',[
+              $_POST[$flag], $_POST['id'], $sm, $gm, $_POST[$flag]
+            ]);
+          }
+        }
+      }
+      rapLog(sprintf("has edited username %s (ID: %s) PP whitelist", $userData["username"], $_POST["id"]));
+      redirect('index.php?p=103&id='.$_POST["id"].'&s=User edited!');
+    }
+    catch(Exception $e) {
+      // Redirect to users
+      redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
+    }
+  }
 
 	/*
 	 * BanUnbanUser
@@ -337,7 +338,7 @@ class D {
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=108&e='.$e->getMessage());
+			redirect('index.php?p=110&id='.$id.'&e='.$e->getMessage());
 		}
 	}
 
@@ -382,7 +383,7 @@ class D {
 			$json_data = json_encode(
 			[
 				"username" => "Log Name",
-				"embeds" => 
+				"embeds" =>
 				[
 					[
 
@@ -408,11 +409,11 @@ class D {
 			// rap log
 			rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User identity changed! It might take a while to change the username if the user is online on Bancho.');
+			redirect('index.php?p=103&id='.$_POST["id"].'&s=User identity changed! It might take a while to change the username if the user is online on Bancho.');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
 		}
 	}
 
@@ -469,11 +470,11 @@ class D {
 			// RAP log
 			rapLog(sprintf("has edited %s's badges", $_POST["u"]));
 			// Done, redirect to success page
-			redirect('index.php?p=108&s=Badge edited!');
+			redirect('index.php?p=110&id='.$user["id"].'&s=Badge edited!');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=108&e='.$e->getMessage());
+			redirect('index.php?p=110&id='.$user["id"].'&e='.$e->getMessage());
 		}
 	}
 
@@ -688,7 +689,7 @@ class D {
 				}
 			}
 			// Save custom badge
-			$canCustomBadge = current($GLOBALS["db"]->fetch("SELECT can_custom_badge FROM users_stats WHERE id = ? LIMIT 1", [$_SESSION["userid"]])) == 1;
+			$canCustomBadge = current($GLOBALS["db"]->fetch("SELECT can_custom_badge FROM user_config WHERE id = ? LIMIT 1", [$_SESSION["userid"]])) == 1;
 			if (hasPrivilege(Privileges::UserDonor) && $canCustomBadge && isset($_POST["showCustomBadge"]) && isset($_POST["badgeName"]) && isset($_POST["badgeIcon"])) {
 				// Script kiddie check 1
 				$forbiddenNames = ["BAT", "Developer", "Community Manager"];
@@ -696,7 +697,7 @@ class D {
 					throw new Fava(0);
 				}
 
-				$oldCustomBadge = $GLOBALS["db"]->fetch("SELECT custom_badge_name AS name, custom_badge_icon AS icon FROM users_stats WHERE id = ? LIMIT 1", [$_SESSION["userid"]]);
+				$oldCustomBadge = $GLOBALS["db"]->fetch("SELECT custom_badge_name AS name, custom_badge_icon AS icon FROM user_config WHERE id = ? LIMIT 1", [$_SESSION["userid"]]);
 
 				// Script kiddie check 2
 				// (is this even needed...?)
@@ -708,10 +709,10 @@ class D {
 					}
 				}
 				$icon = implode(" ", $icon);
-				$GLOBALS["db"]->execute("UPDATE users_stats SET show_custom_badge = ?, custom_badge_name = ?, custom_badge_icon = ? WHERE id = ? LIMIT 1", [$_POST["showCustomBadge"], $_POST["badgeName"], $icon, $_SESSION["userid"]]);
+				$GLOBALS["db"]->execute("UPDATE user_config SET show_custom_badge = ?, custom_badge_name = ?, custom_badge_icon = ? WHERE id = ? LIMIT 1", [$_POST["showCustomBadge"], $_POST["badgeName"], $icon, $_SESSION["userid"]]);
 			}
 			// Save data in db
-			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, username_aka = ?, safe_title = ?, play_style = ?, favourite_mode = ? WHERE id = ? LIMIT 1', [$c, $_POST['aka'], $_POST['st'], $pm, $_POST['mode'], $_SESSION['userid']]);
+			$GLOBALS['db']->execute('UPDATE user_config SET user_color = ?, username_aka = ?, safe_title = ?, play_style = ?, favorite_mode = ? WHERE id = ? LIMIT 1', [$c, $_POST['aka'], $_POST['st'], $pm, $_POST['mode'], $_SESSION['userid']]);
 			// Update safe title cookie
 			updateSafeTitle();
 			// Done, redirect to success page
@@ -759,33 +760,8 @@ class D {
 			}
 			
 			// Delete scores
-			if ($_POST["gm"] == -1) {
-				if ($_POST["ppmode"] == 1) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_master WHERE userid = ?', [$_POST['id']]);
-				$GLOBALS['db']->execute('DELETE FROM scores_master WHERE userid = ?', [$_POST['id']]);
-				} else if ($_POST["ppmode"] == 2) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_master WHERE userid = ?', [$_POST['id']]);
-				$GLOBALS['db']->execute('DELETE FROM scores_master WHERE userid = ?', [$_POST['id']]);
-				}
-			} else {
-				if ($_POST["ppmode"] == 1) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_master WHERE userid = ? AND play_mode = ? AND special_mode = 0', [$_POST['id'], $_POST["gm"]]);
-				$GLOBALS['db']->execute('DELETE FROM scores_master WHERE userid = ? AND play_mode = ? AND special_mode = 0', [$_POST['id'], $_POST["gm"]]);
-				} else if ($_POST["ppmode"] == 2) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores_master WHERE userid = ? AND play_mode = ? AND special_mode = 1', [$_POST['id'], $_POST["gm"]]);
-				$GLOBALS['db']->execute('DELETE FROM scores_master WHERE userid = ? AND play_mode = ? AND special_mode = 1', [$_POST['id'], $_POST["gm"]]);
-				}
-			}
 			// Reset mode stats
-			if ($_POST["ppmode"] == 1) {
-				foreach ($modes as $k) {
-					$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
-				}
-			} else if ($_POST["ppmode"] == 2) {
-				foreach ($modes as $k) {
-					$GLOBALS['db']->execute('UPDATE rx_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
-				}
-			}
+      $GLOBALS['db']->execute('call scores_master_wipe_select(?, ?, ?)', [$_POST['id'], $_POST['ppmode']-1, $_POST['gm']]);
 
 			// RAP log
 			rapLog(sprintf("has wiped %s's account", $username));
@@ -1100,7 +1076,7 @@ class D {
 			// 14 = donor badge id
 			$GLOBALS["db"]->execute("DELETE FROM user_badges WHERE user = ? AND badge = ?", [$_GET["id"], 1002]);
 			// Set custom badge
-			$GLOBALS["db"]->execute("UPDATE users_stats SET can_custom_badge = 0 WHERE id = ?", [$_GET["id"]]);
+			$GLOBALS["db"]->execute("UPDATE user_config SET can_custom_badge = 0 WHERE id = ?", [$_GET["id"]]);
 
 			rapLog(sprintf("has removed donor from user %s", $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=Donor status changed!");
@@ -1249,7 +1225,7 @@ class D {
 				}
 				// DAP Log
 				if ($logToRap)
-					rapLog(sprintf("has %s beatmap set %s", $rap, $bsid), $_SESSION["userid"]);
+					rapLog(sprintf("has %s beatmap id %s", $rap, $bsid), $_SESSION["userid"]);
 			}
 
 			global $URL;
@@ -1265,7 +1241,7 @@ class D {
 			// TODO BENERIN INI
 			// SEMENTARA GA MASOK KE BANCHO MESSAGENYA
 			// NANTI DITAMBAH KALAU MOOD -trok
-			$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name, bpm, hit_length FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+			$bm = $GLOBALS["db"]->fetch("SELECT b.beatmapset_id, b.artist, b.title, b.difficulty_name, b.bpm, bs.length_drain, bs.length_total FROM beatmaps b LEFT JOIN beatmaps_statistics bs ON b.beatmap_id = bs.beatmap_id AND b.mode = bs.game_mode and bs.mods = 0 WHERE b.beatmap_id = ? LIMIT 1", [$beatmapID]);
 			if ($status == "rank") {
 				$postStatus = "ranked";
 			} else if ($status == "love") {
@@ -1278,7 +1254,7 @@ class D {
 				$postStatus = "ignored";
 			}
 			//MANUKE
-			$waktuMap = gmdate("i:s", $bm["hit_length"]);
+			$waktuMap = sprintf("%s (%s)", gmdate("i:s", $bm["length_total"]),gmdate("i:s", $bm["length_drain"]));
 			$beatPM = $bm["bpm"];
 			$bmSETid = $bm["beatmapset_id"];
 			//KIRIM KE DISCORD
@@ -1620,10 +1596,8 @@ class D {
 			);
 			nuke("user_badges", "user", $uid);
 			nuke("hw_user", "userid", $uid);
-			nuke("scores", "userid", $uid);
-			nuke("scores_relax", "userid", $uid);
-			nuke("users_stats", "id", $uid);
-			nuke("rx_stats", "id", $uid);
+			nuke("scores_master", "userid", $uid);
+			nuke("user_config", "id", $uid);
 			nuke("users_logs", "user", $uid);
 			nuke("users", "id", $uid);
 			// INI APAAN ANJING? ga jelas banget ripple stress
@@ -1666,7 +1640,7 @@ class D {
 			//	}
 			//	$nukeStats .= join(", ", $where);
 			//}
-			//$q = $q = "UPDATE users_stats SET username_aka = '', username = ?, user_color = 'black', user_style = '', country = 'XX', show_country = 1, safe_title = 0, userpage_content = '', play_style = 0, favourite_mode = 0, custom_badge_icon = '', custom_badge_name = '', show_custom_badge = 0, can_custom_badge = 1, $nukeStats WHERE id = ? LIMIT 1";
+			//$q = $q = "UPDATE user_config SET username_aka = '', username = ?, user_color = 'black', user_style = '', country = 'XX', show_country = 1, safe_title = 0, userpage_content = '', play_style = 0, favourite_mode = 0, custom_badge_icon = '', custom_badge_name = '', show_custom_badge = 0, can_custom_badge = 1, $nukeStats WHERE id = ? LIMIT 1";
 			//$GLOBALS["db"]->execute($q, [$randomUsername, $uid]);
 
 			echo "Inserting rap log\n";

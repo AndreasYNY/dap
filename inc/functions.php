@@ -58,6 +58,51 @@ function redirect($url) {
 	session_commit();
 	exit();
 }
+
+/*
+ * compareArrayMulti
+ * compares two array's keys with specific formatting
+ *
+ * @param (array) ($a1) left  hand side
+ * @param (array) ($a2) right hand side
+ * @param (array) ($keys) array keys to compare on
+ * @param (string) ($fmt) i/d/f representing type of respective array element
+ * @param (string) ($cmp) </> representing comparison operator to check
+ *
+ * the value will keep going when there's an equality between two values
+ */
+function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
+  $tc = function(&$v, $k){
+    switch($k) {
+    case 'i':
+    case 'd':
+      settype($v, 'int'); break;
+    case 'f':
+      settype($v, 'float'); break;
+    }
+  };
+  $r = false;
+  $c = true;
+  $i = 0;
+  while($c && ((!$r) && ($i < strlen($fmt)))) {
+    $v1 = $a1[ $keys[$i] ];
+    $v2 = $a2[ $keys[$i] ];
+    $tc($v1, $fmt[$i]);
+    $tc($v2, $fmt[$i]);
+    $c = $c && ( $v1 == $v2 );
+    switch($cmp[$i]){
+    case '<':
+      $r = $r || ( $v1 < $v2 );
+      break;
+    case '>':
+      $r = $r || ( $v1 > $v2 );
+      break;
+    }
+    $i += 1;
+  }
+  return $r;
+}
+
 /*
  * outputVariable
  * Output $v variable to $fn file
@@ -160,7 +205,9 @@ function setTitle($p) {
 			141 => 'Auto Rank Listing',
 			142 => 'Challenge Listing',
 			143 => 'Leaderboard Configuration',
-      144 => 'Challenge Configuration'
+      144 => 'Challenge Configuration',
+      145 => 'Leaderboard View',
+      146 => 'PP Limit Configuration',
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -425,6 +472,11 @@ function printPage($p) {
         P::BATBeatmapLeaderboardView();
         break;
 
+      case 146:
+        sessionCheckAdmin(Privileges::AdminManageUsers);
+        P::AdminEditPPWhitelist();
+        break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -608,7 +660,7 @@ function htmlTag($tag, $content, $options=[], $echo=true) {
       $body = $content;
     elseif(is_callable($content))
       $body = $content();
-    if((bool)$body)
+    if(!is_null($body))
       echo $body;
     echo sprintf('</%1$s>', $tag);
   } else {
@@ -653,7 +705,7 @@ function updateUserCountry($u, $field = 'username') {
 	$c = getUserCountry();
 	if ($c == 'XX')
 		return;
-	$GLOBALS['db']->execute("UPDATE users_stats SET country = ? WHERE $field = ?", [$c, $u]);
+	$GLOBALS['db']->execute("UPDATE user_config SET country = ? WHERE $field = ?", [$c, $u]);
 }
 function countryCodeToReadable($cc) {
 	require_once dirname(__FILE__).'/countryCodesReadable.php';
@@ -779,7 +831,8 @@ function updateLatestActivity($u) {
  * we are browsing Ainu
 */
 function updateSafeTitle() {
-	$safeTitle = $GLOBALS['db']->fetch('SELECT safe_title FROM users_stats WHERE username = ?', $_SESSION['username']);
+	$safeTitle = $GLOBALS['db']->fetch('SELECT safe_title FROM user_config WHERE username = ?', $_SESSION['username']);
+	if(!$safeTitle) return;
 	setcookie('st', current($safeTitle));
 }
 /*
@@ -1510,22 +1563,16 @@ function rapLog($message, $userID = -1, $through = "Datenshi Admin Panel") {
 			$json_data = json_encode(
 			[
 				"username" => "Log Bot",
-				"embeds" =>
-				[
+				"embeds" =>	[
 					[
-
 						"description" => "($userID) " . $_SESSION["username"] ." $message",
-
 						"color" => hexdec( "3366ff" ),
-
 						"footer" => [
 							"text" => "via $through"
 						],
-
 						"thumbnail" => [
 							"url" => "https://a.troke.id/$userID"
 						]
-
 					]
 				]
 
@@ -1722,7 +1769,7 @@ function appendNotes($userID, $notes, $addNl=true, $addTimestamp=true) {
 
 function removeFromLeaderboard($userID) {
 	redisConnect();
-	$country = strtolower($GLOBALS["db"]->fetch("SELECT country FROM users_stats WHERE id = ? LIMIT 1", [$userID])["country"]);
+	$country = strtolower($GLOBALS["db"]->fetch("SELECT country FROM user_config WHERE id = ? LIMIT 1", [$userID])["country"]);
 	foreach (["std", "taiko", "ctb", "mania"] as $key => $value) {
 		$GLOBALS["redis"]->zrem("ripple:leaderboard:".$value, $userID);
 		$GLOBALS["redis"]->zrem("ripple:leaderboard_relax:".$value, $userID);
@@ -1786,7 +1833,7 @@ function giveDonor($userID, $months, $add=true) {
 	$monthsExpire = round(($unixExpire-time())/(30*86400));
 	$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixExpire, $userID]);
 	//can custom badge
-	$GLOBALS["db"]->execute("UPDATE users_stats SET can_custom_badge = 1 WHERE id = ?", [$userID]);
+	$GLOBALS["db"]->execute("UPDATE user_config SET can_custom_badge = 1 WHERE id = ?", [$userID]);
 	
 	$donorBadge = $GLOBALS["db"]->fetch("SELECT id FROM badges WHERE name = 'Donat' OR name = 'Donor' LIMIT 1");
 	if (!$donorBadge) {
@@ -1960,12 +2007,20 @@ function loadLimitedLeaderboard($key, $id) {
       $scoreBest = false;
       if(array_key_exists($userID,$scoreBO)){
         $s2 = $scoreMap[$scoreBO[$userID]];
-        $scoreBest = (
-          ((int)$s['score'] > (int)$s2['score']) ||
-          ((float)$s['accuracy'] > (float)$s2['accuracy']) ||
-          ((float)$s['pp'] > (float)$s2['pp']) ||
-          ((int)$s['time'] < (int)$s2['time'])
+        $scoreBest = compareArrayMulti(
+          $s, $s2,
+          ['score', 'accuracy', 'pp', 'time'],
+          'iffi', '>>><'
         );
+        /*
+        if ((int)$s['score'] > (int)$s2['score']) $scoreBest = true;
+        elseif ((int)$s['score'] < (int)$s2['score']) $scoreBest = false;
+        elseif ((float)$s['accuracy'] > (float)$s2['accuracy']) $scoreBest = true;
+        elseif ((float)$s['accuracy'] < (float)$s2['accuracy']) $scoreBest = false;
+        elseif ((float)$s['pp'] > (float)$s2['pp']) $scoreBest = true;
+        elseif ((float)$s['pp'] < (float)$s2['pp']) $scoreBest = false;
+        else $scoreBest = ((int)$s['time'] < (int)$s2['time']);
+        */
       }else{
         $scoreBest = true;
       }
@@ -1974,4 +2029,20 @@ function loadLimitedLeaderboard($key, $id) {
   }
   $scores = array_values(array_filter($scores, function($s)use($scoreBO){return in_array((int)$s['id'],array_values($scoreBO));}));
   return $scores;
+}
+
+function getGitBranch(){
+  $content = file_get_contents(".git/HEAD");
+  if(!$content) { return "?????"; }
+  return str_ireplace([
+    "ref: refs/heads/",
+    "\n",
+  ],"",$content);
+}
+function getGitCommit(){
+  $branch = getGitBranch();
+  if($branch == '?????') { return '?????'; }
+  $refs = file_get_contents(sprintf(".git/refs/heads/%s", $branch));
+  if(!$refs) { return "????????"; }
+  return substr($refs, 0, 8);
 }
