@@ -876,7 +876,7 @@ class D {
                                                 "color" => hexdec( "3366ff" ),
                                                 "footer" => [
                                                         "text" => "Reason give by " . $_SESSION["username"] . "",
-                                                        "icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
+                                                        "icon_url" => "https://a.datenshi.pw/" . $_SESSION["userid"] . ""
                                                 ],
                                                 "thumbnail" => [
                                                         "url" => "https://b.ppy.sh/thumb/" . $infoBM["beatmapset_id"] . ".jpg"
@@ -1266,11 +1266,11 @@ class D {
 					[
 						"title" => sprintf("%s - %s [%s]", $bm['artist'], $bm['title'], $bm['difficulty_name']),
 						"url" => "https://osu.ppy.sh/s/$bmSETid",
-						"description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\n[Download](https://osu.troke.id/d/$bmSETid)",
+						"description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\n[Download](https://osu.datenshi.pw/d/$bmSETid)",
 						"color" => hexdec( "3366ff" ),
 						"footer" => [
 							"text" => "This map was $postStatus by " . $_SESSION["username"] . "",
-							"icon_url" => "https://a.troke.id/" . $_SESSION["userid"] . ""
+							"icon_url" => "https://a.datenshi.pw/" . $_SESSION["userid"] . ""
 						],
 						"thumbnail" => [
 							"url" => "https://b.ppy.sh/thumb/$bmSETid.jpg"

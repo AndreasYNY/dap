@@ -533,7 +533,7 @@ function printNavbar() {
 							</button>';
 						}
 						global $isBday;
-						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="https://cdn.troke.id/static/logos/text-white.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="https://cdn.troke.id/static/logos/text-white.png"></a>';
+						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="https://cdn.datenshi.pw/static/logos/text-white.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="https://cdn.datenshi.pw/static/logos/text-white.png"></a>';
 					echo '</div>
 					<div class="navbar-collapse collapse">';
 	// Left elements
@@ -1571,7 +1571,7 @@ function rapLog($message, $userID = -1, $through = "Datenshi Admin Panel") {
 							"text" => "via $through"
 						],
 						"thumbnail" => [
-							"url" => "https://a.troke.id/$userID"
+							"url" => "https://a.datenshi.pw/$userID"
 						]
 					]
 				]

@@ -1518,7 +1518,7 @@ class P {
       self::ExceptionMessage($error[$_GET['e']]);
     }
     echo '<p class="center aligned">
-    <div class="animated bounceIn ripple-logo"><img width="100%" src="https://cdn.troke.id/static/logos/datenshi.png"></div>
+    <div class="animated bounceIn ripple-logo"><img width="100%" src="https://cdn.datenshi.pw/static/logos/datenshi.png"></div>
     </p>';
     global $isBday;
     if ($isBday) {
@@ -3113,7 +3113,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $assignee = "Useless";
       } else {
         $rowClass = "";
-        $assignee = '<img class="circle" style="width: 30px; height: 30px; margin-top: 0px;" src="https://a.troke.id/' . $report['assigned'] . '"> ' . getUserUsername($report['assigned']);
+        $assignee = '<img class="circle" style="width: 30px; height: 30px; margin-top: 0px;" src="https://a.datenshi.pw/' . $report['assigned'] . '"> ' . getUserUsername($report['assigned']);
       }
       echo '<tr class="' . $rowClass . '">
       <td><p class="text-center">'.$report['id'].'</p></td>
@@ -4330,7 +4330,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                   htmlTag('td',function()use(&$g,&$s,&$u){
                     htmlTag('a',
                       htmlspecialchars($u['username']),
-                      ['href'=>sprintf('https://osu.troke.id/u/%d',$s['userid'])]
+                      ['href'=>sprintf('https://osu.datenshi.pw/u/%d',$s['userid'])]
                     );
                   });
                   htmlTag('td',htmlspecialchars(number_format($s['score'])),['style'=>'text-align:right;']);
@@ -4437,7 +4437,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
                     htmlTag('a',
                       htmlspecialchars( $userIDs[$autorankData['user_id']]['username'] ),
                       [
-                        'href'=>sprintf("https://osu.troke.id/u/%d",$autorankData['user_id'])
+                        'href'=>sprintf("https://osu.datenshi.pw/u/%d",$autorankData['user_id'])
                       ], false
                     )
                   );
