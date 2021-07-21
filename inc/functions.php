@@ -1938,9 +1938,9 @@ function loadLimitedLeaderboard($key, $id) {
   // If you are confused reading this, consult fetch-20210321.py
   function filterScores($conds) {
     $modeN = 4;
-    $modeF = array_fill(0, 4, true);
-    $modeT = array_fill(0, 4, false);
-    $modF  = array_fill(0, 3, array_fill(0, $modeN, []));
+    $modeF = array_fill(0, $modeN, true);
+    $modeT = array_fill(0, $modeN, false);
+    $modF  = array_fill(0, 4, array_fill(0, $modeN, []));
     foreach($conds as $c) {
       // skip ignored mode
       if(!$modeF[$c['mode_id']]) continue;
@@ -1955,16 +1955,26 @@ function loadLimitedLeaderboard($key, $id) {
       array_push($modF[ $c['category_mode'] ][ $c['mode_id'] ], $modV);
     }
     $filterFun = function ($score) use ($modeF, $modeT, $modF) {
+			$actualMods = $score['mods'];
+			$noModeMods = $actualMods & ~(128 | 268435456);
       if(!$modeF[ $score['play_mode'] ]) return false;
       if(!$modeT[ $score['play_mode'] ]) return false;
-      $modNG = array_filter($modF[0][ $score['play_mode'] ], function($mi) use ($score){
-        return $mi > 0 && ($score['mods'] & $mi) > 0;
+      $modNG = array_filter($modF[0][ $score['play_mode'] ], function($mi) use ($score, $actualMods, $noModeMods){
+				// if the map is played without any 1-mod add (excl. s-mod mods)
+				// and defined to ignore those, ignore it.
+				if($mi == 0)
+					return $noModeMods == 0;
+        return $mi > 0 && ($noModeMods & $mi) > 0;
       });
       if(count($modNG)>0) return false;
-      $modOK = array_filter($modF[2][ $score['play_mode'] ], function($mi) use ($score){
-        return $mi > 0 && ($score['mods'] & $mi) > 0;
+			$modOK = array_filter($modF[2][ $score['play_mode'] ], function($mi) use ($score, $actualMods, $noModeMods){
+        return $mi > 0 && ($noModeMods & $mi) > 0;
       });
       if(count($modOK)<=0 && count($modF[2][ $score['play_mode'] ])>0) return false;
+			$modRQ = array_filter($modF[3][ $score['play_mode'] ], function($mi) use ($score, $actualMods, $noModeMods){
+        return $mi > 0 && ($noModeMods & $mi) > 0;
+      });
+      if(count($modRQ)<count($modF[3][ $score['play_mode'] ])) return false;
       return true;
     };
     return $filterFun;
