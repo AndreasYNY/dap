@@ -159,11 +159,11 @@ function updateTriggers() {
 			method: "GET",
 			data: {
 				b: beatmapID,
-        f: 1,
+				f: 1,
 			},
 			success: function(data) {
 				if (data.status == 200) {
-          let bestPP = Math.max.apply(null, data.pp.map(pp=>pp.value));
+					let bestPP = Math.max.apply(null, data.pp.map(pp=>pp.value));
 					$(`[data-beatmapid=${beatmapID}]`).replaceWith(`<span>${printPP(Math.round(bestPP * 100) / 100, beatmapID)}</span>`);
 				} else {
 					$(`[data-beatmapid=${beatmapID}]`).replaceWith(`<span>${printPP(0, beatmapID)}</span>`);
