@@ -82,7 +82,7 @@ $("document").ready(function() {
 							<th><i class="fa fa-music"></i>	Beatmap ID</th>
 							<th>Difficulty Name</th>
 							<th>Status</th>
-							<th>PP (std SS)</th>
+							<th>PP (MAX)</th>
 							<th>Rank</th>
 							<th>Love</th>
 							<th>Unrank (Pending)</th>
@@ -158,13 +158,14 @@ function updateTriggers() {
 		$.ajax("/letsapi/v1/pp", {
 			method: "GET",
 			data: {
-				b: beatmapID
+				b: beatmapID,
+        f: 1,
 			},
 			success: function(data) {
 				if (data.status == 200) {
-					$(`[data-beatmapid=${beatmapID}]`).replaceWith(`<span>${printPP(data.pp[0], beatmapID)}</span>`);
+					$(`[data-beatmapid=${beatmapID}]`).replaceWith(`<span>${printPP(Math.max.apply(null, data.pp.map(pp=>pp.value)), beatmapID)}</span>`);
 				} else {
-					$(`[data-beatmapid=${beatmapID}]`).replaceWith(`<span>¯\\_(ツ)_/¯</span>`);
+					$(`[data-beatmapid=${beatmapID}]`).replaceWith(`<span>${printPP(0, beatmapID)}</span>`);
 				}
 				updateTriggers();
 			}
