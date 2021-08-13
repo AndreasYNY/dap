@@ -29,6 +29,7 @@ class ModsEnum {
 	const FadeIn = 1048576;
 	const Random = 2097152;
 	const LastMod = 4194304;
+	const Target = 1 << 23;
 	const Key9 = 16777216;
 	const Key10 = 33554432;
 	const Key1 = 67108864;

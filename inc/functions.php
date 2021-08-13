@@ -1054,6 +1054,7 @@ function getScoreMods($m,$f=false) {
 	if ($m & ModsEnum::Autoplay) array_push($s,'Auto');
 	if ($m & ModsEnum::SpunOut) array_push($s,'SO');
 	if ($m & ModsEnum::Relax2) array_push($s,$f ? 'ATP' : 'AP');
+	if ($m & ModsEnum::Target) array_push($s,'TRG');
 	if ($m & ModsEnum::Key4) array_push($s,'4K');
 	if ($m & ModsEnum::Key5) array_push($s,'5K');
 	if ($m & ModsEnum::Key6) array_push($s,'6K');
