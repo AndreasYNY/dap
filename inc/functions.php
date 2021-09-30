@@ -222,6 +222,7 @@ function setTitle($p) {
       144 => 'Challenge Configuration',
       145 => 'Leaderboard View',
       146 => 'PP Limit Configuration',
+			147 => 'Admin Register User'
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -489,6 +490,11 @@ function printPage($p) {
       case 146:
         sessionCheckAdmin(Privileges::AdminManageUsers);
         P::AdminEditPPWhitelist();
+        break;
+
+      case 147:
+        sessionCheckAdmin(Privileges::AdminManageBetaKeys);
+        P::AdminRegisterUser();
         break;
 
 			// 404 page
@@ -2064,10 +2070,32 @@ function getGitBranch(){
     "\n",
   ],"",$content);
 }
+
 function getGitCommit(){
   $branch = getGitBranch();
   if($branch == '?????') { return '?????'; }
   $refs = file_get_contents(sprintf(".git/refs/heads/%s", $branch));
   if(!$refs) { return "????????"; }
   return substr($refs, 0, 8);
+}
+
+function checkUsernameBlacklist($s) {
+	$bad = false;
+	$data = $GLOBALS['db']->fetchAll('select name, type from name_blacklist where active');
+	foreach($data as $row) {
+		switch($row['type']) {
+			case 'split':
+				$bad |= (bool)preg_match(sprintf("/\b%s\b/", $row['name']), $s);
+				break;
+			case 'advanced':
+				$bad |= (bool)preg_match(sprintf("/%s/", $row['name']), $s);
+				break;
+			case 'partial':
+				$bad |= str_contains($s, $row['name']);
+				break;
+			default:
+				$bad |= ($row['name'] == $s);
+		}
+	}
+	return $bad;
 }

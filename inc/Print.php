@@ -1924,7 +1924,56 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       echo '<br><div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>'.$e->getMessage().'</b></div>';
     }
   }
-
+  
+  public static function AdminRegisterUser() {
+    htmlTag('div', function(){
+      printAdminSidebar();
+      htmlTag('div', function(){
+        // Maintenance check
+        self::MaintenanceStuff();
+        // Global alert
+        self::GlobalAlert();
+        
+        htmlTag('p', function(){htmlTag('h2', 'Direct Registration Form');});
+        echo '<br>';
+        $g = [];
+        htmlTag('table', function(){
+          htmlTag('tbody', function(){
+            htmlTag('form',function()use(&$g){
+              htmlTag('input','',['type'=>'hidden','name'=>'action','value'=>'adminRegisterUser']);
+              htmlTag('input','',['type'=>'hidden','name'=>'csrf','value'=>csrfToken()]);
+              htmlTag('tr',function(){
+                htmlTag('td', 'Username');
+                htmlTag('td', function(){ htmlTag('input', '', ['class'=>'form-control', 'type'=>'text', 'name'=>'username']); });
+              });
+              htmlTag('tr',function(){
+                htmlTag('td', 'Password');
+                htmlTag('td', function(){ htmlTag('input', '', ['class'=>'form-control', 'type'=>'text', 'name'=>'password', 'readonly'=>true, 'value'=>bin2hex(openssl_random_pseudo_bytes(12))]); });
+              });
+              htmlTag('tr',function(){
+                htmlTag('td', 'E-mail');
+                htmlTag('td', function(){ htmlTag('input', '', ['class'=>'form-control', 'type'=>'text', 'name'=>'email']); });
+              });
+              if(isset($_GET['bot'])&&($_GET['bot']!='0')) {
+                htmlTag('tr',function(){
+                  htmlTag('td', 'Bot Owner');
+                  htmlTag('td', function(){
+                    htmlTag('input', '', ['type'=>'hidden', 'name'=>'botFlag', 'value'=>'1']);
+                    htmlTag('input', '', ['class'=>'form-control', 'type'=>'number', 'name'=>'botOwnerID']);
+                  });
+                });
+                htmlTag('tr',function(){
+                  htmlTag('td', '');
+                  htmlTag('td', '', ['data-bot-owner-name'=>'']);
+                });
+              }
+            },['id'=>'admin-create-register-user', 'action'=>'submit.php', 'method'=>'POST']);
+          });
+        }, ['class'=>'table table-striped table-hover', 'style'=>'width:94%; margin-left: 3%;']);
+      }, ['id'=>'page-content-wrapper']);
+    }, ['id'=>'wrapper']);
+  }
+  
   /*
    * AboutPage
    * Prints the about page.
