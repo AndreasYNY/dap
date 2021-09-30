@@ -1974,6 +1974,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
             },['id'=>'admin-create-register-user', 'action'=>'submit.php', 'method'=>'POST']);
           });
         }, ['class'=>'table table-striped table-hover', 'style'=>'width:94%; margin-left: 3%;']);
+        htmlTag('div',function() {
+          htmlTag('button','Create User',['class'=>'btn btn-primary','type'=>'submit','form'=>'admin-create-register-user']);
+        },['class'=>'text-center']);
       }, ['id'=>'page-content-wrapper']);
     }, ['id'=>'wrapper']);
   }
