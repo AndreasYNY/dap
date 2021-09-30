@@ -35,6 +35,11 @@ use Curl\Curl;
 date_default_timezone_set('Asia/Makassar');
 // Connect to MySQL Database
 $GLOBALS['db'] = new DBPDO();
+if (defined('DATABASE_DEV_NAME') && defined('DATABASE_DEV_PASS') && defined('DATABASE_DEV_NAME')) {
+	$GLOBALS['db_dev'] = new DBPDO(true);
+} else {
+	$GLOBALS['db_dev'] = $GLOBALS['db'];
+}
 // Birthday
 global $isBday;
 $isBday = date("dm") == "1104";

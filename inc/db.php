@@ -8,19 +8,25 @@ class DBPDO {
 	public $pdo;
 	private $error;
 
-	public function __construct() {
-		$this->connect();
+	public function __construct($dev = false) {
+		$this->connect($dev);
 	}
 
 	public function prep_query($query) {
 		return $this->pdo->prepare($query);
 	}
 
-	public function connect() {
+	public function connect($dev) {
 		if (!$this->pdo) {
-			$dsn = 'mysql:dbname='.DATABASE_NAME.';'.DATABASE_WHAT.'='.DATABASE_HOST.';charset=utf8';
-			$user = DATABASE_USER;
-			$password = DATABASE_PASS;
+			if($dev && defined('DATABASE_DEV_NAME') && defined('DATABASE_DEV_PASS') && defined('DATABASE_DEV_NAME')) {
+				$dsn = 'mysql:dbname='.DATABASE_DEV_NAME.';'.DATABASE_WHAT.'='.DATABASE_HOST.';charset=utf8';
+				$user = DATABASE_DEV_USER;
+				$password = DATABASE_DEV_PASS;
+			} else {
+				$dsn = 'mysql:dbname='.DATABASE_NAME.';'.DATABASE_WHAT.'='.DATABASE_HOST.';charset=utf8';
+				$user = DATABASE_USER;
+				$password = DATABASE_PASS;
+			}
 			try {
 				$this->pdo = new PDO($dsn, $user, $password, [PDO::ATTR_PERSISTENT => true]);
 
