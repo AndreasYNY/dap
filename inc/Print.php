@@ -213,10 +213,16 @@ class P {
       // Get allowed color/text
       $allowedColor = "success";
       $allowedText = "Ok";
-      if (($user["privileges"] & Privileges::UserPublic) == 0 && ($user["privileges"] & Privileges::UserNormal) == 0) {
+      if ((bool)($user["privileges"] & Privileges::UserPendingVerification)) {
+        $allowedColor = "danger";
+        $allowedText = "Pending";
+      } else if (($user["privileges"] & Privileges::UserPublic) == 0 && ($user["privileges"] & Privileges::UserNormal) == 0) {
         // Not visible and not active, banned
         $allowedColor = "danger";
         $allowedText = "Banned";
+      } else if ((bool)($user["privileges"] & Privileges::UserPublic) && (bool)($user["privileges"] & Privileges::UserBotFlag)) {
+        $allowedColor = "success";
+        $allowedText = "Bot";
       } else if (($user["privileges"] & Privileges::UserPublic) == 0 && ($user["privileges"] & Privileges::UserNormal) > 0) {
         // Not visible but active, restricted
         $allowedColor = "warning";
