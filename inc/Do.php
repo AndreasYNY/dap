@@ -1697,7 +1697,7 @@ class D {
 					$mstStatValues[$i*4 + $j] = sprintf("(%d,%d,%d,%d)", $mstStatID, $userID, $i, $j);
 					$mstStatRanks = [];
 					for($k=0;$k<5;$k++)
-						array_push($mstStatRanks, sprintf("(%d,%d,0)", $mstStatID, 8 - $k);
+						array_push($mstStatRanks, sprintf("(%d,%d,0)", $mstStatID, 8 - $k));
 					$GLOBALS['db']->execute(sprintf('insert into `master_stat_ranks` (mst_stat_id, grade_level, grade_count) values %s', implode(',', $mstStatRanks)));
 				}
 			}
