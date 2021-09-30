@@ -103,6 +103,20 @@ function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
   return $r;
 }
 
+function some($a, $fn) {
+	foreach($a as $b) {
+		if($fn($b)) return true;
+	}
+	return false;
+}
+
+function every($a, $fn) {
+	foreach($a as $b) {
+		if(!$fn($b)) return false;
+	}
+	return true;
+}
+
 /*
  * outputVariable
  * Output $v variable to $fn file
