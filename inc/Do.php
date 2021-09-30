@@ -1683,10 +1683,12 @@ class D {
 				if ($GLOBALS['db']->fetch('select 1 from users where email = ?', [$_POST['email']]))
 					throw new Exception("Bad e-mail.");
 			$safePassword = password_hash(md5($_POST['password']), PASSWORD_BCRYPT);
-			$GLOBALS['db']->execute('insert into users (username, username_safe, password_md5, salt, email, register_datetime, privileges, password_verison) values (?, ?, ?, "", ?, ?, ?, 2)', [
+			$GLOBALS['db']->execute('insert into users (username, username_safe, password_md5, salt, email, register_datetime, privileges, password_version) values (?, ?, ?, "", ?, ?, ?, 2)', [
 				$_POST['username'], $safeUsername, $safePassword, $_POST['email'], time(),
 				Privileges::UserPublic | Privileges::UserBotFlag
 			]);
+			redisConnect();
+			$GLOBALS['redis']->incr('ripple:registered_users');
 			$userID = $GLOBALS['db']->lastInsertId();
 			$mstStatValues = [];
 			for($i=0;$i<3;$i++){
