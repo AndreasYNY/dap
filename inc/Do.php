@@ -1702,9 +1702,10 @@ class D {
 				}
 			}
 			$GLOBALS['db']->execute(sprintf('insert into `master_stats` (id, user_id, special_mode, game_mode) values %s', implode(',', $mstStatValues)));
-			redirect("index.php?p=102&s=" . $result);
+			$result = sprintf("Registered %s successfully!", $_POST['username']);
+			redirect(sprintf("index.php?p=102&s=%s", $result));
 		} catch (Exception $e) {
-			redirect("index.php?p=147&e=" . $e->getMessage());
+			redirect(sprintf("index.php?p=147&e=%s", $e->getMessage()));
 		}
 	}
 }
