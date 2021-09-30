@@ -1685,7 +1685,7 @@ class D {
 			$safePassword = password_hash(md5($_POST['password']), PASSWORD_BCRYPT);
 			$GLOBALS['db']->execute('insert into users (username, username_safe, password_md5, salt, email, register_datetime, privileges, password_version) values (?, ?, ?, "", ?, ?, ?, 2)', [
 				$_POST['username'], $safeUsername, $safePassword, $_POST['email'], time(),
-				Privileges::UserPublic | Privileges::UserBotFlag
+				$isBot ? (Privileges::UserPublic | Privileges::UserBotFlag) : Privileges::UserPendingVerification
 			]);
 			redisConnect();
 			$GLOBALS['redis']->incr('ripple:registered_users');
