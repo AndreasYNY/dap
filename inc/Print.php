@@ -184,6 +184,10 @@ class P {
       echo '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickWhitelistIPModal">Quick edit IP Whitelist</button>';
       echo '<a href="index.php?p=135" type="button" class="btn btn-warning">Search user by IP</a>';
     }
+    if (hasPrivilege(Privilege::AdminManageServers) && hasPrivilege(Privilege::AdminManageBetaKeys)) {
+      echo '<a href="index.php?p=147" type="button" class="btn btn-warning">Create Regular User</a>';
+      echo '<a href="index.php?p=147&bot=1" type="button" class="btn btn-warning">Create Bot User</a>';
+    }
     echo '<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>	';
     echo '<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
     echo '</p>';
