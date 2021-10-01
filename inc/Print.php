@@ -184,6 +184,10 @@ class P {
       echo '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickWhitelistIPModal">Quick edit IP Whitelist</button>';
       echo '<a href="index.php?p=135" type="button" class="btn btn-warning">Search user by IP</a>';
     }
+    if (hasPrivilege(Privileges::AdminManageServers) && hasPrivilege(Privileges::AdminManageBetaKeys)) {
+      echo '<a href="index.php?p=147" type="button" class="btn btn-warning">Create Regular User</a>';
+      echo '<a href="index.php?p=147&bot=1" type="button" class="btn btn-warning">Create Bot User</a>';
+    }
     echo '<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>	';
     echo '<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
     echo '</p>';
@@ -209,10 +213,16 @@ class P {
       // Get allowed color/text
       $allowedColor = "success";
       $allowedText = "Ok";
-      if (($user["privileges"] & Privileges::UserPublic) == 0 && ($user["privileges"] & Privileges::UserNormal) == 0) {
+      if ((bool)($user["privileges"] & Privileges::UserPendingVerification)) {
+        $allowedColor = "danger";
+        $allowedText = "Pending";
+      } else if (($user["privileges"] & Privileges::UserPublic) == 0 && ($user["privileges"] & Privileges::UserNormal) == 0) {
         // Not visible and not active, banned
         $allowedColor = "danger";
         $allowedText = "Banned";
+      } else if ((bool)($user["privileges"] & Privileges::UserPublic) && (bool)($user["privileges"] & Privileges::UserBotFlag)) {
+        $allowedColor = "success";
+        $allowedText = "Bot";
       } else if (($user["privileges"] & Privileges::UserPublic) == 0 && ($user["privileges"] & Privileges::UserNormal) > 0) {
         // Not visible but active, restricted
         $allowedColor = "warning";
@@ -1924,7 +1934,59 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       echo '<br><div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>'.$e->getMessage().'</b></div>';
     }
   }
-
+  
+  public static function AdminRegisterUser() {
+    htmlTag('div', function(){
+      printAdminSidebar();
+      htmlTag('div', function(){
+        // Maintenance check
+        self::MaintenanceStuff();
+        // Global alert
+        self::GlobalAlert();
+        
+        htmlTag('p', function(){htmlTag('h2', 'Direct Registration Form');});
+        echo '<br>';
+        $g = [];
+        htmlTag('table', function(){
+          htmlTag('tbody', function(){
+            htmlTag('form',function()use(&$g){
+              htmlTag('input','',['type'=>'hidden','name'=>'action','value'=>'adminRegisterUser']);
+              htmlTag('input','',['type'=>'hidden','name'=>'csrf','value'=>csrfToken()]);
+              htmlTag('tr',function(){
+                htmlTag('td', 'Username');
+                htmlTag('td', function(){ htmlTag('input', '', ['class'=>'form-control', 'type'=>'text', 'name'=>'username']); });
+              });
+              htmlTag('tr',function(){
+                htmlTag('td', 'Password');
+                htmlTag('td', function(){ htmlTag('input', '', ['class'=>'form-control', 'type'=>'text', 'name'=>'password', 'readonly'=>true, 'value'=>bin2hex(openssl_random_pseudo_bytes(12))]); });
+              });
+              htmlTag('tr',function(){
+                htmlTag('td', 'E-mail');
+                htmlTag('td', function(){ htmlTag('input', '', ['class'=>'form-control', 'type'=>'text', 'name'=>'email']); });
+              });
+              if(isset($_GET['bot'])&&($_GET['bot']!='0')) {
+                htmlTag('tr',function(){
+                  htmlTag('td', 'Bot Owner');
+                  htmlTag('td', function(){
+                    htmlTag('input', '', ['type'=>'hidden', 'name'=>'botFlag', 'value'=>'1']);
+                    htmlTag('input', '', ['class'=>'form-control', 'type'=>'number', 'name'=>'botOwnerID']);
+                  });
+                });
+                htmlTag('tr',function(){
+                  htmlTag('td', '');
+                  htmlTag('td', '', ['data-bot-owner-name'=>'']);
+                });
+              }
+            },['id'=>'admin-create-register-user', 'action'=>'submit.php', 'method'=>'POST']);
+          });
+        }, ['class'=>'table table-striped table-hover', 'style'=>'width:94%; margin-left: 3%;']);
+        htmlTag('div',function() {
+          htmlTag('button','Create User',['class'=>'btn btn-primary','type'=>'submit','form'=>'admin-create-register-user']);
+        },['class'=>'text-center']);
+      }, ['id'=>'page-content-wrapper']);
+    }, ['id'=>'wrapper']);
+  }
+  
   /*
    * AboutPage
    * Prints the about page.

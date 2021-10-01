@@ -1650,4 +1650,62 @@ class D {
 			echo '<span style="color: red;">' . $e->getMessage() . '</span>';
 		}
 	}
+	
+	public static function AdminRegisterUser() {
+		try {
+			if (!every(['username','password','email'], function($k){return isset($_POST[$k]);}))
+				throw new Exception("Incomplete body.");
+			$isBot = (isset($_POST['botFlag']) && $_POST['botFlag']);
+			// do isBot checkers
+			if ($isBot) {
+				if (!isset($_POST['botOwnerID']))
+					throw new Exception('Bot Owner is not set.');
+				if (!ctype_digit($_POST['botOwnerID']))
+					throw new Exception('Bot Owner ID is invalid.');
+				if (getUserPrivileges($_POST['botOwnerID']) & 3 != 3)
+					throw new Exception('Bot Owner is not in good standing.');
+			}
+			
+			$_POST['username'] = trim($_POST['username']);
+			if (!((bool)preg_match('/^[A-Za-z0-9 _\[\]-]{2,15}$/', $_POST['username'])))
+				throw new Exception("Bad username. (Bad format)");
+			if (checkUsernameBlacklist(strtolower($_POST['username'])))
+				throw new Exception("Bad username. (NO)");
+			if (str_contains($_POST['username'], ' ')&&str_contains($_POST['username'], '_'))
+				throw new Exception("Bad username. (Mixed space)");
+			$safeUsername = str_replace(' ','_',trim(strtolower($_POST['username'])));
+			if ($GLOBALS['db']->fetch('select 1 from users where username_safe = ?', [$safeUsername]))
+				throw new Exception("Bad username. (Taken)");
+			if ($isBot)
+				if ($GLOBALS['db']->fetch('select 1 from users where email = ? and id != ?', [$_POST['email'], $_POST['botOwnerID']]))
+					throw new Exception("Bad e-mail. (You can use the bot owner.)");
+			else
+				if ($GLOBALS['db']->fetch('select 1 from users where email = ?', [$_POST['email']]))
+					throw new Exception("Bad e-mail.");
+			$safePassword = password_hash(md5($_POST['password']), PASSWORD_BCRYPT);
+			$GLOBALS['db']->execute('insert into users (username, username_safe, password_md5, salt, email, register_datetime, privileges, password_version) values (?, ?, ?, "", ?, ?, ?, 2)', [
+				$_POST['username'], $safeUsername, $safePassword, $_POST['email'], time(),
+				$isBot ? (Privileges::UserPublic | Privileges::UserBotFlag) : Privileges::UserPendingVerification
+			]);
+			redisConnect();
+			$GLOBALS['redis']->incr('ripple:registered_users');
+			$userID = $GLOBALS['db']->lastInsertId();
+			$mstStatValues = [];
+			for($i=0;$i<3;$i++){
+				for($j=0;$j<4;$j++){
+					$mstStatID = ($userID - 1) * 12 + $i * 4 + $j + 1;
+					$mstStatValues[$i*4 + $j] = sprintf("(%d,%d,%d,%d)", $mstStatID, $userID, $i, $j);
+					$mstStatRanks = [];
+					for($k=0;$k<5;$k++)
+						array_push($mstStatRanks, sprintf("(%d,%d,0)", $mstStatID, 8 - $k));
+					$GLOBALS['db']->execute(sprintf('insert into `master_stat_ranks` (mst_stat_id, grade_level, grade_count) values %s', implode(',', $mstStatRanks)));
+				}
+			}
+			$GLOBALS['db']->execute(sprintf('insert into `master_stats` (id, user_id, special_mode, game_mode) values %s', implode(',', $mstStatValues)));
+			$result = sprintf("Registered %s successfully!", $_POST['username']);
+			redirect(sprintf("index.php?p=102&s=%s", $result));
+		} catch (Exception $e) {
+			redirect(sprintf("index.php?p=147&e=%s", $e->getMessage()));
+		}
+	}
 }

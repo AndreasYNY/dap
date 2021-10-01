@@ -35,6 +35,11 @@ use Curl\Curl;
 date_default_timezone_set('Asia/Makassar');
 // Connect to MySQL Database
 $GLOBALS['db'] = new DBPDO();
+if (defined('DATABASE_DEV_NAME') && defined('DATABASE_DEV_PASS') && defined('DATABASE_DEV_NAME')) {
+	$GLOBALS['db_dev'] = new DBPDO(true);
+} else {
+	$GLOBALS['db_dev'] = $GLOBALS['db'];
+}
 // Birthday
 global $isBday;
 $isBday = date("dm") == "1104";
@@ -101,6 +106,20 @@ function compareArrayMulti($a1, $a2, $keys, $fmt, $cmp) {
     $i += 1;
   }
   return $r;
+}
+
+function some($a, $fn) {
+	foreach($a as $b) {
+		if($fn($b)) return true;
+	}
+	return false;
+}
+
+function every($a, $fn) {
+	foreach($a as $b) {
+		if(!$fn($b)) return false;
+	}
+	return true;
 }
 
 /*
@@ -208,6 +227,7 @@ function setTitle($p) {
       144 => 'Challenge Configuration',
       145 => 'Leaderboard View',
       146 => 'PP Limit Configuration',
+			147 => 'Admin Register User'
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -475,6 +495,11 @@ function printPage($p) {
       case 146:
         sessionCheckAdmin(Privileges::AdminManageUsers);
         P::AdminEditPPWhitelist();
+        break;
+
+      case 147:
+        sessionCheckAdmin(Privileges::AdminManageBetaKeys);
+        P::AdminRegisterUser();
         break;
 
 			// 404 page
@@ -2050,10 +2075,32 @@ function getGitBranch(){
     "\n",
   ],"",$content);
 }
+
 function getGitCommit(){
   $branch = getGitBranch();
   if($branch == '?????') { return '?????'; }
   $refs = file_get_contents(sprintf(".git/refs/heads/%s", $branch));
   if(!$refs) { return "????????"; }
   return substr($refs, 0, 8);
+}
+
+function checkUsernameBlacklist($s) {
+	$bad = false;
+	$data = $GLOBALS['db']->fetchAll('select name, type from name_blacklist where active');
+	foreach($data as $row) {
+		switch($row['type']) {
+			case 'split':
+				$bad |= (bool)preg_match(sprintf("/\b%s\b/", $row['name']), $s);
+				break;
+			case 'advanced':
+				$bad |= (bool)preg_match(sprintf("/%s/", $row['name']), $s);
+				break;
+			case 'partial':
+				$bad |= str_contains($s, $row['name']);
+				break;
+			default:
+				$bad |= ($row['name'] == $s);
+		}
+	}
+	return $bad;
 }

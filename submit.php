@@ -194,6 +194,9 @@ try {
       sessionCheckAdmin(Privileges::AdminManageSettings);
       D::AdminChallengeEdit();
     break;
+		case 'adminRegisterUser':
+			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
+			D::AdminRegisterUser();
 		default:
 			throw new Exception('Invalid action value');
 	}
