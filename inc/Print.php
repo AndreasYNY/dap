@@ -842,8 +842,8 @@ class P {
         $g['stat'][$smode][$gmode] = $stat;
       }
       htmlTag('h2', sprintf("PP Limit Configuration for %s", $g['user']['username']));
-      $g['bitname'] = ['Individual Scores', 'Total PP'];
-      $g['modcol']  = ['S', 'T', 'C', 'M'];
+      $g['bitname'] = ['Individual Scores (PPONE)', 'Total PP (PPTTL)'];
+      $g['modcol']  = ['STD', 'TAIKO', 'CTB', 'MANIA'];
       $g['modrow']  = ['NM', 'RL', 'V2'];
       $g['bitok']   = [0, 1];
       $g['printTableHHeader'] = function()use(&$g){
