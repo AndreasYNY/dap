@@ -124,7 +124,7 @@ try {
 		break;
 		case 'processWhitelistUser':
 			sessionCheckAdmin(Privileges::AdminSupportWhitelist);
-			D::AdminEditPPWhitelist();
+			D::GoToPageWhitelist();
 		break;
 		case 'blacklistRankRequest':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);

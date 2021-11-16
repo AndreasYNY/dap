@@ -112,7 +112,17 @@ class D {
 			redirect('index.php?p=111&e='.$e->getMessage());
 		}
 	}
-
+    public static function GoToPageWhitelist() {
+		try {
+			if (!isset($_POST['id']) || empty($_POST['id'])) {
+				throw new Exception('Error');
+			}
+			redirect('index.php?p=146&id=%d', $_POST['id']);
+		}
+		catch(Exception $e) {
+            redirect('index.php?p=148&e='.$e->getMessage());
+        }
+	}
 	/*
 	 * SaveEditUser
 	 * Save edit user function (ADMIN CP)
