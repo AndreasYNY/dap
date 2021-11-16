@@ -119,7 +119,7 @@ class D {
 			}
 			$checkID = $GLOBALS["db"]->fetch("SELECT * FROM users WHERE id = ? LIMIT 1", [$_POST['id']]);
 			//CHECK USER
-			if (!checkID) {
+			if (!$checkID) {
 				throw new Exception("That user doesn\'t exist");
 			} else {
 				redirect('index.php?p=146&id='.$_POST['id']);

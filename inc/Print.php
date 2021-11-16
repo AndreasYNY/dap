@@ -817,6 +817,10 @@ class P {
       printAdminSidebar();
       echo '<div id="page-content-wrapper">';
       self::MaintenanceStuff();
+      // Add Error messages
+      if (isset($_GET['e']) && !empty($_GET['e'])) {
+        self::ExceptionMessageStaccah($_GET['e']);
+      }
       echo '<p align="center"><font size=5><i class="fa fa-refresh"></i>Whitelist Input User</font></p>';
       echo '<table class="table table-striped table-hover table-100-center">';
       echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="csrf" type="hidden" value="'.csrfToken().'"><input name="action" value="processWhitelistUser" hidden>';
