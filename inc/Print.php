@@ -819,7 +819,7 @@ class P {
       self::MaintenanceStuff();
       echo '<p align="center"><font size=5><i class="fa fa-refresh"></i>Whitelist Input User</font></p>';
       echo '<table class="table table-striped table-hover table-100-center">';
-      echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="csrf" type="hidden" value="'.csrfToken().'"><input name="action" value="processBMnotes" hidden>';
+      echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="csrf" type="hidden" value="'.csrfToken().'"><input name="action" value="processWhitelistUser" hidden>';
       echo '<tr><td>Input ID User</td><td><p class="text-center"><input type="text" name="id" class="form-control"></td></tr>';
       echo '</tbody></form>';
       echo '</table>';
@@ -827,7 +827,7 @@ class P {
       echo '</div>';
     }
     catch(Exception $e) {
-      redirect('index.php?p=117&e='.$e->getMessage());
+      redirect('index.php?p=148&e='.$e->getMessage());
     }
   }
 
