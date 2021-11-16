@@ -810,7 +810,27 @@ class P {
       redirect('index.php?p=102&e='.$e->getMessage());
     }
   }
-  
+
+  public static function AdminPageInputWhitelist() {
+    try {
+      echo '<div id="wrapper">';
+      printAdminSidebar();
+      echo '<div id="page-content-wrapper">';
+      self::MaintenanceStuff();
+      echo '<p align="center"><font size=5><i class="fa fa-refresh"></i>Whitelist Input User</font></p>';
+      echo '<table class="table table-striped table-hover table-100-center">';
+      echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="csrf" type="hidden" value="'.csrfToken().'"><input name="action" value="processBMnotes" hidden>';
+      echo '<tr><td>Input ID User</td><td><p class="text-center"><input type="text" name="id" class="form-control"></td></tr>';
+      echo '</tbody></form>';
+      echo '</table>';
+      echo '<div class="text-center"><button type="submit" form="system-settings-form" class="btn btn-primary">Go To Whitelist!</button></div>';
+      echo '</div>';
+    }
+    catch(Exception $e) {
+      redirect('index.php?p=117&e='.$e->getMessage());
+    }
+  }
+
   public static function AdminEditPPWhitelist() {
     try {
       // Check if id is set
@@ -999,53 +1019,42 @@ class P {
   }
 
   public static function BATGiveReason() {
-                try {
+    try {
       $getBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$_GET["id"]]);
 
-                        if (!$getBM) {
-                                throw new Exception("That beatmap doesnt exists!");
-                        }
-                        // Print edit user stuff
-                        echo '<div id="wrapper">';
-                        printAdminSidebar();
-                        echo '<div id="page-content-wrapper">';
-                        // Maintenance check
-                        self::MaintenanceStuff();
-                        // Print Success if set
-                        if (isset($_GET['s']) && !empty($_GET['s'])) {
-                                self::SuccessMessageStaccah($_GET['s']);
-                        }
-                        // Print Exception if set
-                        if (isset($_GET['e']) && !empty($_GET['e'])) {
-                                self::ExceptionMessageStaccah($_GET['e']);
-                        }
-                        echo '<p align="center"><font size=5><i class="fa fa-refresh"></i>      Give Reason</font></p>';
-                        echo '<table class="table table-striped table-hover table-100-center">';
-                        echo '<tbody><form id="system-settings-form" action="submit.php" method="POST">
-                        <input name="csrf" type="hidden" value="'.csrfToken().'">
-                        <input name="action" value="processBMnotes" hidden>';
-                        echo '<tr>
-                        <td>Beatmap ID</td>
-                        <td><p class="text-center"><input type="number" name="bmid" class="form-control" value="'.$_GET['id'].'" readonly></td>
-                        </tr>';
-                        echo '<tr>
-                        <td>Beatmap Name + Difficulty</td>
-                        <td><p class="text-center"><input type="text" name="bmname" class="form-control" value="'.$getBM['artist'].' - '.$getBM['title'].' ['.$getBM['difficulty_name'].']" readonly></td>
-                        </tr>';
-                        echo '<tr>
-                        <td>Reason</td>
-                        <td><p class="text-center"><input type="text" name="bmreason" class="form-control"></td>
-                        </tr>';
-                        echo '</tbody></form>';
-                        echo '</table>';
-                        echo '<div class="text-center"><button type="submit" form="system-settings-form" class="btn btn-primary">Give Reason!</button></div>';
-                        echo '</div>';
+      if (!$getBM) {
+        throw new Exception("That beatmap doesnt exists!");
+      }
+      // Print edit user stuff
+      echo '<div id="wrapper">';
+      printAdminSidebar();
+      echo '<div id="page-content-wrapper">';
+      // Maintenance check
+      self::MaintenanceStuff();
+      // Print Success if set
+      if (isset($_GET['s']) && !empty($_GET['s'])) {
+        self::SuccessMessageStaccah($_GET['s']);
+      }
+      // Print Exception if set
+      if (isset($_GET['e']) && !empty($_GET['e'])) {
+        self::ExceptionMessageStaccah($_GET['e']);
+      }
+      echo '<p align="center"><font size=5><i class="fa fa-refresh"></i>      Give Reason</font></p>';
+      echo '<table class="table table-striped table-hover table-100-center">';
+      echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="csrf" type="hidden" value="'.csrfToken().'"><input name="action" value="processBMnotes" hidden>';
+      echo '<tr><td>Beatmap ID</td><td><p class="text-center"><input type="number" name="bmid" class="form-control" value="'.$_GET['id'].'" readonly></td></tr>';
+      echo '<tr><td>Beatmap Name + Difficulty</td><td><p class="text-center"><input type="text" name="bmname" class="form-control" value="'.$getBM['artist'].' - '.$getBM['title'].' ['.$getBM['difficulty_name'].']" readonly></td></tr>';
+      echo '<tr><td>Reason</td><td><p class="text-center"><input type="text" name="bmreason" class="form-control"></td></tr>';
+      echo '</tbody></form>';
+      echo '</table>';
+      echo '<div class="text-center"><button type="submit" form="system-settings-form" class="btn btn-primary">Give Reason!</button></div>';
+      echo '</div>';
                 }
     catch(Exception $e) {
-                        // Redirect to exception page
-                        redirect('index.php?p=117&e='.$e->getMessage());
-                }
-        }
+      // Redirect to exception page
+      redirect('index.php?p=117&e='.$e->getMessage());
+    }
+  }
   /*
    * AdminSystemSettings
    * Prints the admin panel system settings page

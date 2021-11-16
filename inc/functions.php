@@ -224,10 +224,11 @@ function setTitle($p) {
 			141 => 'Auto Rank Listing',
 			142 => 'Challenge Listing',
 			143 => 'Leaderboard Configuration',
-      144 => 'Challenge Configuration',
-      145 => 'Leaderboard View',
-      146 => 'PP Limit Configuration',
-			147 => 'Admin Register User'
+      		144 => 'Challenge Configuration',
+     	 	145 => 'Leaderboard View',
+      		146 => 'PP Limit Configuration',
+			147 => 'Admin Register User',
+			148 => 'Admin Input PP Whitelist'
 		];
 		if (isset($namesAinu[$p])) {
 			return __maketitle('Datenshi', $namesAinu[$p]);
@@ -493,7 +494,7 @@ function printPage($p) {
         break;
 
       case 146:
-        sessionCheckAdmin(Privileges::AdminManageUsers);
+        sessionCheckAdmin(Privileges::AdminSupportWhitelist);
         P::AdminEditPPWhitelist();
         break;
 
@@ -501,6 +502,11 @@ function printPage($p) {
         sessionCheckAdmin(Privileges::AdminManageBetaKeys);
         P::AdminRegisterUser();
         break;
+
+	  case 148:
+		sessionCheckAdmin(Privileges::AdminSupportWhitelist);
+		P::AdminPageInputWhitelist();
+		break;
 
 			// 404 page
 			default:
@@ -620,7 +626,10 @@ function printAdminSidebar() {
 						if (hasPrivilege(Privileges::AdminManageUsers)) {
 							echo '<li><a href="index.php?p=132"><i class="fa fa-fire"></i>	Anticheat reports</a></li>';
 						}
-
+						
+						if (hasPrivilege(Privileges::AdminSupportWhitelist)) {
+							echo '<li><a href="index.php?p=148"><i class="fa fa-user"></i> Whitelist PP</a></li>';
+						}
 						if (hasPrivilege(Privileges::AdminWipeUsers)) {
 							echo '<li><a href="index.php?p=134"><i class="fa fa-undo"></i>	Restore scores</a></li>';
 						}
@@ -644,12 +653,11 @@ function printAdminSidebar() {
 
 						if (hasPrivilege(Privileges::AdminViewTopScores))
 							echo '<li><a href="index.php?p=137"><i class="fa fa-fighter-jet"></i>	Top scores</a></li>';
-            echo '<li><a href="index.php?p=142"><i class="fa fa-fighter-jet"></i>	View Challenges</a></li>';
+            				echo '<li><a href="index.php?p=142"><i class="fa fa-fighter-jet"></i>	View Challenges</a></li>';
 
 						if (hasPrivilege(Privileges::AdminViewRAPLogs))
 							echo '<li class="animated infinite pulse"><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
-						echo "</ul>
-				</div>";
+							echo "</ul></div>";
 }
 /*
  * printAdminPanel

@@ -122,6 +122,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::BMNotes();
 		break;
+		case 'processWhitelistUser':
+			sessionCheckAdmin(Privileges::AdminSupportWhitelist);
+			D::AdminEditPPWhitelist();
+		break;
 		case 'blacklistRankRequest':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::BlacklistRankRequest();
