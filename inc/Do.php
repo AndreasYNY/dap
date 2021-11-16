@@ -761,7 +761,7 @@ class D {
 			
 			// Delete scores
 			// Reset mode stats
-      $GLOBALS['db']->execute('call scores_master_wipe_select(?, ?, ?)', [$_POST['id'], $_POST['ppmode']-1, $_POST['gm']]);
+			$GLOBALS['db']->execute('call scores_master_wipe_select(?, ?, ?)', [$_POST['id'], $_POST['ppmode']-1, $_POST['gm']]);
 
 			// RAP log
 			rapLog(sprintf("has wiped %s's account", $username));
