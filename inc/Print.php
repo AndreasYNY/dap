@@ -851,14 +851,11 @@ class P {
       if (isset($_GET['e']) && !empty($_GET['e'])) {
         self::ExceptionMessageStaccah($_GET['e']);
       }
-      //Get ID From Post and Get
-      $getIDFPG = $_REQUEST['id'];
       // Get user data
       $g = [];
-      $g['user'] = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $getIDFPG);
-      
+      $g['user'] = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
       $g['stat'] = array_fill(0, 3, array_fill(0, 4, NULL));
-      foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $getIDFPG) as $stat){
+      foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
         $smode = $stat['special_mode'];
         $gmode = $stat['game_mode'];
         $g['stat'][$smode][$gmode] = $stat;
@@ -890,7 +887,7 @@ class P {
         htmlTag('input','',[
           'type' => 'hidden',
           'name' => 'id',
-          'value' => $getIDFPG,
+          'value' => $_GET['id'],
         ]);
         htmlTag('h3', "PP Unrestrict Values");
         htmlTag('table',function()use(&$g,&$bit){
