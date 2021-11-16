@@ -834,7 +834,7 @@ class P {
   public static function AdminEditPPWhitelist() {
     try {
       // Check if id is set
-      if (!isset($_GET['id']) || empty($_GET['id']) || !isset($_POST['id']) || empty($_POST['id'])) {
+      if (!isset($_GET['id']) || empty($_GET['id'])) {
         throw new Exception('Invalid user ID!');
       }
       // Print edit user stuff
