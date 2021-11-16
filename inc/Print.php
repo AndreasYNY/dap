@@ -834,7 +834,7 @@ class P {
   public static function AdminEditPPWhitelist() {
     try {
       // Check if id is set
-      if (!isset($_GET['id']) || empty($_GET['id'])) {
+      if (!isset($_GET['id']) || empty($_GET['id']) || !isset($_POST['id']) || empty($_POST['id'])) {
         throw new Exception('Invalid user ID!');
       }
       // Print edit user stuff
@@ -851,12 +851,14 @@ class P {
       if (isset($_GET['e']) && !empty($_GET['e'])) {
         self::ExceptionMessageStaccah($_GET['e']);
       }
+      //Get ID From Post and Get
+      $getIDFPG = $_REQUEST['id'];
       // Get user data
       $g = [];
-      $g['user'] = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
+      $g['user'] = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $getIDFPG);
       
       $g['stat'] = array_fill(0, 3, array_fill(0, 4, NULL));
-      foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $_GET['id']) as $stat){
+      foreach($GLOBALS['db']->fetchAll('SELECT * FROM master_stats WHERE user_id = ?', $getIDFPG) as $stat){
         $smode = $stat['special_mode'];
         $gmode = $stat['game_mode'];
         $g['stat'][$smode][$gmode] = $stat;
@@ -888,7 +890,7 @@ class P {
         htmlTag('input','',[
           'type' => 'hidden',
           'name' => 'id',
-          'value' => $_GET['id'],
+          'value' => $getIDFPG,
         ]);
         htmlTag('h3', "PP Unrestrict Values");
         htmlTag('table',function()use(&$g,&$bit){
@@ -955,7 +957,7 @@ class P {
       echo "</div></div>";
     } catch(Exception $e) {
       // Redirect to exception page
-      redirect('index.php?p=102&e='.$e->getMessage());
+      redirect('index.php?p=146&e='.$e->getMessage());
     }
   }
   
