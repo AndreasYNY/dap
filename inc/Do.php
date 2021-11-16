@@ -117,7 +117,13 @@ class D {
 			if (!isset($_POST['id']) || empty($_POST['id'])) {
 				throw new Exception('Error');
 			}
-			redirect('index.php?p=146&id='.$_POST['id']);
+			$checkID = $GLOBALS["db"]->fetch("SELECT * FROM users WHERE id = ? LIMIT 1", [$_POST['id']]);
+			//CHECK USER
+			if (!checkID) {
+				throw new Exception("That user doesn\'t exist");
+			} else {
+				redirect('index.php?p=146&id='.$_POST['id']);
+			}
 		}
 		catch(Exception $e) {
             redirect('index.php?p=148&e='.$e->getMessage());
