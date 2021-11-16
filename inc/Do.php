@@ -117,7 +117,7 @@ class D {
 			if (!isset($_POST['id']) || empty($_POST['id'])) {
 				throw new Exception('Error');
 			}
-			redirect('index.php?p=146&id=%d', $_POST['id']);
+			redirect('index.php?p=146&id='.$_POST['id']);
 		}
 		catch(Exception $e) {
             redirect('index.php?p=148&e='.$e->getMessage());
