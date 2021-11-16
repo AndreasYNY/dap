@@ -216,11 +216,11 @@ class D {
         }
       }
       rapLog(sprintf("has edited username %s (ID: %s) PP whitelist", $userData["username"], $_POST["id"]));
-      redirect('index.php?p=103&id='.$_POST["id"].'&s=User edited!');
+      redirect('index.php?p=146&id='.$_POST["id"].'&s=User edited!');
     }
     catch(Exception $e) {
       // Redirect to users
-      redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
+      redirect('index.php?p=146&id='.$_POST["id"].'&e='.$e->getMessage());
     }
   }
 

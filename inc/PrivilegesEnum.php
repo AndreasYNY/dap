@@ -29,4 +29,5 @@ class Privileges {
 	const AdminManageAutoRank = 1 << 24;
 	const UserBotFlag = 1 << 25;
 	const UserBotSpecialFlag = 1 << 26;
+	const AdminSupportWhitelist = 1 << 27;
 }
