@@ -55,7 +55,7 @@ try {
 			D::SaveEditUser();
 		break;
     case 'saveEditUserWhitelist':
-			sessionCheckAdmin(Privileges::AdminManageUsers);
+			sessionCheckAdmin(Privileges::AdminManageUsers | Privileges::AdminSupportWhitelist);
 			D::SaveEditUserWhitelist();
 		break;
 		case 'banUnbanUser': // TODO
