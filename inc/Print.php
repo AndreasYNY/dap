@@ -468,7 +468,7 @@ class P {
       // Get user data
       $userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
       //Discord  Data
-      $DiscordID = $GLOBALS['db']->fetch('SELECT * FROM discord_tokens WHERE userid = ? LIMIT 1', $_GET['id']);
+      $DiscordID = $GLOBALS['db']->fetch('SELECT * FROM discord_tokens WHERE user_id = ? LIMIT 1', $_GET['id']);
       $DCID = $DiscordID['discord_id'];
       $DisCURL = curl_init('https://discord.com/api/v9/users/'.$DCID.'');
       curl_setopt_array($DisCURL,[

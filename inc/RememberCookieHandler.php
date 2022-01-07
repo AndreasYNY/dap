@@ -83,7 +83,7 @@ class RememberCookieHandler {
 	 * @param int $u UserID
 	 */
 	public function DestroyAll($u) {
-		$GLOBALS["db"]->execute("DELETE FROM rememeber WHERE user_id = ?;", [$u]);
+		$GLOBALS["db"]->execute("DELETE FROM session_remember WHERE user_id = ?;", [$u]);
 	}
 
 	/**
