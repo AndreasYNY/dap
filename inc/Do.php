@@ -1594,7 +1594,7 @@ class D {
 			nuke("user_clans", "user", $uid);
 			nuke("profile_backgrounds", "uid", $uid);
 			nuke("rank_requests", "userid", $uid);
-			nuke("remember", "userid", $uid);
+			nuke("session_remember", "user_id", $uid);
 			nukeExt(
 				"reports",
 				"DELETE FROM reports WHERE from_uid = ? OR to_uid = ?",

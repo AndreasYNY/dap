@@ -32,11 +32,11 @@ class RememberCookieHandler {
 			$this->UnsetCookies();
 			return ValidateValue::Failure;
 		}
-		$r = $GLOBALS["db"]->fetch("SELECT id, userid, token_sha FROM remember WHERE series_identifier = ? LIMIT 1",
+		$r = $GLOBALS["db"]->fetch("SELECT id, user_id, token_sha FROM session_remember WHERE series_identifier = ? LIMIT 1",
 			[$parts[0]]);
 		if (!$r) {
 			$this->UnsetCookies();
-			return ValidateValue::Failure;			
+			return ValidateValue::Failure;
 		}
 		if ($r["token_sha"] == hash("sha256", $parts[1])) {
 			// all checks successful, login
@@ -47,7 +47,7 @@ class RememberCookieHandler {
 		// this means that someone's trying to access this user's account
 		// kick their dick
 		// glory to arstotzka
-		$GLOBALS["db"]->execute("DELETE FROM remember WHERE id = ? LIMIT 1", [$r['id']]);
+		$GLOBALS["db"]->execute("DELETE FROM session_remember WHERE id = ? LIMIT 1", [$r['id']]);
 		$this->UnsetCookies();
 		return ValidateValue::Thieving;
 	}
@@ -60,7 +60,7 @@ class RememberCookieHandler {
 		$num = unpack("L", random_bytes(4))[1];
 		$tok = base64_encode(random_bytes(75));
 		setcookie("sli", ((string)$num) . "|" . $tok, time() + 60 * 60 * 24 * 30 * 3);
-		$GLOBALS["db"]->execute("INSERT INTO remember(userid, series_identifier, token_sha) VALUES
+		$GLOBALS["db"]->execute("INSERT INTO session_remember(user_id, series_identifier, token_sha) VALUES
 			(?, ?, ?)", [$u, $num, hash("sha256", $tok)]);
 	}
 
@@ -71,7 +71,7 @@ class RememberCookieHandler {
 	public function Destroy() {
 		if (!isset($_SESSION["userid"]))
 			return;
-		$GLOBALS["db"]->execute("DELETE FROM remember WHERE userid = ? AND series_identifier = ? LIMIT 1;", 
+		$GLOBALS["db"]->execute("DELETE FROM session_remember WHERE user_id = ? AND series_identifier = ? LIMIT 1;",
 			[$_SESSION["userid"], explode("|", $_COOKIE["sli"])[0]]);
 		$this->UnsetCookies();
 	}
@@ -82,8 +82,8 @@ class RememberCookieHandler {
 	 *
 	 * @param int $u UserID
 	 */
-	public function DestroyAll($u) { 
-		$GLOBALS["db"]->execute("DELETE FROM rememeber WHERE userid = ?;", [$u]);
+	public function DestroyAll($u) {
+		$GLOBALS["db"]->execute("DELETE FROM rememeber WHERE user_id = ?;", [$u]);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class RememberCookieHandler {
 	 * @return int ValidateValue
 	 */
 	private function Login($userID) {
-		$u = $GLOBALS['db']->fetch("SELECT id, username, privileges, password_md5 
+		$u = $GLOBALS['db']->fetch("SELECT id, username, privileges, password_md5
 			FROM users WHERE id = ? LIMIT 1", [$userID]);
 		if (!$u || (($u["privileges"] & Privileges::UserNormal) === 0)) {
 			$this->UnsetCookies();
@@ -119,7 +119,7 @@ class RememberCookieHandler {
 	 * Unset the sli cookie in the user's browser.
 	 */
 	public function UnsetCookies() {
-		unsetCookie("sli");		
+		unsetCookie("sli");
 	}
 }
 
