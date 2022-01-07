@@ -1043,7 +1043,7 @@ class D {
 			}
 			$uname = current($uname);
 			$months = giveDonor($_POST["id"], $_POST["m"], $_POST["type"] == 0);
-			$DCid = $GLOBALS["db"]->fetch("SELECT discord_tokens.userid, discord_tokens.token, users.username, discord_tokens.discord_id, discord_tokens.role_id FROM discord_tokens INNER JOIN users ON discord_tokens.userid=users.id WHERE discord_tokens.userid = ?
+			$DCid = $GLOBALS["db"]->fetch("SELECT discord_tokens.user_id, discord_tokens.token, users.username, discord_tokens.discord_id, discord_tokens.role_id FROM discord_tokens INNER JOIN users ON discord_tokens.user_id=users.id WHERE discord_tokens.user_id = ?
 			", [$_POST["id"]]);
 			if ($DCid['discord_id'] == NULL) {
 				$namaDonat = sprintf("%s", $uname);
