@@ -1688,7 +1688,7 @@ function isBanned($userID = -1) {
 }
 
 function multiaccCheckIP($ip) {
-	$multiUserID = $GLOBALS['db']->fetch("SELECT userid, users.username FROM ip_user LEFT JOIN users ON users.id = ip_user.userid WHERE ip = ?", [$ip]);
+	$multiUserID = $GLOBALS['db']->fetch("SELECT userid, users.username FROM ip_user LEFT JOIN users ON users.id = ip_user.user_id WHERE ip = ?", [$ip]);
 	if (!$multiUserID)
 		return false;
 	return $multiUserID;
@@ -1698,7 +1698,7 @@ function multiaccCheckIP($ip) {
 }
 
 function getUserFromMultiaccToken($token) {
-	$multiToken = $GLOBALS["db"]->fetch("SELECT userid, users.username FROM identity_tokens LEFT JOIN users ON users.id = identity_tokens.userid WHERE token = ? LIMIT 1", [$token]);
+	$multiToken = $GLOBALS["db"]->fetch("SELECT userid, users.username FROM identity_tokens LEFT JOIN users ON users.id = identity_tokens.user_id WHERE token = ? LIMIT 1", [$token]);
 	if (!$multiToken)
 		return false;
 	return $multiToken;
@@ -1719,7 +1719,7 @@ function multiaccCheckToken() {
 }
 
 function getIdentityToken($userID, $generate = True) {
-	$identityToken = $GLOBALS["db"]->fetch("SELECT token FROM identity_tokens WHERE userid = ? LIMIT 1", [$userID]);
+	$identityToken = $GLOBALS["db"]->fetch("SELECT token FROM identity_tokens WHERE user_id = ? LIMIT 1", [$userID]);
 	if (!$identityToken && $generate) {
 		// If not, generate a new one
 		do {
@@ -1948,7 +1948,7 @@ function testMainMenuIconBancho($userID, $mainMenuIconID) {
 }
 
 function getDiscordData($userID) {
-	return $GLOBALS["db"]->fetch("SELECT discordid, roleid FROM discord_roles WHERE userid = ? LIMIT 1", [$userID]);
+	return $GLOBALS["db"]->fetch("SELECT discordid, roleid FROM discord_roles WHERE user_id = ? LIMIT 1", [$userID]);
 }
 
 function nukeExt($table, $q, $p) {

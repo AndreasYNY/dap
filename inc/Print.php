@@ -34,33 +34,33 @@ class P {
     /*$recentPlays = $GLOBALS['db']->fetchAll('
     SELECT
       beatmaps.song_name, scores.beatmap_md5, users.username,
-      scores.userid, scores.time, scores.score, scores.pp,
+      scores.user_id, scores.time, scores.score, scores.pp,
       scores.play_mode, scores.mods
     FROM scores
     LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
-    LEFT JOIN users ON users.id = scores.userid
+    LEFT JOIN users ON users.id = scores.user_id
     ORDER BY scores.id DESC
     LIMIT 10');
 
     $recentPlaysRelax = $GLOBALS['db']->fetchAll('
     SELECT
       beatmaps.song_name, scores_relax.beatmap_md5, users.username,
-      scores_relax.userid, scores_relax.time, scores_relax.score, scores_relax.pp,
+      scores_relax.user_id, scores_relax.time, scores_relax.score, scores_relax.pp,
       scores_relax.play_mode, scores_relax.mods
     FROM scores_relax
     LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores_relax.beatmap_md5
-    LEFT JOIN users ON users.id = scores_relax.userid
+    LEFT JOIN users ON users.id = scores_relax.user_id
     ORDER BY scores_relax.id DESC
     LIMIT 10');*/
     $recentPlays = [];
     $topPlays = [];
     /*$topPlays = $GLOBALS['db']->fetchAll('SELECT
       beatmaps.song_name, scores.beatmap_md5, users.username,
-      scores.userid, scores.time, scores.score, scores.pp,
+      scores.user_id, scores.time, scores.score, scores.pp,
       scores.play_mode, scores.mods
     FROM scores
     LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
-    LEFT JOIN users ON users.id = scores.userid
+    LEFT JOIN users ON users.id = scores.user_id
     WHERE users.privileges & 1 > 0
     ORDER BY scores.pp DESC LIMIT 30');*/
     $onlineUsers = $GLOBALS["redis"]->get("ripple:online_users");
@@ -491,7 +491,7 @@ class P {
         $userStatsData[$smode][$gmode] = $stat;
       }
       $userConfigData = $GLOBALS['db']->fetch('SELECT * FROM user_config WHERE id = ?', $_GET['id']);
-      $ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE userid = ?', $_GET['id']);
+      $ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE user_id = ?', $_GET['id']);
       // Check if this user exists
       if (!$userData || !$userStatsData) {
         throw new Exception("That user doesn't exist");
@@ -1481,7 +1481,7 @@ class P {
       $first = true;
     }
     $to = $from-$pageInterval;
-    $logs = $GLOBALS['db']->fetchAll('SELECT rap_logs.*, users.username FROM rap_logs LEFT JOIN users ON rap_logs.userid = users.id WHERE rap_logs.id <= ? AND rap_logs.id > ? ORDER BY rap_logs.datetime DESC', [$from, $to]);
+    $logs = $GLOBALS['db']->fetchAll('SELECT rap_logs.*, users.username FROM rap_logs LEFT JOIN users ON rap_logs.user_id = users.id WHERE rap_logs.id <= ? AND rap_logs.id > ? ORDER BY rap_logs.datetime DESC', [$from, $to]);
     // Print sidebar and template stuff
     echo '<div id="wrapper">';
     printAdminSidebar();
@@ -1673,7 +1673,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       }
 
       // Make sure that we have at least one score to calculate maximum combo, otherwise maximum combo is 0
-      $maximumCombo = $GLOBALS['db']->fetch('SELECT max_combo FROM scores WHERE userid = ? AND play_mode = ? ORDER BY max_combo DESC LIMIT 1', [$userData['id'], $m]);
+      $maximumCombo = $GLOBALS['db']->fetch('SELECT max_combo FROM scores WHERE user_id = ? AND play_mode = ? ORDER BY max_combo DESC LIMIT 1', [$userData['id'], $m]);
       if ($maximumCombo) {
         $maximumCombo = current($maximumCombo);
       } else {
@@ -2584,7 +2584,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
   */
   public static function AdminRankRequests() {
     // get data ampe 100 ranks request
-    $rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE rank_requests.hidden = 0 ORDER BY id DESC LIMIT 50");
+    $rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.user_id = users.id WHERE rank_requests.hidden = 0 ORDER BY id DESC LIMIT 50");
     // Print sidebar and template stuff
     echo '<div id="wrapper">';
     printAdminSidebar();
@@ -2615,7 +2615,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       if ($b) {
         $song = sprintf("%s - %s", $b['artist'], $b['title']);
       } else {
-        $song = "Beatmap not found, klik Edit untuk melihat info beatmap";
+        $song = "Beatmap data not cached. Please load the beatmap info first.";
       }
 
       if ($req["type"] == "s")
@@ -3404,19 +3404,19 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
     $conditions = [];
     $params = [];
     if (!$all) {
-      array_push($conditions, "scores.userid = ?");
+      array_push($conditions, "scores.user_id = ?");
       array_push($params, $_GET["uid"]);
     } else if ($byScoreID) {
       array_push($conditions, "scores.id = ?");
       array_push($params, $_GET["sid"]);
     }
     $reports = $GLOBALS["db"]->fetchall(
-      "SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.userid, users.username, scores.pp, scores.mods, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
+      "SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.user_id, users.username, scores.pp, scores.mods, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
       FROM anticheat_reports
       JOIN anticheats ON anticheat_reports.anticheat_id = anticheats.id
       JOIN scores ON anticheat_reports.score_id = scores.id
       JOIN beatmaps USING(beatmap_md5)
-      JOIN users ON scores.userid = users.id
+      JOIN users ON scores.user_id = users.id
       ". ((!$all || $byScoreID) ? ("WHERE " . implode(" AND ", $conditions)) : "") .
       " ORDER BY scores.id DESC, anticheat_reports.id DESC LIMIT $from, $resultsPerPage",
       $params
@@ -3498,12 +3498,12 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       }
 
       $report = $GLOBALS["db"]->fetch(
-        "SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.userid, users.username, scores.pp, scores.mods, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
+        "SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.user_id, users.username, scores.pp, scores.mods, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
         FROM anticheat_reports
         JOIN anticheats ON anticheat_reports.anticheat_id = anticheats.id
         JOIN scores ON anticheat_reports.score_id = scores.id
         JOIN beatmaps USING(beatmap_md5)
-        JOIN users ON scores.userid = users.id
+        JOIN users ON scores.user_id = users.id
         WHERE anticheat_reports.id = ?",
         [$_GET["id"]]
       );
@@ -3662,7 +3662,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $scoresCount = 0;
         $scoresPreview = [];
         foreach (["scores_removed.id, song_name, play_mode, pp", "COUNT(*) AS c"] as $i => $v) {
-          $q = "SELECT $v FROM scores_removed JOIN beatmaps USING(beatmap_md5) WHERE userid = ?";
+          $q = "SELECT $v FROM scores_removed JOIN beatmaps USING(beatmap_md5) WHERE user_id = ?";
           $qp = [$_GET["id"]];
           if ($_POST["gm"] > -1 && $_POST["gm"] <= 3) {
             $q .= " AND play_mode = ?";
@@ -3784,7 +3784,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         if ($_GET["uid"] != $_SESSION["userid"] && hasPrivilege(Privileges::AdminManageUsers, $_GET["uid"])) {
           throw new Exception("You don't have enough privileges to do that");
         }
-        $results = $GLOBALS["db"]->fetchAll("SELECT ip FROM ip_user WHERE userid = ? AND ip != ''", [$_GET["uid"]]);
+        $results = $GLOBALS["db"]->fetchAll("SELECT ip FROM ip_user WHERE user_id = ? AND ip != ''", [$_GET["uid"]]);
         foreach ($results as $row) {
           array_push($ips, $row["ip"]);
         }
@@ -3802,7 +3802,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $ips[$i] = trim($ips[$i]);
       }
       $conditions = trim($conditions, ", ");
-      $results = $GLOBALS["db"]->fetchAll("SELECT ip_user.*, users.username, users.privileges FROM ip_user JOIN users ON ip_user.userid = users.id WHERE ip IN ($conditions) ORDER BY ip DESC", $ips);
+      $results = $GLOBALS["db"]->fetchAll("SELECT ip_user.*, users.username, users.privileges FROM ip_user JOIN users ON ip_user.user_id = users.id WHERE ip IN ($conditions) ORDER BY ip DESC", $ips);
 
       echo '<table class="table table-striped table-hover table-75-center">
       <thead>
@@ -4024,9 +4024,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
     $orderBy = $_GET["sort"] === "start" ? ("beatmaps.difficulty_" . getPlaymodeText($gm)) : "pp";
     if ($_GET["modevnrx"] == 1) {
-      $results = $GLOBALS["db"]->fetchAll("SELECT scores_master.userid, scores_master.time, scores_master.id, scores_master.mods, users.username, scores_master.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores_master.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores_master JOIN users ON scores_master.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores_master.id = anticheat_reports.score_id WHERE completed = 3 AND scores_master.special_mode = 0 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+      $results = $GLOBALS["db"]->fetchAll("SELECT scores_master.user_id, scores_master.time, scores_master.id, scores_master.mods, users.username, scores_master.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores_master.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores_master JOIN users ON scores_master.user_id = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores_master.id = anticheat_reports.score_id WHERE completed = 3 AND scores_master.special_mode = 0 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
     } else if ($_GET["modevnrx"] == 2) {
-      $results = $GLOBALS["db"]->fetchAll("SELECT scores_master.userid, scores_master.time, scores_master.id, scores_master.mods, users.username, scores_master.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores_master.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores_master JOIN users ON scores_master.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores_master.id = anticheat_reports.score_id WHERE completed = 3 AND scores_master.special_mode = 1 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+      $results = $GLOBALS["db"]->fetchAll("SELECT scores_master.user_id, scores_master.time, scores_master.id, scores_master.mods, users.username, scores_master.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores_master.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores_master JOIN users ON scores_master.user_id = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores_master.id = anticheat_reports.score_id WHERE completed = 3 AND scores_master.special_mode = 1 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
     }
 
     echo '<p align="center"><h2><i class="fa fa-fighter-jet"></i>	Top Scores (max ' . $limit . ' results)</h2></p>';

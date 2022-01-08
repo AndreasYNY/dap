@@ -1129,8 +1129,8 @@ class D {
 				$rollbackString .= "s";
 			}
 
-			$GLOBALS["db"]->execute("INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ? AND time >= ?", [$_POST["id"], $removeAfter]);
-			$GLOBALS["db"]->execute("DELETE FROM scores WHERE userid = ? AND time >= ?", [$_POST["id"], $removeAfter]);
+			$GLOBALS["db"]->execute("INSERT INTO scores_removed SELECT * FROM scores WHERE user_id = ? AND time >= ?", [$_POST["id"], $removeAfter]);
+			$GLOBALS["db"]->execute("DELETE FROM scores WHERE user_id = ? AND time >= ?", [$_POST["id"], $removeAfter]);
 
 			rapLog(sprintf("has rolled back %s %s's account", $rollbackString, $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=User account has been rolled back!");
@@ -1198,7 +1198,7 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 
 						// Restore old scores
-						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
+						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.user_id = s2.user_id SET completed = 3", [$beatmapID]);
 						$result = "$beatmapID has been ranked and its scores have been restored. | ";
 						$rap = "ranked";
 					break;
@@ -1207,7 +1207,7 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 5, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 
 						// Restore old scores
-						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
+						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.user_id = s2.user_id SET completed = 3", [$beatmapID]);
 						$result = "$beatmapID has been loved and its scores have been restored. | ";
 						$rap = "loved";
 					break;
@@ -1216,7 +1216,7 @@ class D {
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 
 						// Restore old scores
-						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2", [$beatmapID]);
+						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.user_id = s2.user_id SET completed = 2", [$beatmapID]);
 						$result = "$beatmapID has been ranked and its scores have been mark as old scores. | ";
 						$rap = "unranked";
 					break;
@@ -1336,7 +1336,7 @@ class D {
 			if (!isset($_GET["id"]) || empty($_GET["id"])) {
 				throw new Exception("Invalid user ID");
 			}
-			$GLOBALS["db"]->execute("DELETE FROM hw_user WHERE userid = ?", [$_GET["id"]]);
+			$GLOBALS["db"]->execute("DELETE FROM hw_user WHERE user_id = ?", [$_GET["id"]]);
 			rapLog(sprintf("has cleared %s's HWID matches.", getUserUsername($_GET["id"])));
 			redirect('index.php?p=102&s=HWID matches cleared! Make sure to clear multiaccounts\' HWID too, or the user might get restricted for multiaccounting!');
 		} catch (Exception $e) {
@@ -1439,7 +1439,7 @@ class D {
 				throw new Exception("Missing required parameters");
 			}
 
-			$q = "SELECT * FROM scores_removed WHERE userid = ?";
+			$q = "SELECT * FROM scores_removed WHERE user_id = ?";
 			$qp = [$_POST["userid"]];
 			if ($_POST["gm"] > -1 && $_POST["gm"] <= 3) {
 				$q .= " AND play_mode = ?";
@@ -1463,7 +1463,7 @@ class D {
 				$restore = false;
 				if ($lostScore["completed"] == 3) {
 					// Restore completed 3 scores only if they havent been replaced by better scores
-					$betterScore = $GLOBALS["db"]->fetch("SELECT id FROM scores WHERE userid = ? AND play_mode = ? AND beatmap_md5 = ? AND completed = 3 AND pp > ? LIMIT 1", [
+					$betterScore = $GLOBALS["db"]->fetch("SELECT id FROM scores WHERE user_id = ? AND play_mode = ? AND beatmap_md5 = ? AND completed = 3 AND pp > ? LIMIT 1", [
 						$lostScore["userid"],
 						$lostScore["play_mode"],
 						$lostScore["beatmap_md5"],
@@ -1566,7 +1566,7 @@ class D {
 			nuke("2fa_totp", "userid", $uid);
 			nukeExt(
 				"anticheat_reports",
-				"DELETE FROM anticheat_reports JOIN scores ON anticheat_reports.score_id = scores.id WHERE scores.userid = ?",
+				"DELETE FROM anticheat_reports JOIN scores ON anticheat_reports.score_id = scores.id WHERE scores.user_id = ?",
 				[$uid]
 			);
 			nuke("beatmaps_rating", "user_id", $uid);
