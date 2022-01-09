@@ -2623,7 +2623,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       else
         $bsid = $b ? $b["beatmapset_id"] : 0;
 
-      $beatmaps = $GLOBALS["db"]->fetchAll("SELECT difficulty_name, beatmap_id, ranked, difficulty_std, difficulty_taiko, difficulty_ctb, difficulty_mania FROM beatmaps WHERE beatmapset_id = ? LIMIT 15", [$bsid]);
+      $beatmaps = $GLOBALS["db"]->fetchAll("SELECT difficulty_name, beatmap_id, ranked, mode FROM beatmaps WHERE beatmapset_id = ? LIMIT 15", [$bsid]);
       $diffs = "";
       $allUnranked = true;
       $forceParam = "1";
@@ -2634,17 +2634,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content=\"$name\" data-trigger='hover'>";
         $diffs .= "<i class='fa fa-$icon'></i>";
         $diffs .= "</a>";
-        if ($beatmap["difficulty_std"] > 0 && !in_array("std", $modes)) {
-          $modes[] = "std";
-        } else if ($beatmap["difficulty_std"] == 0) {
-          if ($beatmap["difficulty_taiko"] > 0 && !in_array("taiko", $modes)) {
-            $modes[] = "taiko";
-          } else if ($beatmap["difficulty_ctb"] > 0 && !in_array("ctb", $modes)) {
-            $modes[] = "ctb";
-          } else if ($beatmap["difficulty_mania"] > 0 && !in_array("mania", $modes)) {
-            $modes[] = "mania";
-          }
-        }
+        $beatmapMode = array('std', 'taiko', 'ctb', 'mania')[$beatmap['mode']]
+        if(!in_array($beatmapMode, $modes))
+          $modes[] = $beatmapMode;
 
         if ($beatmap["ranked"] >= 2) {
           $allUnranked = false;
