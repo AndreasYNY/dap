@@ -2634,7 +2634,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content=\"$name\" data-trigger='hover'>";
         $diffs .= "<i class='fa fa-$icon'></i>";
         $diffs .= "</a>";
-        $modes[] = array('std', 'taiko', 'ctb', 'mania')[$beatmap['mode']];
+        $beatmapMode = array('std', 'taiko', 'ctb', 'mania')[$beatmap['mode']];
+        if(!in_array($beatmapMode, $modes))
+          $modes[] = $beatmapMode;
 
         if ($beatmap["ranked"] >= 2) {
           $allUnranked = false;
