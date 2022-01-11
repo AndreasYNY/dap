@@ -62,7 +62,7 @@ class Login {
 			// Old frontend shall be seen by no human on earth. Except for
 			// staff members. Those aren't human.
 			if (!hasPrivilege(Privileges::AdminAccessRAP, $us["id"])) {
-				redirect("https://datenshi.xyz/login");
+				redirect("https://osu.datenshi.pw/login");
 			}
 
 			// Get username with right case

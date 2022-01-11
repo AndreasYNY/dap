@@ -167,7 +167,6 @@ class D {
 			// Edit privileges if we can
 			if (hasPrivilege(Privileges::AdminManagePrivileges) && ($_POST["id"] != $_SESSION["userid"])) {
 				$GLOBALS['db']->execute('UPDATE users SET privileges = ? WHERE id = ? LIMIT 1', [$_POST['priv'], $_POST['id']]);
-				updateBanBancho($_POST["id"]);
 			}
 			// Save new userpage
 			$GLOBALS['db']->execute('UPDATE user_config SET userpage_content = ? WHERE id = ? LIMIT 1', [$_POST['up'], $_POST['id']]);
