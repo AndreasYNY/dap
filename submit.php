@@ -164,7 +164,7 @@ try {
 		break;
 		case 'updateUserPrivilege':
 			sessionCheckAdmin(Privileges::AdminManagePrivileges);
-			D::saveUserPriveleges();
+			D::saveUserPrivileges();
 		break;
 		case 'clearHWID':	// TODO
 			sessionCheckAdmin(Privileges::AdminBanUsers);
