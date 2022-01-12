@@ -115,25 +115,14 @@ if (isset($_GET['p'])) {
     <link href="./css/style-desktop.css" rel="stylesheet">
 
     <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=xQQWRwyGed">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png?v=xQQWRwyGed" sizes="32x32">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png?v=xQQWRwyGed" sizes="16x16">
-    <link rel="manifest" href="/manifest.json?v=xQQWRwyGed">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg?v=xQQWRwyGed" color="#5bbad5">
-    <link rel="shortcut icon" href="/favicon.ico?v=xQQWRwyGed">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/osu-datenshi/hanamaru/master/assets/img/icons/apple-icon-180x180.png?v=xQQWRwyGed">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/osu-datenshi/hanamaru/master/assets/img/icons/favicon-32x32.png?v=xQQWRwyGed" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/osu-datenshi/hanamaru/master/assets/img/icons/favicon-16x16.png?v=xQQWRwyGed" sizes="16x16">
+    <link rel="shortcut icon" href="https://raw.githubusercontent.com/osu-datenshi/hanamaru/master/assets/img/icons/favicon.ico?v=xQQWRwyGed">
     <meta name="theme-color" content="#ffffff">
 
     <meta name=viewport content="width=device-width, initial-scale=1">
 	<script src='https://www.google.com/recaptcha/api.js'></script>
-	<?php 
-		if ($isBday && $p == 1) {
-			echo '
-				<script src="palloncini/palloncini.js"></script>
-				<script type="text/javascript">
-					particlesJS.load("palloncini", "palloncini/palloncini.conf");
-				</script>';
-	   	}
-   	?>
 </head>
 
 <body>
@@ -166,7 +155,6 @@ if ($p < 100) {
                 </div>
             </div>
         </div>';
-       if ($isBday && $p == 1) echo '<div id="palloncini"></div>';
 } else {
 	// Admin cp page, print admin cp layout
 	if ($model === 'old') {
