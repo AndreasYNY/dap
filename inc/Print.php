@@ -2970,7 +2970,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       </tr>';
       echo '<tr>
       <td>Username</td>
-      <td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
+      <td><p class="text-center"><input type="text" name="u" class="form-control" value="'.$username.'" readonly></td>
       </tr>';
       echo '<tr>
       <td>Current Privileges</td>
