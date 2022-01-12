@@ -467,47 +467,51 @@ function printPage($p) {
 			case 141:
 				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 				P::BATViewAutorank();
-				break;
+			break;
 
-      // ch. listing/leaderboard config/ch. config
+      		// ch. listing/leaderboard config/ch. config
 			case 142:
 				sessionCheckAdmin();
 				P::BATViewChallenges();
-				break;
+			break;
 
 			case 143:
 				sessionCheckAdmin(Privileges::AdminManageSettings);
 				P::AdminBeatmapLeaderboardEdit();
-				break;
+			break;
 
 			case 144:
-        // who can manage check DAP can VIEW
-        // who can manage server can EDIT
-        // who can't pull who tao can't TOUCH
+        	// who can manage check DAP can VIEW
+        	// who can manage server can EDIT
+			// who can't pull who tao can't TOUCH
 				sessionCheckAdmin();
 				P::BATEditChallenge();
-				break;
+			break;
       
-      case 145:
-        sessionCheckAdmin();
-        P::BATBeatmapLeaderboardView();
-        break;
+      		case 145:
+        		sessionCheckAdmin();
+        		P::BATBeatmapLeaderboardView();
+        	break;
 
-      case 146:
-        sessionCheckAdmin(Privileges::AdminSupportWhitelist);
-        P::AdminEditPPWhitelist();
-        break;
+      		case 146:
+        		sessionCheckAdmin(Privileges::AdminSupportWhitelist);
+        		P::AdminEditPPWhitelist();
+        	break;
 
-      case 147:
-        sessionCheckAdmin(Privileges::AdminManageBetaKeys);
-        P::AdminRegisterUser();
-        break;
+      		case 147:
+        		sessionCheckAdmin(Privileges::AdminManageBetaKeys);
+        		P::AdminRegisterUser();
+        	break;
 
-	  case 148:
-		sessionCheckAdmin(Privileges::AdminSupportWhitelist);
-		P::AdminPageInputWhitelist();
-		break;
+	  		case 148:
+				sessionCheckAdmin(Privileges::AdminSupportWhitelist);
+				P::AdminPageInputWhitelist();
+			break;
 
+			case 149:
+				sessionCheckAdmin(Privileges::AdminManagePrivileges);
+				P::ManageUserPrivilegesPage();
+			break;
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');

@@ -54,7 +54,7 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::SaveEditUser();
 		break;
-    case 'saveEditUserWhitelist':
+    	case 'saveEditUserWhitelist':
 			sessionCheckAdmin(Privileges::AdminManageUsers | Privileges::AdminSupportWhitelist);
 			D::SaveEditUserWhitelist();
 		break;
@@ -194,10 +194,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageServers);
 			D::DeleteUser();
 		break;
-    case 'challengeEdit':
-      sessionCheckAdmin(Privileges::AdminManageSettings);
-      D::AdminChallengeEdit();
-    break;
+    	case 'challengeEdit':
+      		sessionCheckAdmin(Privileges::AdminManageSettings);
+      		D::AdminChallengeEdit();
+    	break;
 		case 'adminRegisterUser':
 			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
 			D::AdminRegisterUser();

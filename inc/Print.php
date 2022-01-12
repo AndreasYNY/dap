@@ -672,38 +672,7 @@ class P {
         </tr>';
       }
       if (hasPrivilege(Privileges::AdminManagePrivileges)) {
-        $gd = $userData["id"] == $_SESSION["userid"] ? "disabled" : "";
-        echo '<tr>
-        <td>Privileges<br><i class="no-mobile">(Don\'t touch UserPublic or UserNormal. Use ban/restricted buttons instead to avoid messing up)</i></td>
-        <td>';
-        $refl = new ReflectionClass("Privileges");
-        $privilegesList = $refl->getConstants();
-        foreach ($privilegesList as $i => $v) {
-          if ($v <= 0)
-            continue;
-          $c = (($userData["privileges"] & $v) > 0) ? "checked" : "";
-          $d = ($v <= 2 && $gd != "disabled") ? "disabled" : "";
-          echo '<label><input name="privilege" value="'.$v.'" type="checkbox" onclick="updatePrivileges();" '.$c.' '.$gd.' '.$d.'>	'.$i.' ('.$v.')</label><br>';
-        }
-        echo '</tr>';
-        $ro = $userData["id"] == $_SESSION["userid"] ? "readonly" : "";
-        echo '<tr>
-        <td>Privilege number</td>
-        <td><input class="form-control" id="privileges-value" name="priv" value="'.$userData["privileges"].'" '.$ro.'></td>
-        </tr>';
-        echo '<tr>
-        <td>Privilege group<i class="no-mobile">(This is basically a preset and will replace every existing privilege)</i></td>
-        <td>
-          <select id="privileges-group" name="privgroup" class="selectpicker" data-width="100%" onchange="groupUpdated();" '.$gd.'>';
-          $groups = $GLOBALS["db"]->fetchAll("SELECT * FROM privileges_groups");
-          echo "<option value='-1'>None</option>";
-          foreach ($groups as $group) {
-            $s = (($userData["privileges"] == $group["privileges"]) || ($userData["privileges"] == ($group["privileges"] | Privileges::UserDonor)))? "selected": "";
-            echo "<option value='$group[privileges]' $s>$group[name]</option>";
-          }
-          echo '</select>
-        </td>
-        </tr>';
+        //TROKE NANTI PASANG
       }
       echo '<tr>
       <td>Avatar<br><a onclick="sure(\'submit.php?action=resetAvatar&id='.$_GET['id'].'&csrf='.csrfToken().'\')">(reset avatar)</a></td>
@@ -1697,51 +1666,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       $modesText[$m] = '<b>'.$modesText[$m].'</b>';
       // Get userpage
       $userpageContent = $userData['userpage_content'];
-
-      // seriosuly fuck this shit who the fuck thought it was sane to write this fucking piece
-      // of fucking shit like holy titties fuck tits cock the whole code of oldfrontend is absolutely
-      // fucked but i still can't believe how FUCKED the code of the user profiles are why are they
-      // even called userpages in this fucking code they're supposed to be profiles not pages
-      // userpages are the ones with custom data written in bbcode
-      // why are userpages in bbcode
-      // like
-      // markdown is much superior
-      // anyway
-      // you might wonder why the fuck i am doing the next thing
-      // and that is $u used to always be an userid
-      // and then changes happened and the validation to check $_GET["u"] was an username or
-      // an userid was moved into the userpage() function
-      // problem is though
-      // i forgot there was another check of more or less the same thing in functions.php
-      // (fuck functions.php by the way)
-      // and so yeah
-      // $u then became either an username or an userid
-      // except I didn't know it was used in other places apart from the initial lookup of the user.
-      // fuck
-      // this
-      // gay
-      // earth
-      // https://www.youtube.com/watch?v=HnrjygAG18o
-      // TOOONIGHT IM GONNA HAVE MYSELF A REAL GOOD TIME
-      // I FEEL ALIIIVE AH AH AAAH
-      // AND THE WORLD
-      // IS TURNING INSIDE OUT YEAH
-      // I'M FLOATING AROUND IN ECSTASY
-      // SO DON'T STOP ME NOW
-      // SO DON'T STOP ME NOW
-      // CAUSE IM HAVING A GOOD TIME
-      // HAVING A GOOD TIME
-      // I'M A SUPERSTARE LEAKING THROUGH THE SKYES LIKE A TIGER
-      // DEFYING THE LAWS OF GRAVITY'
-      // I'M A RACING CAR PASSING BY LIKE LADY GODDIVA
-      // I GOTTA GO
-      // GO
-      // GO
-      // THERE'S NO STOPPING ME
-      // Now that I filled my whole screen with this comment I can finally procede writing
-      // some more shitty code
-      // I hope my nonsense has made your day
-      // And don't you dare post this on reddit.
       $u = $userData["id"];
 
       // Friend button
@@ -3005,7 +2929,49 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
     }
   }
 
-
+  public static function ManageUserPrivilegesPage()
+    try {
+      if (!isset($_GET['id'])) {
+        throw new Exception('Invalid user id');
+      }
+      echo '<div id="wrapper">';
+      printAdminSidebar();
+      echo '<div id="page-content-wrapper">';
+      // Maintenance check
+      self::MaintenanceStuff();
+      echo '<p align="center"><font size=5><i class="fa fa-user"></i>	Manage Privilege User</font></p>';
+      $username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
+      if (!$username) {
+        throw new Exception("Invalid user");
+      }
+      $username = current($username);
+      $checkPrivilege = $GLOBALS["db"]->fetch("SELECT users.`privileges`, privileges_groups.`privileges`, users.username, users.id, privileges_groups.name")
+      echo '<table class="table table-striped table-hover table-50-center"><tbody>';
+      echo '<form id="user-edit-privileges" action="submit.php" method="POST">
+      <input name="csrf" type="hidden" value="'.csrfToken().'">
+      <input name="action" value="updateUserPrivilege" hidden>';
+      echo '<tr>
+      <td>User ID</td>
+      <td><p class="text-center"><input type="text" name="id" class="form-control" value="'.$_GET["id"].'" readonly></td>
+      </tr>';
+      echo '<tr>
+      <td>Username</td>
+      <td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
+      </tr>';
+      echo '<tr>
+      <td>Current Privileges</td>
+      <td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
+      </tr>';
+      echo '<tr>
+      <td>Update Privileges</td>
+      <td><p class="text-center"><input type="text" name="id" class="form-control"></td>
+      </tr>';
+    }
+    catch(Exception $e) {
+      // Redirect to exception page
+      redirect('index.php?p=148&e='.$e->getMessage());
+    }
+  }    
 
   /*
    * AdminWipe
