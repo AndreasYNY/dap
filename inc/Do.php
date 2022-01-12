@@ -208,12 +208,31 @@ class D {
 			redirect('index.php?p=103&id='.$_POST["id"].'&e='.$e->getMessage());
 		}
 	}
-  
+
+	
+  public static function saveUserPrivileges() {
+    try {
+        if (!isset($_POST['id']) || empty($_POST['id']) || isset($_POST['privup']) || empty($_POST['privup'])) {
+            throw new Exception("User not found");
+        }
+		//UPDATE PRIVILEGES
+		$GLOBALS['db']->execute('UPDATE users SET privileges = ? WHERE id = ? LIMIT 1', [$_POST['privup'], $_POST['id']]);
+		// RAP log
+		rapLog(sprintf("has updated privileges for user %s", $_POST["u"]));
+		// Done, redirect to success page
+		redirect('index.php?p=148&id='.$_POST["id"].'&s=User edited!');
+	}
+	catch(Exception $e) {
+		// Redirect to Exception page
+		redirect('index.php?p=148&id='.$_POST["id"].'&e='.$e->getMessage());
+	}
+  }
   public static function saveEditUserWhitelist() {
     try {
       // Check if everything is set (username color, username style, rank, allowed and notes can be empty)
-      if (!isset($_POST['id']) || empty($_POST['id']))
-        throw new Exception("eh");
+      if (!isset($_POST['id']) || empty($_POST['id'])) {
+		 throw new Exception("eh");
+	  }
 	  // Get user's username
 	  $userData = $GLOBALS['db']->fetch('SELECT username FROM users WHERE id = ? LIMIT 1', $_POST['id']);
 	  if (!$userData) {

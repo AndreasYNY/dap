@@ -672,7 +672,15 @@ class P {
         </tr>';
       }
       if (hasPrivilege(Privileges::AdminManagePrivileges)) {
-        //TROKE NANTI PASANG
+        htmlTag('tr', function()use(&$userData){
+          htmlTag('td', "Privileges Group");
+          htmlTag('td', function()use(&$userData){
+            htmlTag('a', "Configure Privileges", [
+              'href'=>sprintf('index.php?p=148&id=%d',$_GET['id']),
+              'class'=>'btn btn-primary'
+            ]);
+          });
+        });
       }
       echo '<tr>
       <td>Avatar<br><a onclick="sure(\'submit.php?action=resetAvatar&id='.$_GET['id'].'&csrf='.csrfToken().'\')">(reset avatar)</a></td>
@@ -2929,7 +2937,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
     }
   }
 
-  public static function ManageUserPrivilegesPage()
+  public static function ManageUserPrivilegesPage() {
     try {
       if (!isset($_GET['id'])) {
         throw new Exception('Invalid user id');
@@ -2939,13 +2947,19 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       echo '<div id="page-content-wrapper">';
       // Maintenance check
       self::MaintenanceStuff();
+      if (isset($_GET['e']) && !empty($_GET['e'])) {
+        self::ExceptionMessageStaccah($_GET['e']);
+      }
       echo '<p align="center"><font size=5><i class="fa fa-user"></i>	Manage Privilege User</font></p>';
       $username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
       if (!$username) {
         throw new Exception("Invalid user");
       }
       $username = current($username);
-      $checkPrivilege = $GLOBALS["db"]->fetch("SELECT users.`privileges`, privileges_groups.`privileges`, users.username, users.id, privileges_groups.name")
+      $checkPrivilege = $GLOBALS["db"]->fetch("SELECT users.privileges, users.id, privileges_groups.privileges, privileges_groups.name FROM users INNER JOIN privileges_groups ON users.privileges = privileges_groups.privileges WHERE users.id = ?", [$_GET["id"]]);
+      if (!$checkPrivilege) {
+        throw new Exception("Invalid user");
+      }
       echo '<table class="table table-striped table-hover table-50-center"><tbody>';
       echo '<form id="user-edit-privileges" action="submit.php" method="POST">
       <input name="csrf" type="hidden" value="'.csrfToken().'">
@@ -2960,18 +2974,18 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       </tr>';
       echo '<tr>
       <td>Current Privileges</td>
-      <td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
+      <td><p class="text-center"><input type="text" class="form-control" value="'.$checkPrivilege["name"].' ('.$checkPrivilege["privileges"].')" readonly></td>
       </tr>';
       echo '<tr>
       <td>Update Privileges</td>
-      <td><p class="text-center"><input type="text" name="id" class="form-control"></td>
+      <td><p class="text-center"><input type="text" name="privup" class="form-control"></td>
       </tr>';
     }
     catch(Exception $e) {
       // Redirect to exception page
       redirect('index.php?p=148&e='.$e->getMessage());
     }
-  }    
+  }
 
   /*
    * AdminWipe

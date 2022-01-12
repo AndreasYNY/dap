@@ -162,6 +162,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::RedirectRankBeatmap();
 		break;
+		case 'updateUserPrivilege':
+			sessionCheckAdmin(Privileges::AdminManagePrivileges);
+			D::saveUserPriveleges();
+		break;
 		case 'clearHWID':	// TODO
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::ClearHWIDMatches();
