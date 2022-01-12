@@ -212,7 +212,7 @@ class D {
 	
   public static function saveUserPrivileges() {
     try {
-        if (!isset($_POST['id']) || empty($_POST['id']) || isset($_POST['privup']) || empty($_POST['privup'])) {
+        if (!isset($_POST['id']) || !isset($_POST['privup']) || empty($_POST['id']) || empty($_POST['privup'])) {
             throw new Exception("User not found");
         }
 		//UPDATE PRIVILEGES
