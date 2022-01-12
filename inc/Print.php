@@ -676,7 +676,7 @@ class P {
           htmlTag('td', "Privileges Group");
           htmlTag('td', function()use(&$userData){
             htmlTag('a', "Configure Privileges", [
-              'href'=>sprintf('index.php?p=148&id=%d',$_GET['id']),
+              'href'=>sprintf('index.php?p=149&id=%d',$_GET['id']),
               'class'=>'btn btn-primary'
             ]);
           });
@@ -2983,7 +2983,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
     }
     catch(Exception $e) {
       // Redirect to exception page
-      redirect('index.php?p=148&e='.$e->getMessage());
+      redirect('index.php?p=149&e='.$e->getMessage());
     }
   }
 

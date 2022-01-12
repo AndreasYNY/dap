@@ -220,11 +220,11 @@ class D {
 		// RAP log
 		rapLog(sprintf("has updated privileges for user %s", $_POST["u"]));
 		// Done, redirect to success page
-		redirect('index.php?p=148&id='.$_POST["id"].'&s=User edited!');
+		redirect('index.php?p=149&id='.$_POST["id"].'&s=User edited!');
 	}
 	catch(Exception $e) {
 		// Redirect to Exception page
-		redirect('index.php?p=148&id='.$_POST["id"].'&e='.$e->getMessage());
+		redirect('index.php?p=149&id='.$_POST["id"].'&e='.$e->getMessage());
 	}
   }
   public static function saveEditUserWhitelist() {
