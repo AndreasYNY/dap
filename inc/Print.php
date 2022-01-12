@@ -2980,6 +2980,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       <td>Update Privileges</td>
       <td><p class="text-center"><input type="text" name="privup" class="form-control"></td>
       </tr>';
+      echo '</tbody></form>';
+      echo '</table>';
+      echo '<div class="text-center"><button type="submit" form="user-edit-privileges" class="btn btn-primary">Update</button></div>';
+      echo '</div>';
     }
     catch(Exception $e) {
       // Redirect to exception page
