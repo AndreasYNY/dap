@@ -212,13 +212,13 @@ class D {
 	
   public static function saveUserPrivileges() {
     try {
-        if (!isset($_POST['id']) || !isset($_POST['privup']) || empty($_POST['id']) || empty($_POST['privup'])) {
+        if (!isset($_POST['id']) || !isset($_POST['privup']) || !isset($_POST['uname']) || empty($_POST['uname']) || empty($_POST['id']) || empty($_POST['privup'])) {
             throw new Exception("User not found");
         }
 		//UPDATE PRIVILEGES
 		$GLOBALS['db']->execute('UPDATE users SET privileges = ? WHERE id = ? LIMIT 1', [$_POST['privup'], $_POST['id']]);
 		// RAP log
-		rapLog(sprintf("has updated privileges for user %s", $_POST["u"]));
+		rapLog(sprintf("has updated privileges for user %s", $_POST["uname"]));
 		// Done, redirect to success page
 		redirect('index.php?p=149&id='.$_POST["id"].'&s=User edited!');
 	}

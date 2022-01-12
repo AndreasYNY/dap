@@ -2950,6 +2950,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       if (isset($_GET['e']) && !empty($_GET['e'])) {
         self::ExceptionMessageStaccah($_GET['e']);
       }
+      if (isset($_GET['s']) && !empty($_GET['s'])) {
+        self::SuccessMessageStaccah($_GET['s']);
+      }
       echo '<p align="center"><font size=5><i class="fa fa-user"></i>	Manage Privilege User</font></p>';
       $username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
       if (!$username) {
@@ -2970,7 +2973,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       </tr>';
       echo '<tr>
       <td>Username</td>
-      <td><p class="text-center"><input type="text" name="u" class="form-control" value="'.$username.'" readonly></td>
+      <td><p class="text-center"><input type="text" name="uname" class="form-control" value="'.$username.'" readonly></td>
       </tr>';
       echo '<tr>
       <td>Current Privileges</td>
