@@ -1507,7 +1507,7 @@ function addSuccess($s) {
 // logIP adds the user to ip_user if they're not in it, and increases occurencies if they are
 function logIP($uid) {
 	// botnet-track IP
-	$GLOBALS['db']->execute("INSERT INTO ip_user (userid, ip, occurencies) VALUES (?, ?, '1')
+	$GLOBALS['db']->execute("INSERT INTO ip_user (user_id, ip, occurencies) VALUES (?, ?, '1')
 							ON DUPLICATE KEY UPDATE occurencies = occurencies + 1",
 							[$uid, getIP()]);
 }
@@ -1595,7 +1595,7 @@ function rapLog($message, $userID = -1, $through = "Datenshi Admin Panel") {
 	global $DiscordHook;
 	if ($userID == -1)
 		$userID = $_SESSION["userid"];
-	$GLOBALS["db"]->execute("INSERT INTO rap_logs (id, userid, text, datetime, through) VALUES (NULL, ?, ?, ?, ?);", [$userID, $message, time(), $through]);
+	$GLOBALS["db"]->execute("INSERT INTO rap_logs (id, user_id, text, datetime, through) VALUES (NULL, ?, ?, ?, ?);", [$userID, $message, time(), $through]);
 	$webhookurl = $DiscordHook["admin-log"];
 
 			$json_data = json_encode(
@@ -1692,7 +1692,7 @@ function isBanned($userID = -1) {
 }
 
 function multiaccCheckIP($ip) {
-	$multiUserID = $GLOBALS['db']->fetch("SELECT userid, users.username FROM ip_user LEFT JOIN users ON users.id = ip_user.user_id WHERE ip = ?", [$ip]);
+	$multiUserID = $GLOBALS['db']->fetch("SELECT user_id, users.username FROM ip_user LEFT JOIN users ON users.id = ip_user.user_id WHERE ip = ?", [$ip]);
 	if (!$multiUserID)
 		return false;
 	return $multiUserID;
@@ -1732,7 +1732,7 @@ function getIdentityToken($userID, $generate = True) {
 		} while ($collision);
 
 		// And save it in db
-		$GLOBALS["db"]->execute("INSERT INTO identity_tokens (id, userid, token) VALUES (NULL, ?, ?)", [$userID, $identityToken]);
+		$GLOBALS["db"]->execute("INSERT INTO identity_tokens (id, user_id, token) VALUES (NULL, ?, ?)", [$userID, $identityToken]);
 	} else if ($identityToken) {
 		$identityToken = current($identityToken);
 	} else {
@@ -2050,8 +2050,8 @@ function loadLimitedLeaderboard($key, $id) {
   $scores = array_values(array_filter($scores, filterScores($conds)));
   $scoreMap = reAssoc($scores,function($e){return $e['id'];});
   $scoreBO  = [];
-  foreach(array_map(function($s){return (int)$s['userid'];},$scores) as $userID){
-    foreach(array_filter($scores,function($s)use($userID){return (int)$s['userid'] == $userID;}) as $s){
+  foreach(array_map(function($s){return (int)$s['user_id'];},$scores) as $userID){
+    foreach(array_filter($scores,function($s)use($userID){return (int)$s['user_id'] == $userID;}) as $s){
       $scoreBest = false;
       if(array_key_exists($userID,$scoreBO)){
         $s2 = $scoreMap[$scoreBO[$userID]];

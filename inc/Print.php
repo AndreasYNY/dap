@@ -1485,7 +1485,7 @@ class P {
         $currentDay = date("z", $entry["datetime"]);
         if ($lastDay != $currentDay)
           echo'<div class="line"><div class="line-text"><span class="label label-primary">' . date("d/m/Y", $entry["datetime"]) . '</span></div></div>';
-        printBubble($entry["userid"], $entry["username"], $entry["text"], $entry["datetime"], $entry["through"]);
+        printBubble($entry["user_id"], $entry["username"], $entry["text"], $entry["datetime"], $entry["through"]);
         $lastDay = $currentDay;
       }
     }
