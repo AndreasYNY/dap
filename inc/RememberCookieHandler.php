@@ -41,7 +41,7 @@ class RememberCookieHandler {
 		if ($r["token_sha"] == hash("sha256", $parts[1])) {
 			// all checks successful, login
 			// login will return either NowLoggedIn or UserBanned
-			return $this->Login($r["userid"]);
+			return $this->Login($r["user_id"]);
 		}
 		// was not equal
 		// this means that someone's trying to access this user's account
