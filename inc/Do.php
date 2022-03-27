@@ -897,6 +897,8 @@ class D {
                         }
 			$infoBM = $GLOBALS["db"]->fetch("SELECT beatmapset_id, artist, title, difficulty_name FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$_POST["bmid"]]);
 			$Alasan = $_POST["bmreason"];
+			if (!bool($Alasan))
+				throw new Exception("Empty reason");
 			//KIRIM KE DISCORD
             $NotesWebhook = $DiscordHook["map-log"];
             $datamap_json = json_encode(
@@ -930,7 +932,7 @@ class D {
             curl_close( $cr );
             // END
 			rapLog("telah memberikan alasan pada sebuah beatmap");
-            redirect("index.php?p=117&s=Success Memberikan Alasan!");
+      redirect("index.php?p=117&s=Success Memberikan Alasan!");
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=117&e='.$e->getMessage());
