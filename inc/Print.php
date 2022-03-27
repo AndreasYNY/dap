@@ -1023,7 +1023,8 @@ class P {
       echo '<table class="table table-striped table-hover table-100-center">';
       echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="csrf" type="hidden" value="'.csrfToken().'"><input name="action" value="processBMnotes" hidden>';
       echo '<tr><td>Beatmap ID</td><td><p class="text-center"><input type="number" name="bmid" class="form-control" value="'.$_GET['id'].'" readonly></td></tr>';
-      echo '<tr><td>Beatmap Name + Difficulty</td><td><p class="text-center"><input type="text" name="bmname" class="form-control" value="'.$getBM['artist'].' - '.$getBM['title'].' ['.$getBM['difficulty_name'].']" readonly></td></tr>';
+      $mapTitle = cleanupBeatmapName($getBM['artist'].' - '.$getBM['title'].' ['.$getBM['difficulty_name'].']');
+      echo '<tr><td>Beatmap Name + Difficulty</td><td><p class="text-center"><input type="text" name="bmname" class="form-control" value="'.$mapTitle.'" readonly></td></tr>';
       echo '<tr><td>Reason</td><td><p class="text-center"><input type="text" name="bmreason" class="form-control"></td></tr>';
       echo '</tbody></form>';
       echo '</table>';

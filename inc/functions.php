@@ -2116,3 +2116,50 @@ function checkUsernameBlacklist($s) {
 	}
 	return $bad;
 }
+
+// derived from common/datenshi/reigexp.py
+class ReiGexp {
+	const FLAGS = 'im';
+	
+	public static function match($t, $q, $s, $f=ReiGexp::FLAGS) {
+		if (!is_string($f)) $f = FLAGS;
+		
+		switch($t) {
+		case 'split':
+			return preg_match("/\\b$q\\b/$f", $s) === 1;
+		case 'advanced':
+		case 'regexp':
+			return preg_match("/$q/$f", $s) === 1;
+		case 'partial':
+			return str_contains($s, $q);
+		default:
+			return $s == $q;
+		}
+	}
+	
+	public static function replace($mt, $q, $s, $rt, $r, $f=ReiGexp::FLAGS) {
+		if (!is_string($f)) $f = ReiGexp::FLAGS;
+		if (!self::match($mt, $q, $s, $f)) return $s;
+		if ($rt == 'total') return $r;
+		
+		switch($mt) {
+		case 'split':
+			return preg_replace("/\\b$q\\b/$f", $r, $s);
+		case 'advanced':
+		case 'regexp':
+			return preg_replace("/$q/$f", $r, $s);
+		case 'partial':
+			return str_replace($q, $r, $s);
+		default:
+			return $r;
+		}
+	}
+}
+
+function cleanupBeatmapName($name) {
+	$filters = $GLOBALS['db']->fetchAll('select * from bancho_filter_system where active and find_in_set("announce", `type`)');
+	foreach ($filters as $f) {
+		$name = ReiGexp::replace($f['match_type'], $f['from_text'], $name, $f['replace_type'], $f['to_text']);
+	}
+	return $name;
+}
