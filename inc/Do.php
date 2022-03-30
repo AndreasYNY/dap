@@ -1298,7 +1298,7 @@ class D {
 					[
 						"title" => cleanupBeatmapName(sprintf("%s - %s [%s]", $bm['artist'], $bm['title'], $bm['difficulty_name'])),
 						"url" => "https://osu.ppy.sh/s/$bmSETid",
-						"description" => "Status : $postStatus\nWaktu : $waktuMap\nBPM : $beatPM\n[Download](https://osu.datenshi.pw/d/$bmSETid)",
+						"description" => "Status : $postStatus\nTime : $waktuMap\nBPM : $beatPM\n[Download](https://osu.datenshi.pw/d/$bmSETid)",
 						"color" => hexdec( "3366ff" ),
 						"footer" => [
 							"text" => "This map was $postStatus by " . $_SESSION["username"] . "",

@@ -479,7 +479,7 @@ class P {
       curl_close($DisCURL);
       $DiscordResults = json_decode($DiscordData, true);
       if(empty($DiscordResults['username'])) {
-        $DiscordResults['username'] = "User tidak dapat ditemukan, kemungkinan ngewe";
+        $DiscordResults['username'] = "Not found, the user are not linked their account!";
       }
       if(empty($DiscordResults['id'])) {
         $DiscordResults['id'] = 0;
