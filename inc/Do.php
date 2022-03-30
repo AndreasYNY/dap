@@ -164,10 +164,6 @@ class D {
 			if (hasPrivilege(Privileges::AdminSilenceUsers)) {
 				$GLOBALS['db']->execute('UPDATE users SET silence_end = ?, silence_reason = ? WHERE id = ? LIMIT 1', [$_POST['se'], $_POST['sr'], $_POST['id'] ]);
 			}
-			// Edit privileges if we can
-			if (hasPrivilege(Privileges::AdminManagePrivileges)) {
-				$GLOBALS['db']->execute('UPDATE users SET privileges = ? WHERE id = ? LIMIT 1', [$_POST['priv'], $_POST['id']]);
-			}
 			// Save new userpage
 			$GLOBALS['db']->execute('UPDATE user_config SET userpage_content = ? WHERE id = ? LIMIT 1', [$_POST['up'], $_POST['id']]);
 			/* Save new data if set (rank, allowed, UP and silence)
