@@ -238,7 +238,7 @@ class D {
         foreach([0,1,2] as $sm) {
           if ($sm == 2) continue;
           $flag = sprintf("flag%02d%02d", $sm, $gm);
-          if(isset($_POST[$flag]) && !empty($_POST[$flag])) {
+          if(isset($_POST[$flag]) && strlen($_POST[$flag])>0) {
             $GLOBALS['db']->execute('update master_stats set unrestricted_play = ? where user_id = ? and special_mode = ? and game_mode = ? and unrestricted_play <> ?',[
               $_POST[$flag], $_POST['id'], $sm, $gm, $_POST[$flag]
             ]);
