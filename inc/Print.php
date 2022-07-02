@@ -766,7 +766,7 @@ class P {
               echo '	<a onclick="sure(\'submit.php?action=clearHWID&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">Clear HWID matches</a>';
             }
             echo ' <a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">'.(($userConfigData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
-            if (hasPrivilege(Privileges::AdminManageServers)) {
+            if (hasPrivilege(Privileges::AdminManageUsers)) {
               echo '<form action="submit.php" method="POST" style="display: inline-block;">
               <input name="csrf" type="hidden" value="'.csrfToken().'">
               <input name="action" value="deleteUser" hidden>
