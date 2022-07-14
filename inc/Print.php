@@ -2960,7 +2960,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         throw new Exception("Invalid user");
       }
       $username = current($username);
-      $checkPrivilege = $GLOBALS["db"]->fetch("SELECT users.privileges, users.id, privileges_groups.privileges, privileges_groups.name FROM users INNER JOIN privileges_groups ON users.privileges = privileges_groups.privileges WHERE users.id = ?", [$_GET["id"]]);
+      $checkPrivilege = $GLOBALS["db"]->fetch("SELECT users.privileges, users.id, privileges_groups.privileges FROM users INNER JOIN privileges_groups ON users.privileges = privileges_groups.privileges WHERE users.id = ?", [$_GET["id"]]);
       if (!$checkPrivilege) {
         throw new Exception("Invalid user");
       }
@@ -2978,7 +2978,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
       </tr>';
       echo '<tr>
       <td>Current Privileges</td>
-      <td><p class="text-center"><input type="text" class="form-control" value="'.$checkPrivilege["name"].' ('.$checkPrivilege["privileges"].')" readonly></td>
+      <td><p class="text-center"><input type="text" class="form-control" value="'.$checkPrivilege["privileges"].'" readonly></td>
       </tr>';
       echo '<tr>
       <td>Update Privileges</td>
