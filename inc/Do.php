@@ -1574,12 +1574,12 @@ class D {
 			}
 			echo "\n";
 
-			nuke("2fa", "userid", $uid);
-			nuke("2fa_confirmationa", "userid", $uid);
+			nuke("2fa", "user_id", $uid);
+			nuke("2fa_confirmationa", "user_id", $uid);
 			if ($GLOBALS["db"]->fetch("SELECT 1 FROM 2fa_telegram LIMIT 1")) {
-				nuke("2fa_telegram", "userid", $uid);
+				nuke("2fa_telegram", "user_id", $uid);
 			}
-			nuke("2fa_totp", "userid", $uid);
+			nuke("2fa_totp", "user_id", $uid);
 			nukeExt(
 				"anticheat_reports",
 				"DELETE FROM anticheat_reports JOIN scores ON anticheat_reports.score_id = scores.id WHERE scores.user_id = ?",
@@ -1587,8 +1587,7 @@ class D {
 			);
 			nuke("beatmaps_rating", "user_id", $uid);
 			nuke("comments", "user_id", $uid);
-			nuke("discord_roles", "userid", $uid);
-			nuke("ip_user", "userid", $uid);
+			nuke("ip_user", "user_id", $uid);
 			nukeExt(
 				"osin_expires",
 				"DELETE FROM osin_expires WHERE token IN (SELECT access_token FROM osin_access WHERE extra = ?)",
@@ -1602,23 +1601,23 @@ class D {
 			//	[$row["client_id"]]
 			//);
 			
-			nuke("osin_client_user", "user", $uid);
+			//nuke("osin_client_user", "user", $uid);
 
 			// WHAT THE FUCK
-			nuke("password_recovery", "username", $user["username"]);
+			nuke("password_recovery", "u", $user["username"]);
 
 			nuke("user_clans", "user", $uid);
 			nuke("profile_backgrounds", "uid", $uid);
-			nuke("rank_requests", "userid", $uid);
+			nuke("rank_requests", "user_id", $uid);
 			nuke("session_remember", "user_id", $uid);
 			nukeExt(
 				"reports",
 				"DELETE FROM reports WHERE from_uid = ? OR to_uid = ?",
 				[$uid, $uid]
 			);
-			nuke("scores_removed", "userid", $uid);
+			//nuke("scores_removed", "userid", $uid);
 			nuke("tokens", "user", $uid);
-			nuke("identity_tokens", "userid", $uid);
+			nuke("identity_tokens", "user_id", $uid);
 			nuke("users_achievements", "user_id", $uid);
 			nuke("users_beatmap_playcount", "user_id", $uid);
 			nukeExt(
@@ -1627,9 +1626,10 @@ class D {
 				[$uid, $uid]
 			);
 			nuke("user_badges", "user", $uid);
-			nuke("hw_user", "userid", $uid);
-			nuke("scores_master", "userid", $uid);
+			nuke("hw_user", "user_id", $uid);
+			nuke("scores_master", "user_id", $uid);
 			nuke("user_config", "id", $uid);
+			nuke("user_settings", "user_id", $uid);
 			nuke("users_logs", "user", $uid);
 			nuke("users", "id", $uid);
 			// INI APAAN ANJING? ga jelas banget ripple stress
