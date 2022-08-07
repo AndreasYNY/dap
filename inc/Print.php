@@ -4044,7 +4044,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
         $anticheatIcon = $cheated ? '<a href="index.php?p=133&id=' . $score["anticheat_report_id"] . '"><i class="fa fa-exclamation-triangle"></i></a>' : '<i class="fa fa-check-circle"></i>';
         echo "<tr class='$severityColor'>
           <td><p class='text-center'>$score[id]</p></td>
-          <td><p class='text-center'><a href='index.php?u=" . $score["userid"] . "'>$score[username]</a></p></td>
+          <td><p class='text-center'><a href='https://osu.datenshi.pw/u/" . $score["user_id"] . "'>$score[username]</a></p></td>
           <td><p class='text-center'>" . timeDifference(time(), $score["time"]) . "</p></td>
           <td><p class='text-center'><a href='" . URL::Server() . "/web/$replaysurl/$score[id]'>$score[id]	<i class='fa fa-star'></i></a></p></td>
           <td><p class='text-center'>" . getPlaymodeText($score["play_mode"], true) . "</p></td>
